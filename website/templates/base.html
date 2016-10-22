@@ -1,11 +1,16 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
 	<title>{% block title %}{% endblock %}</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'materialize/css/materialize.css' %}">
 </head>
 <body>
 	{% block content %}
+	Base template!
 	{% endblock %}
+	<script type="text/javascript" src="{% static 'jquery.js' %}"></script>
+	<script type="text/javascript" src="{% static 'materialize/js/materialize.js' %}"></script>
 </body>
 </html>
