@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 {% block title %}
-Login / Sign Up 
+Login / Sign Up
 {% endblock %}
 
 {% block content %}
     <!-- This is where the login and signup form will be! -->
     <div class="container">
-    
+
         <div style="text-align: center">
             <h4>Welcome to Feed'er!</h4>
         </div>
-    
+
         <!-- Tab bars -->
         <div class="row">
             <div class="col s12">
@@ -25,21 +25,20 @@ Login / Sign Up
                 <div class="container">
                     <br>
                     <br>
-                    <h5 class="center">Normal login:</h5>
                     <!-- form here -->
                     <form action="">
                         <div class="input-field">
                             <input type="text" id="username" name="username" class="validate">
                             <label for="username">Username:</label>
                         </div>
-    
+
                         <div class="input-field">
                             <input type="password" name="password" id="password" class="validate">
                             <label for="password">Password:</label>
                         </div>
 
                         <div class="input-field center">
-                            <input type="submit" id="loginSubmit" value="Submit!" class="btn waves-light">
+                            <input type="submit" id="loginSubmit" value="Login" class="btn waves-light">
                         </div>
 
                     </form>
@@ -49,32 +48,31 @@ Login / Sign Up
             <!-- signup -->
             <div id="signupContainer" class="col s12">
                 <br><br>
-                <h5 class="center">Normal signup:</h5> 
                 <!-- form is here -->
                 <form action="">
                     <div class="input-field">
                         <input type="text" id="fullname" name="fullname">
                         <label for="fullname">Full name:</label>
                     </div>
-        
+
                     <div class="input-field">
                         <input type="text" name="sUsername" id="sUsername">
                         <label for="sUsername">Choose an username:</label>
                     </div>
-    
+
                     <div class="input-field">
                         <input type="password" name="sPassword" id="sPassword">
-                        <label for="sPassword">Choose a password:</label> 
+                        <label for="sPassword">Choose a password:</label>
                     </div>
 
                     <div class="input-field">
                         <input type="password" name="sPasswordConfirm" id="sPasswordConfirm">
-                        <label for="sPasswordConfirm">Confirm password:</label> 
+                        <label for="sPasswordConfirm">Confirm password:</label>
                     </div>
 
                     <div class="input-field">
                         <input type="checkbox" name="prof" id="prof">
-                        <label for="prof">I'm a professor!</label>                        
+                        <label for="prof">I'm a professor!</label>
                     </div>
 
                     <div class="input-field center">
@@ -83,7 +81,7 @@ Login / Sign Up
 
                 </form>
             </div>
-          
+
           </div>
 
     </div>
