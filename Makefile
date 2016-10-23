@@ -8,11 +8,11 @@ help:
 	@echo "feel free to add new features and update the help section."
 	@echo
 run:
-	@python manage.py runserver
+	@python3 manage.py runserver
 
 mig:
-	@python manage.py migrate
+	@python3 manage.py migrate
 
 mkmg:
-	@python manage.py makemigrations
+	@python3 manage.py makemigrations
 
