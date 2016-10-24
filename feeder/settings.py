@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'website',
-    'rest_framework'
+    'rest_framework',
+    'social.apps.django_app.default'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -72,6 +73,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'feeder.wsgi.application'
 
+SOCIAL_AUTH_FACEBOOK_KEY = '1114137342016241' # Not to be compromised
+SOCIAL_AUTH_FACEBOOK_SECRET = 'ee3af435f1cf54f970e28edda022039d' # Not to be compromised
+
+AUTHENTICATION_BACKENDS = (
+   'social.backends.facebook.FacebookOAuth2',
+   'social.backends.google.GoogleOAuth2',
+   'social.backends.twitter.TwitterOAuth',
+   'django.contrib.auth.backends.ModelBackend',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+   'django.contrib.auth.context_processors.auth',
+   'django.contrib.messages.context_processors.messages',
+   'social.apps.django_app.context_processors.backends',
+   'social.apps.django_app.context_processors.login_redirect',
+)
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -102,6 +119,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    'django.contrib.auth.hashers.BCryptPasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/

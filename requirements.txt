@@ -2,3 +2,5 @@ django
 djangorestframework
 django-filter
 markdown
+bcrypt
+python-social-auth
