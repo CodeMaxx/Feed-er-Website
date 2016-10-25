@@ -9,27 +9,58 @@ Add a new course!
 <div class="container">
 	
 	{% if mtype == "AD" %}
-		<form action="" method="POST">
-			{% csrf_token %}
-			<div class="input-field">
-				<input type="text" name="name" required="required">
-				<label for="name">Course name:</label>
-			</div>
+		{% if students and profs %}
+			<h3 class="center">Add a course</h3>
+			<form action="" method="POST">
+				{% csrf_token %}
+				<div class="input-field">
+					<input type="text" name="name" required="required">
+					<label for="name">Course name:</label>
+				</div>
 
-			<div class="input-field">
-				<input type="number" min="1" max="3" name="semester" required="required">
-				<label for="semester">Semester:</label>
-			</div>
+				<div class="input-field">
+					<input type="number" min="1" max="3" name="semester" required="required">
+					<label for="semester">Semester:</label>
+				</div>
 
-			<div class="input-field">
-				<input type="text" name="code" required="required">
-				<label for="code">Course Code:</label>
-			</div>
+				<div class="input-field">
+					<input type="text" name="code" required="required">
+					<label for="code">Course Code:</label>
+				</div>
 
-			<div class="input-field">
-				<input type="submit" class="btn light-waves" value="Add Course!">
-			</div>
-		</form>
+
+				<div class="row">
+
+				<div class="col s6">
+					<h5>Professors:</h5>
+					{% for prof in profs %}
+					<div class="input-field">
+						<input type="radio" name="prof" {%if forloop.counter == 1 %}checked="checked"{% endif %} id="prof{{forloop.counter}}" value="{{prof.user.username}}">
+						<label for="prof{{forloop.counter}}">{{prof.fullname}}</label>
+					</div>
+					{% endfor %}
+				</div>
+				<div class="col s6">
+					<h5>Students:</h5>
+					{% for student in students %}
+					<div class="input-field">
+						<input type="checkbox" id="student{{forloop.counter}}" name="student" value="{{student.user.username}}">
+						<label for="student{{forloop.counter}}">{{student.fullname}}</label>
+					</div>
+					{% endfor %}
+				</div>
+
+				</div>
+				<br>
+				<div class="input-field center">
+					<input type="submit" class="btn light-waves" value="Add Course!">
+				</div>
+			</form>
+		{% else %}
+			There are insufficient Professors or students. <br>
+			<a href="{% url 'website:home' %}" class="btn waves-effect">Go back to Home!</a>
+		{% endif %}
+
 	{% else %} 
 		You are not an admin! Please go back!
 	{% endif %}

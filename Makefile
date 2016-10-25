@@ -1,4 +1,4 @@
-.PHONY: help run mig mkmg
+.PHONY: help run mig mkmg shell
 
 help:
 	@echo
@@ -15,4 +15,7 @@ mig:
 
 mkmg:
 	@python3 manage.py makemigrations
+
+shell:
+	@python3 manage.py shell
 

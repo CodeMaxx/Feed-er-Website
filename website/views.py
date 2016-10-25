@@ -134,11 +134,30 @@ def completeReg(request):
 		return HttpResponse('Invalid request sent!')
 
 
-def courses(request):
-	if request.method == "GET":
-		all_courses = Course.objects.all()
-		return render(request, 'courses.html', {'all_courses': all_courses})
+### View courses, all courses for admins, Selected courses for Profs, or TAs
+@login_required
+def view_courses(request):
 
+	member = Member.objects.get(user=request.user)
+
+	if member.mtype == "ST":
+		return HttpResponse("You cannot access the site. Please use the app.")
+
+	## Admin, bring up all the courses
+	elif member.mtype == "AD":
+		all_courses = Course.objects.all()
+		profs = []
+		for course in all_courses:
+			profs.append(course.members.filter(mtype="PR")[0])
+		return render(request, 'view_courses.html', {'all_courses': all_courses, 'member':member, 'profs':profs})
+
+	## Prof or TA, bring up the courses of the prof or TA
+	else:
+		all_courses = member.course_set.all()
+		return render(request, 'view_courses.html', {'all_courses': all_courses, 'member':member})
+
+
+### Add courses for Admins
 @login_required
 def add_courses(request):
 	member = Member.objects.get(user=request.user)
@@ -146,9 +165,16 @@ def add_courses(request):
 		print(member.mtype)
 		if member.mtype == "ST":
 			return HttpResponse("You cannot access the site. Please use the app.")
+		
+		profs = Member.objects.filter(mtype="PR")
+		students = Member.objects.filter(mtype="ST")
+
 		context = {
 			'mtype':member.mtype,
+			'profs':profs,
+			'students':students,
 		}
+
 		return render(request,'add_courses.html',context)
 
 	elif request.method == "POST":
@@ -162,7 +188,20 @@ def add_courses(request):
 			semester=semester
 		)
 
+		prof = request.POST.get('prof')
+		students = request.POST.getlist('student')
+		print(prof,students)
+
+		prof = Member.objects.get(user__username=prof)
+		course.members.add(prof)
+
+		for student in students:
+			stuObj = Member.objects.get(user__username=student)
+			course.members.add(stuObj)
+
 		course.save()
+
+		# course.save()
 		return HttpResponseRedirect(reverse('website:home'))
 
 
