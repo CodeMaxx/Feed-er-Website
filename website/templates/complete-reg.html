@@ -10,16 +10,16 @@ Complete your details!
         <br>
         <br>
         <br>
+        Your UserID : {{username}}
         <form action="" method="POST">
             {% csrf_token %}
             <div class="input-field">
-                <input type="text" name="fullname" id="fullname" required="required" disabled="disabled" value="{{fullname}}">
+                <input type="text" name="fullname" id="fullname" required="required" value="{{fullname}}">
                 <label for="fullname">Full name:</label>
             </div>
 
             <div class="input-field">
-                <input type="text" name="username" id="username" disabled="disabled" required="required" value="{{username}}">
-                <label for="username">Username:</label>
+                <input type="hidden" name="username" id="username" disabled="disabled" required="required" value="{{username}}">
             </div>
 
             <div class="input-field">
