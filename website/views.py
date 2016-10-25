@@ -23,32 +23,35 @@ def signin(request):
 
 		user = authenticate(username=username, password=password)
 		if user is None:
-			return HttpResponseRedirect('signin')
+			#return HttpResponseRedirect(reverse('website:signin'))
+			return HttpResponse("User not found")
 		login(request, user)
 		return HttpResponseRedirect('home')
-
 
 
 ## Signup view which takes data and creates the account
 def signup(request):
 
 	if request.method == "GET":
-		return HttpResponseRedirect('signin')
+		return HttpResponseRedirect(reverse('website:signin'))
 	elif request.method == "POST":
 		try:
 			fullname = request.POST['fullname']
 			username = request.POST['sUsername']
 			password = request.POST['sPassword']
-			isProf = request.POST['prof']
+			isProf = request.POST.get('prof')
 		except:
-			return HttpResponseRedirect('signin')
+			# return HttpResponseRedirect(reverse('website:signin'))
+			return HttpResponse(request)
 
 		## We have the data
 		userexists = User.objects.filter(username=username)
 		if len(userexists) != 0:
-			return HttpResponseRedirect('signin')
+			#return HttpResponseRedirect(reverse('website:signin'))
+			return HttpResponse("Used already exists. Please login")
 
-		newuser = User.objects.create(username=username, password=password)
+		newuser = User.objects.create(username=username)
+		newuser.set_password(password)
 		newuser.save()
 		mtype = "PR" if isProf==True else "TA"
 		
@@ -58,15 +61,13 @@ def signup(request):
 			mtype=mtype,
 		)
 		newmember.save()
+		return HttpResponseRedirect(reverse('website:signin'))
 
-		return HttpResponseRedirect('home')
 
-
-@login_required
 def home(request):
 	## Anon users are shooed away
 	if request.user.is_anonymous():
-		return HttpResponseRedirect('signin')
+		return HttpResponseRedirect(reverse('website:signin'))
 
 	## get member and log out if student
 	user = User.objects.get(username=request.user.username)
@@ -76,17 +77,17 @@ def home(request):
 		logout(request)
 		return HttpResponse('You are not allowed to visit this page. Please use the app since you are a student.')
 
-	return render(request, )
+	return render(request, 'home.html')
 
 def signout(request):
 	logout(request)
-	return HttpResponseRedirect('signin')
+	return HttpResponseRedirect('website:signin')
 
 def courses(request):
-	return HttpResponse('Sign in page!')
+	return HttpResponse('All courses')
 
 def add_courses(request):
-	return HttpResponse('Sign in page!')
+	return HttpResponse('Add more courses')
 
 def assigns(request):
 	return HttpResponse('Sign in page!')
