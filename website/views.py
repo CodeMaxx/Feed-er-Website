@@ -116,7 +116,8 @@ def completeReg(request):
 		return HttpResponseRedirect('home')
 
 def courses(request):
-	return HttpResponse('All courses')
+	if request.method == "GET":
+		return HttpResponse('All courses')
 
 def add_courses(request):
 	return HttpResponse('Add more courses')

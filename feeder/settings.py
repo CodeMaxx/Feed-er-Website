@@ -153,5 +153,6 @@ STATIC_URL = '/static/'
 SOCIAL_AUTH_FACEBOOK_KEY = '1114137342016241' # Not to be compromised
 SOCIAL_AUTH_FACEBOOK_SECRET = 'ee3af435f1cf54f970e28edda022039d' # Not to be compromised
 
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/complete-reg/'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/home'
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/complete-reg/'
 # SOCIAL_AUTH_LOGIN_ERROR_URL = '/fb/login-error/'
