@@ -81,7 +81,7 @@ def home(request):
 
 def signout(request):
 	logout(request)
-	return HttpResponseRedirect('website:signin')
+	return HttpResponseRedirect(reverse('website:signin'))
 
 def completeReg(request):
 
