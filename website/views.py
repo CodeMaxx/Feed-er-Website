@@ -101,19 +101,27 @@ def completeReg(request):
 
 	elif request.method == "POST":
 
-		fullname = request.POST['fullname']
-		username = request.POST['username']
-		isProf = request.POST.get('prof')
+		try:
+			fullname = request.POST['fullname']
+			username = request.POST['username']
+			isProf = request.POST.get('prof')
+		except:
+			return HttpResponse("Invalid fields!")
 
 		user = User.objects.get(username=username)
 
 		mtype = "PR" if isProf else "TA"
+
+		member = Member.objects.filter(user=user)
+		if len(member) != 0:
+			return HttpResponse('This user already exists! Try logging in!')
+		
 		member = Member.objects.create(user=user,fullname=fullname,mtype=mtype)
 		member.save()
-		return HttpResponseRedirect('home')
+		return HttpResponseRedirect(reverse('website:home'))
 
 	else:
-		return HttpResponseRedirect('home')
+		return HttpResponse('Invalid request sent!')
 
 
 def courses(request):
