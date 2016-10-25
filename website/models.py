@@ -25,11 +25,14 @@ class Member(models.Model):
 ## Course details
 class Course(models.Model):
 	name = models.TextField()
-	memebers = models.ManyToManyField(Member)
+	members = models.ManyToManyField(Member)
 	# assignments are added as foreign keys
 	semester = models.IntegerField()
 	year = models.DateField(auto_now_add=True,auto_now=False)
 	course_code = models.CharField(max_length=5)
+
+	def __str__(self):
+		return self.course_code
 ##############################################################################
 
 ## Contains the feedback for the current course
