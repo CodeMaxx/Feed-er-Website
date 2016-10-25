@@ -7,6 +7,7 @@ from .models import *
 # Create your views here.
 
 ## Show the main view
+## More like index page
 def signin(request):
 	if request.method == "GET":
 		user = request.user
@@ -30,6 +31,7 @@ def signin(request):
 
 
 ## Signup view which takes data and creates the account
+## View is here
 def signup(request):
 
 	if request.method == "GET":
@@ -66,6 +68,7 @@ def signup(request):
 
 
 ## Add views for Home Page and logic 
+## Will contain different stuff for Admins and TAs/Profs
 def home(request):
 	## Anon users are shooed away
 	if request.user.is_anonymous():
@@ -75,16 +78,23 @@ def home(request):
 	user = User.objects.get(username=request.user.username)
 	member = Member.objects.get(user=user)
 
+	context = {
+		'member':member,
+	}
+
 	if member.mtype == "ST":
 		logout(request)
 		return HttpResponse('You are not allowed to visit this page. Please use the app since you are a student.')
 
-	return render(request, 'home.html')
+	return render(request, 'home.html', context)
 
+## Signout and return to homepage
 def signout(request):
 	logout(request)
 	return HttpResponseRedirect(reverse('website:signin'))
 
+## Complete Registration
+## Completes facebook signup
 def completeReg(request):
 
 	if request.method == "GET":	# the user is registered now
@@ -129,8 +139,32 @@ def courses(request):
 		all_courses = Course.objects.all()
 		return render(request, 'courses.html', {'all_courses': all_courses})
 
+@login_required
 def add_courses(request):
-	return HttpResponse('Add more courses')
+	member = Member.objects.get(user=request.user)
+	if request.method == "GET":
+		print(member.mtype)
+		if member.mtype == "ST":
+			return HttpResponse("You cannot access the site. Please use the app.")
+		context = {
+			'mtype':member.mtype,
+		}
+		return render(request,'add_courses.html',context)
+
+	elif request.method == "POST":
+		course_name = request.POST['name']
+		code = request.POST['code']
+		semester = int(request.POST['semester'])
+
+		course = Course.objects.create(
+			name=course_name,
+			course_code=code,
+			semester=semester
+		)
+
+		course.save()
+		return HttpResponseRedirect(reverse('website:home'))
+
 
 def assigns(request):
 	return HttpResponse('Sign in page!')

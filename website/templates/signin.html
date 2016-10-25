@@ -41,8 +41,11 @@ Login / Sign Up
                         <div class="input-field center">
                             <input type="submit" id="loginSubmit" value="Login" class="btn waves-light">
                         </div>
-                        <a href="{% url 'social:begin' 'facebook' %}" class="btn">Login with Facebook</a>
                     </form>
+                    <hr>
+                    <div class="center">
+                        <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-facebook">Login with Facebook</a>
+                    </div>
                 </div>
             </div>
 
@@ -81,8 +84,10 @@ Login / Sign Up
                         <input type="submit" name="signupSubmit" id="signupSubmit" class="btn waves-light" value="Sign Up">
                     </div>
                     <!--  Facebook Login here -->
-                    <br><br>
-                    <a href="{% url 'social:begin' 'facebook' %}" class="btn">Signup with Facebook</a>
+                    <div class="center">
+                        <hr>
+                        <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-facebook">Signup with Facebook</a>
+                    </div>
                 </form>
             </div>
 
