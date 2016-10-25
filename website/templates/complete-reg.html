@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}
+Complete your details!
+{% endblock %}
+
+
+{% block content %}
+    
+    <div class="container">
+        <br>
+        <br>
+        <br>
+        <form action="" method="POST">
+            {% csrf_token %}
+            <div class="input-field">
+                <input type="text" name="fullname" id="fullname" required="required" disabled="disabled" value="{{fullname}}">
+                <label for="fullname">Full name:</label>
+            </div>
+
+            <div class="input-field">
+                <input type="text" name="username" id="username" disabled="disabled" required="required" value="{{username}}">
+                <label for="username">Username:</label>
+            </div>
+
+            <div class="input-field">
+                <input type="checkbox" id="prof" name="prof">
+                <label for="prof">I'm a professor.</label>
+            </div>
+
+            <div class="input-field center">
+                <input type="submit" name="submit" value="Complete my profile!" class="btn waves-light">
+            </div>
+        </form>
+    </div>
+{% endblock %}
