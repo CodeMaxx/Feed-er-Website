@@ -98,24 +98,20 @@ def completeReg(request):
 		return render(request,'complete-reg.html',context)
 
 	elif request.method == "POST":
-		
-		try:
-			fullname = request.POST.get('fullname')
-			username = request.POST.get('username')
-			isProf = request.POST.get('prof')
-			print(fullname,username,isProf)
-		except:
-			return HttpResponse('Invalid POST request')
+
+		fullname = request.POST['fullname']
+		username = request.POST['username']
+		isProf = request.POST.get('prof')
 
 		user = User.objects.get(username=username)
 
 		mtype = "PR" if isProf else "TA"
 		member = Member.objects.create(user=user,fullname=fullname,mtype=mtype)
 		member.save()
-		return HttpResponseRedirect('')
+		return HttpResponseRedirect('home')
 
 	else:
-		return HttpResponseRedirect('')
+		return HttpResponseRedirect('home')
 
 def courses(request):
 	return HttpResponse('All courses')
