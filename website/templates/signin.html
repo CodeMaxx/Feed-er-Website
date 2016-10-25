@@ -28,12 +28,12 @@ Login / Sign Up
                     <!-- form here -->
                     <form action="">
                         <div class="input-field">
-                            <input type="text" id="username" name="username" class="validate">
+                            <input type="text" id="username" name="username" class="validate" required="required">
                             <label for="username">Username:</label>
                         </div>
 
                         <div class="input-field">
-                            <input type="password" name="password" id="password" class="validate">
+                            <input type="password" name="password" id="password" class="validate" required="required">
                             <label for="password">Password:</label>
                         </div>
 
@@ -45,28 +45,29 @@ Login / Sign Up
 
                 </div>
             </div>
+
             <!-- signup -->
             <div id="signupContainer" class="col s12">
                 <br><br>
                 <!-- form is here -->
-                <form action="">
+                <form action="signup.html">
                     <div class="input-field">
-                        <input type="text" id="fullname" name="fullname">
+                        <input type="text" id="fullname" name="fullname" required="required">
                         <label for="fullname">Full name:</label>
                     </div>
 
                     <div class="input-field">
-                        <input type="text" name="sUsername" id="sUsername">
+                        <input type="text" name="sUsername" id="sUsername" required="required">
                         <label for="sUsername">Choose an username:</label>
                     </div>
 
                     <div class="input-field">
-                        <input type="password" name="sPassword" id="sPassword">
+                        <input type="password" name="sPassword" id="sPassword" required="required">
                         <label for="sPassword">Choose a password:</label>
                     </div>
 
                     <div class="input-field">
-                        <input type="password" name="sPasswordConfirm" id="sPasswordConfirm">
+                        <input type="password" name="sPasswordConfirm" id="sPasswordConfirm" required="required">
                         <label for="sPasswordConfirm">Confirm password:</label>
                     </div>
 
