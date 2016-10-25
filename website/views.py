@@ -83,6 +83,40 @@ def signout(request):
 	logout(request)
 	return HttpResponseRedirect('website:signin')
 
+def completeReg(request):
+
+	if request.method == "GET":	# the user is registered now
+		user = request.user
+
+		if not user.is_authenticated():
+			return HttpResponse('Invalid Facebook redirect!')
+
+		context = {
+			'fullname':user.first_name + ' ' + user.last_name,
+			'username':user.username,
+		}
+		return render(request,'complete-reg.html',context)
+
+	elif request.method == "POST":
+		
+		try:
+			fullname = request.POST.get('fullname')
+			username = request.POST.get('username')
+			isProf = request.POST.get('prof')
+			print(fullname,username,isProf)
+		except:
+			return HttpResponse('Invalid POST request')
+
+		user = User.objects.get(username=username)
+
+		mtype = "PR" if isProf else "TA"
+		member = Member.objects.create(user=user,fullname=fullname,mtype=mtype)
+		member.save()
+		return HttpResponseRedirect('')
+
+	else:
+		return HttpResponseRedirect('')
+
 def courses(request):
 	return HttpResponse('All courses')
 

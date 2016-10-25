@@ -74,13 +74,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'feeder.wsgi.application'
 
-SOCIAL_AUTH_FACEBOOK_KEY = '1114137342016241' # Not to be compromised
-SOCIAL_AUTH_FACEBOOK_SECRET = 'ee3af435f1cf54f970e28edda022039d' # Not to be compromised
 
 AUTHENTICATION_BACKENDS = (
    'social.backends.facebook.FacebookOAuth2',
-   'social.backends.google.GoogleOAuth2',
-   'social.backends.twitter.TwitterOAuth',
    'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -152,3 +148,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+## Social Auth Settings for Facebook
+SOCIAL_AUTH_FACEBOOK_KEY = '1114137342016241' # Not to be compromised
+SOCIAL_AUTH_FACEBOOK_SECRET = 'ee3af435f1cf54f970e28edda022039d' # Not to be compromised
+
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/complete-reg/'
+# SOCIAL_AUTH_LOGIN_ERROR_URL = '/fb/login-error/'
