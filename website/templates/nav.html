@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block navbar %}
+<nav>
+    <div class="nav-wrapper">
+      <a href="#" class="brand-logo">Feed'er</a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        <li><a href="{% url 'website:signout' %}">Logout</a></li>       
+      </ul>
+    </div>
+</nav>
+{% endblock %}
