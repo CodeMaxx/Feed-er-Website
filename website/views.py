@@ -9,7 +9,6 @@ from .models import *
 ## Show the main view
 def signin(request):
 	if request.method == "GET":
-
 		user = request.user
 		if user.is_authenticated():
 			return HttpResponseRedirect('home')
@@ -17,11 +16,12 @@ def signin(request):
 		return render(request, "signin.html")
 
 
+
 ## Signup view which takes data and creates the account
 def signup(request):
 
 	if request.method != "POST":
-		return HttpResponseRedirect('signin')
+		return HttpResponse('Invalid Response')
 	else:
 		try:
 			fullname = request.POST['fullname']

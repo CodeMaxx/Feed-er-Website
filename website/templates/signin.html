@@ -26,7 +26,9 @@ Login / Sign Up
                     <br>
                     <br>
                     <!-- form here -->
-                    <form action="">
+                    <form action="" method="POST" name="signinForm">
+
+                        {% csrf_token %}
                         <div class="input-field">
                             <input type="text" id="username" name="username" class="validate" required="required">
                             <label for="username">Username:</label>
@@ -50,7 +52,8 @@ Login / Sign Up
             <div id="signupContainer" class="col s12">
                 <br><br>
                 <!-- form is here -->
-                <form action="signup.html">
+                <form action="/signup" method="POST" name="signupForm">
+                    {% csrf_token %}
                     <div class="input-field">
                         <input type="text" id="fullname" name="fullname" required="required">
                         <label for="fullname">Full name:</label>
