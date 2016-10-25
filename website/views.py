@@ -64,6 +64,8 @@ def signup(request):
 		return HttpResponseRedirect(reverse('website:signin'))
 
 
+
+## Add views for Home Page and logic 
 def home(request):
 	## Anon users are shooed away
 	if request.user.is_anonymous():
