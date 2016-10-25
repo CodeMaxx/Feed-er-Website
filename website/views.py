@@ -42,6 +42,7 @@ def signup(request):
             username = request.POST['sUsername']
             password = request.POST['sPassword']
             isProf = request.POST.get('prof')
+           # return HttpResponse(request)
         except:
             # return HttpResponseRedirect(reverse('website:signin'))
             return HttpResponse(request)
@@ -55,7 +56,11 @@ def signup(request):
         newuser = User.objects.create(username=username)
         newuser.set_password(password)
         newuser.save()
-        mtype = "PR" if isProf==True else "TA"
+
+        if isProf == "on":
+            mtype = "PR"
+        else:
+            mtype = "TA"
 
         newmember = Member.objects.create(
             user=newuser,
@@ -139,7 +144,7 @@ def completeReg(request):
 #     member = Member.objects.filter(user=request.user)
 #     all_courses = Course.objects.filter(members=member)
 #     return render(request, 'view_courses.html', {'all_courses': all_courses})
-# 
+#
 
 ### View courses, all courses for admins, Selected courses for Profs, or TAs
 @login_required
