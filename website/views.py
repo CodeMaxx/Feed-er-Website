@@ -22,6 +22,8 @@ def signin(request):
 		password = request.POST['password']
 
 		user = authenticate(username=username, password=password)
+		if user is None:
+			return HttpResponseRedirect('signin')
 		login(request, user)
 		return HttpResponseRedirect('home')
 
@@ -74,7 +76,11 @@ def home(request):
 		logout(request)
 		return HttpResponse('You are not allowed to visit this page. Please use the app since you are a student.')
 
-	return HttpResponse("Home page!")
+	return render(request, )
+
+def signout(request):
+	logout(request)
+	return HttpResponseRedirect('signin')
 
 def courses(request):
 	return HttpResponse('Sign in page!')
