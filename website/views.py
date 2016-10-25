@@ -2,7 +2,7 @@ from django.shortcuts import render,reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.contrib.auth import logout 
+from django.contrib.auth import logout, authenticate, login
 from .models import *
 # Create your views here.
 
@@ -15,14 +15,22 @@ def signin(request):
 			return HttpResponseRedirect('home')
 
 		return render(request, "signin.html")
+	elif request.method == "POST":
+
+		username = request.POST['username']
+		password = request.POST['password']
+
+		user = authenticate(username=username, password=password)
+		login(request, user)
+		return HttpResponseRedirect('home')
 
 
 ## Signup view which takes data and creates the account
 def signup(request):
 
-	if request.method != "POST":
+	if request.method == "GET":
 		return HttpResponseRedirect('signin')
-	else:
+	elif request.method == "POST":
 		try:
 			fullname = request.POST['fullname']
 			username = request.POST['sUsername']
@@ -42,41 +50,29 @@ def signup(request):
 		
 		newmember = Member.objects.create(
 			user=newuser,
-			fullname = fullname,
-			mtype = mtype,
+			fullname=fullname,
+			mtype=mtype,
 		)
 		newmember.save()
 
-		return HttpResponseRedirect('signin')
-
+		return HttpResponseRedirect('home')
 
 
 @login_required
 def home(request):
 	## Anon users are shooed away
-	try:
-		username = request.user.username
-	except:
+	if request.user.is_anonymous():
 		return HttpResponseRedirect('signin')
 
 	## get member and log out if student
-	member = User.objects.get(username=request.user.username)
-	try:
-		member = Member.objects.get(user=member)
-	except:
-		return HttpResponse("You are not allowed to visit this page.")
+	user = User.objects.get(username=request.user.username)
+	member = Member.objects.get(user=user)
 
 	if member.mtype == "ST":
 		logout(request)
 		return HttpResponse('You are not allowed to visit this page. Please use the app since you are a student.')
 
 	return HttpResponse("Home page!")
-
-
-
-
-def logout(request):
-	return HttpResponse('Sign in page!')
 
 def courses(request):
 	return HttpResponse('Sign in page!')
