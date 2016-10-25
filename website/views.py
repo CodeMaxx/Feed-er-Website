@@ -14,6 +14,8 @@ def signin(request):
 			return HttpResponseRedirect('home')
 
 		return render(request, "signin.html")
+
+		
 	elif request.method == "POST":
 
 		username = request.POST['username']

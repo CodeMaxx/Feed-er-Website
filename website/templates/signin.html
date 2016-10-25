@@ -52,7 +52,7 @@ Login / Sign Up
             <div id="signupContainer" class="col s12">
                 <br><br>
                 <!-- form is here -->
-                <form action="/signup" method="POST" name="signupForm">
+                <form action="http://localhost:8000/signup" method="POST" name="signupForm">
                     {% csrf_token %}
                     <div class="input-field">
                         <input type="text" id="fullname" name="fullname" required="required">
