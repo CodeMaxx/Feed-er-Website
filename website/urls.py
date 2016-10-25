@@ -8,9 +8,13 @@ urlpatterns = [
     url(r'^signout$', views.signout, name='signout'),
     url(r'^home$', views.home, name='home'),
     url(r'^complete-reg/', views.completeReg, name='complete-reg'),
-    url(r'^courses$', views.courses, name='view_course'),
-    url(r'^courses/add', views.add_courses, name='add_course'),
-    url(r'^assignments$', views.assigns, name='view_course'),
-    url(r'^assignments/add', views.add_assigns, name='add_course'),
+
+    ## Courses relatedstuff
+    url(r'^courses$', views.view_courses, name='view_course'),
+    url(r'^courses/add$', views.add_courses, name='add_course'),
+
+    ## Assignments related stuff
+    url(r'^assignments$', views.assigns, name='view_assignment'),
+    url(r'^assignments/add', views.add_assigns, name='add_assignment'),
     url(r'^courses/(?P<pk>\S+)/(?P<year>\S+)/(?P<sem>\S+)', views.course_detail, name='c_detail')
 ]
