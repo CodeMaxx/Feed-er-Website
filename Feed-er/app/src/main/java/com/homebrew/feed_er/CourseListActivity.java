@@ -47,36 +47,35 @@ public class CourseListActivity extends AppCompatActivity {
         public CourseListGetter(){
             Toast t = Toast.makeText(getApplicationContext(),"Will start thread",Toast.LENGTH_SHORT);
             t.show();
-            Log.d("CLG","Whatsup??");
-            Log.d("CLG","Whatsup??");
-            Log.w("CLG","Whatsup??");
-            Log.v("CLG","Whatsup??");
-            Log.i("CLG","Whatsup??");
+            Log.d("CLG","CLG constructed");
             //new Thread(this, "CourseListGetter").start();
         }
         @Override
         public void run(){
     // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-            String url ="http://www.randomuser.me/api";
-            System.out.println("Response recorded");
+            String url ="https://www.randomuser.me/api";
+            //System.out.println("Response recorded");
 
     // Request a string response from the provided URL.
 
             //Toast t = Toast.makeText(getApplicationContext(),"Will send request",Toast.LENGTH_SHORT);
             //t.show();
+            Log.d("CLG","sending request...");
             StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
+                            Log.d("CLG","response obtained...");
                             // Display the first 500 characters of the response string.
                             textView.setText("Response is: "+ response.substring(0,500));
-                            System.out.println("Response recorded");
+                            //System.out.println("Response recorded");
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    //textView.setText("That didn't work!");
+                    textView.setText("Please check your internet connection.");
+                    System.out.println("Response not obtained");
                 }
             });
     // Add the request to the RequestQueue.
