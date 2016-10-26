@@ -50,31 +50,12 @@ public class CalendarActivity extends AppCompatActivity {
 
         DatesListGetter datesListGetter = new DatesListGetter();
         new Thread(datesListGetter, "DatesListGetter").start();
-        final CaldroidFragment caldroidFragment = new CaldroidFragment();
-        final CaldroidListener listener = new CaldroidListener() {
-            @Override
-            public void onSelectDate(Date date, View view) {
-                Log.d("SELECT DATE", date.toString());
-                final Map<Date, Drawable> backgroundForDateMap = new HashMap<>();
-                final Calendar c = Calendar.getInstance();
-                c.setTimeInMillis(date.getTime());
-                backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.GREEN));
-                caldroidFragment.setBackgroundDrawableForDates(backgroundForDateMap);
-            }
-
-        };
-
-        caldroidFragment.setCaldroidListener(listener);
-        FragmentTransaction t = getSupportFragmentManager().beginTransaction();
-        t.replace(R.id.calendarView, caldroidFragment);
-        t.commit();
 
     }
 
     private class DatesListGetter implements Runnable {
         public DatesListGetter() {
             Log.d("DLG", "DLG constructed");
-            //new Thread(this, "CourseListGetter").start();
         }
 
         @Override
@@ -97,10 +78,10 @@ public class CalendarActivity extends AppCompatActivity {
                             Log.d("CLG", "response obtained...");
                             // Display the first 500 characters of the response string.
                             try{
-                                JSONObject response = new JSONObject(responseString).getJSONArray("results").getJSONObject(0);
+                                final JSONObject response = new JSONObject(responseString).getJSONArray("results").getJSONObject(0);
                                 JSONArray assignDeadlines = response.getJSONArray("assignmentDeadlines");
                                 JSONArray examDates = response.getJSONArray("examDates");
-                                CaldroidFragment caldroidFragment = new CaldroidFragment();
+                                final CaldroidFragment caldroidFragment = new CaldroidFragment();
                                 final Map<Date, Drawable> backgroundForDateMap = new HashMap<>();
                                 final Calendar c = Calendar.getInstance();
                                 for (int i = 0; i < assignDeadlines.length(); i++) {
@@ -123,6 +104,23 @@ public class CalendarActivity extends AppCompatActivity {
                                     Log.d("JSON", examDate.getString("course"));
                                     Log.d("JSON", dL.toString());
                                 }
+
+                                //listeners
+                                final CaldroidListener listener = new CaldroidListener() {
+                                    @Override
+                                    public void onSelectDate(Date date, View view) {
+                                        Log.d("SELECT DATE", date.toString());
+                                    }
+
+
+                                };
+
+                                caldroidFragment.setCaldroidListener(listener);
+                                //
+
+
+
+
                                 caldroidFragment.setBackgroundDrawableForDates(backgroundForDateMap);
                                 FragmentTransaction t = getSupportFragmentManager().beginTransaction();
                                 t.replace(R.id.calendarView, caldroidFragment);
