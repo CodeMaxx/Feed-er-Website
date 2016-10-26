@@ -1,0 +1,47 @@
+{% extends 'nav.html' %}
+
+{% block title %} Course Details for {{course.code}} {% endblock %}
+
+{% block content %}
+	<div class="container">
+	<br>
+	<br>
+	<br>
+		{% if error %}
+			<div class="center">
+				{{error}}
+			</div>
+		{% else %}
+
+			<h3>Course details for {{course.course_code}}</h3>
+			Course name: {{course.name}} <br>
+			Semester: {{course.semester}} <br>
+			Year: {{course.added.year}} <br>
+			<hr>
+			{% if member.mtype == "AD" %}
+			Professor: {{courseprof}} <br>
+			{% endif %}
+			
+			<h5>Feedbacks</h5>
+
+			{% if feedbacks %}
+				{% for feedback in feedbacks %}
+				<p>{{feedback.name}}</p>
+				{% endfor %}
+			{% else %}
+				<p>Hurray, no feedbacks!</p>
+			{% endif %}
+
+			<h5>Assignments</h5>
+			
+			{% if assignments %}
+				{% for assignment in assignments %}
+				<p>{{assignment.name}}</p>
+				{% endfor %}
+			{% else %}
+				<p>Hurray, no assignments!</p>
+			{% endif %}
+
+		{% endif %}
+	</div>
+{% endblock %}

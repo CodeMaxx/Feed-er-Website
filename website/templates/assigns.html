@@ -1,0 +1,13 @@
+{% extends base.html %}
+
+{% block content %}
+
+    {% for assign in assigns %}
+        {{ courses.forloop.counter0 }}
+        {% for foo in assign %}
+            {{ foo }}
+        {% endfor %}
+    {% endfor %}
+
+
+{% endblock %}

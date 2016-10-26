@@ -23,7 +23,7 @@ View Courses
 									Professor: {{ profs|index:forloop.counter0 }} <br>
 					           </div>
 					           <div class="card-action">
-					             	{{course.name}}
+					           		<a href="{% url 'website:course_detail' course.pk %}" class="btn waves-effect">{{course.name}}</a>
 					           </div>
 					         </div>
 					       </div>
@@ -42,7 +42,7 @@ View Courses
 					           		Course Code: {{course.course_code}} <br>
 					           </div>
 					           <div class="card-action">
-					             	{{course.name}}
+					           		<a href="{% url 'website:course_detail' course.pk %}" class="btn waves-effect">{{course.name}}</a>
 					           </div>
 					         </div>
 					       </div>
