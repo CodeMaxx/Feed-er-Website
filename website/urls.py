@@ -12,9 +12,9 @@ urlpatterns = [
     ## Courses relatedstuff
     url(r'^courses$', views.view_courses, name='view_course'),
     url(r'^courses/add$', views.add_courses, name='add_course'),
+    url(r'^courses/(?P<pk>\d+)/', views.course_detail, name='course_detail'),
 
     ## Assignments related stuff
     url(r'^assignments$', views.assigns, name='view_assignment'),
     url(r'^assignments/add', views.add_assigns, name='add_assignment'),
-    url(r'^courses/(?P<pk>\S+)/(?P<year>\S+)/(?P<sem>\S+)', views.course_detail, name='c_detail')
 ]

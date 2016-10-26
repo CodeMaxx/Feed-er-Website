@@ -1,4 +1,4 @@
-from django.shortcuts import render,reverse
+from django.shortcuts import render,reverse, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -204,12 +204,27 @@ def add_courses(request):
 		# course.save()
 		return HttpResponseRedirect(reverse('website:home'))
 
+@login_required
+def course_detail(request,pk):
+	member = Member.objects.get(user=request.user)
+	course = get_object_or_404(Course,pk=pk)
+	
+	if member.mtype == "ST":
+		return HttpResponse('You cannot access the site. Please use the app.')
 
+	elif member.mtype == "AD":
+		feedbacks = course.feedbacks_set.all()
+		
+	else:
+		
+
+
+
+#### Assignments and projects
 def assigns(request):
 	return HttpResponse('Sign in page!')
 
 def add_assigns(request):
 	return HttpResponse('Sign in page!')
 
-def course_detail(request,pk,year,sem):
-	return HttpResponse('Sign in page!')
+
