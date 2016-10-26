@@ -29,8 +29,8 @@ Login / Sign Up
                     <form action="" method="POST" name="signinForm">
                         {% csrf_token %}
                         <div class="input-field">
-                            <input type="text" id="username" name="username" class="validate" required="required">
-                            <label for="username">Username:</label>
+                            <input type="email" id="username" name="username" class="validate" required="required">
+                            <label for="username">Email address:</label>
                         </div>
 
                         <div class="input-field">
@@ -43,6 +43,7 @@ Login / Sign Up
                         </div>
                     </form>
                     <hr>
+                    <br>
                     <div class="center">
                         <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-facebook">Login with Facebook</a>
                     </div>
@@ -61,34 +62,34 @@ Login / Sign Up
                     </div>
 
                     <div class="input-field">
-                        <input type="text" name="sUsername" id="sUsername" required="required">
-                        <label for="sUsername">Choose an username:</label>
+                        <input type="email" name="sUsername" id="sUsername" required="required">
+                        <label for="sUsername">Enter email address:</label>
                     </div>
 
                     <div class="input-field">
-                        <input type="password" name="sPassword" id="sPassword" required="required">
+                        <input type="password" name="sPassword" id="sPassword" minlength="8" required="required">
                         <label for="sPassword">Choose a password:</label>
                     </div>
 
                     <div class="input-field">
-                        <input type="password" name="sPasswordConfirm" id="sPasswordConfirm" required="required">
-                        <label for="sPasswordConfirm">Confirm password:</label>
-                    </div>
-
-                    <div class="input-field">
+                        <br>
                         <input type="checkbox" name="prof" id="prof">
                         <label for="prof">I'm a professor!</label>
                     </div>
-
+                    
                     <div class="input-field center">
                         <input type="submit" name="signupSubmit" id="signupSubmit" class="btn waves-light" value="Sign Up">
                     </div>
                     <!--  Facebook Login here -->
+                    <br>
                     <div class="center">
                         <hr>
+                        <br>
                         <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-facebook">Signup with Facebook</a>
                     </div>
                 </form>
+
+
             </div>
 
           </div>

@@ -8,53 +8,58 @@ View Courses
 	{% load index %}
 	<div class="container">
 		<h3 class="center">View all courses</h3>
-		{% if all_courses %}
-			
-			{% if member.mtype == "AD" %}
-				<!-- Admin format -->
-				{% for course in all_courses %}
-					<div class="row">
-					       <div class="col s12">
-					         <div class="card">
-					           <div class="card-content">
-					           		Semester: {{course.semester}} <br>
-					           		Year: {{course.added.year}} <br>
-					           		Course Code: {{course.course_code}} <br>
-									Professor: {{ profs|index:forloop.counter0 }} <br>
-					           </div>
-					           <div class="card-action">
-					           		<a href="{% url 'website:course_detail' course.pk %}" class="btn waves-effect">{{course.name}}</a>
-					           </div>
-					         </div>
-					       </div>
-					     </div>	           
-				{% endfor %}
-
-			{% else %}
-				<!-- Professor/TA side -->
-				{% for course in all_courses %}
-					<div class="row">
-					       <div class="col s12">
-					         <div class="card">
-					           <div class="card-content">
-					           		Semester: {{course.semester}} <br>
-					           		Year: {{course.added.year}} <br>
-					           		Course Code: {{course.course_code}} <br>
-					           </div>
-					           <div class="card-action">
-					           		<a href="{% url 'website:course_detail' course.pk %}" class="btn waves-effect">{{course.name}}</a>
-					           </div>
-					         </div>
-					       </div>
-					     </div>	           
-				{% endfor %}
-
-			{% endif %}
-	
+		{% if error %}
+		<br>
+		{{error}}
 		{% else %}
-			No courses available now.
-		{% endif %}
+			{% if all_courses %}
+				
+				{% if member.mtype == "AD" %}
+					<!-- Admin format -->
+					{% for course in all_courses %}
+						<div class="row">
+						       <div class="col s12">
+						         <div class="card">
+						           <div class="card-content">
+						           		Semester: {{course.semester}} <br>
+						           		Year: {{course.added.year}} <br>
+						           		Course Code: {{course.course_code}} <br>
+										Professor: {{ profs|index:forloop.counter0 }} <br>
+						           </div>
+						           <div class="card-action">
+						           		<a href="{% url 'website:course_detail' course.pk %}" class="btn waves-effect">{{course.name}}</a>
+						           </div>
+						         </div>
+						       </div>
+						     </div>	           
+					{% endfor %}
 
+				{% else %}
+					<!-- Professor/TA side -->
+					{% for course in all_courses %}
+						<div class="row">
+						       <div class="col s12">
+						         <div class="card">
+						           <div class="card-content">
+						           		Semester: {{course.semester}} <br>
+						           		Year: {{course.added.year}} <br>
+						           		Course Code: {{course.course_code}} <br>
+						           </div>
+						           <div class="card-action">
+						           		<a href="{% url 'website:course_detail' course.pk %}" class="btn waves-effect">{{course.name}}</a>
+						           </div>
+						         </div>
+						       </div>
+						     </div>	           
+					{% endfor %}
+
+				{% endif %}
+			
+			{% else %}
+				No courses available now.
+			{% endif %}
+
+		{% endif %}
 	</div>
 
 {% endblock %}

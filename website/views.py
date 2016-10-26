@@ -50,7 +50,7 @@ def signup(request):
             #return HttpResponseRedirect(reverse('website:signin'))
             return HttpResponse("User already exists. Please login.")
 
-        newuser = User.objects.create(username=username)
+        newuser = User.objects.create(username=username,email=username)
         newuser.set_password(password)
         newuser.save()
 
@@ -148,7 +148,16 @@ def view_courses(request):
     ## Admin, bring up all the courses
     elif member.mtype == "AD":
         all_courses = Course.objects.all()
-        profs = [course.members.filter(mtype="PR")[0] for course in all_courses]
+        print (len(all_courses))
+        
+        if(len(all_courses) == 0):
+        	return render(request, 'view_courses.html', {'error':'No courses to view. Add some courses first.'})
+        try:
+        	profs = [course.members.filter(mtype="PR")[0] for course in all_courses]
+        except:
+        	return render(request, 'view_courses.html', {'error':'No courses to view. Add some courses first.'})
+
+
         return render(request, 'view_courses.html', {'all_courses': all_courses, 'member':member, 'profs':profs})
     ## Prof or TA, bring up the courses of the prof or TA
     else:
