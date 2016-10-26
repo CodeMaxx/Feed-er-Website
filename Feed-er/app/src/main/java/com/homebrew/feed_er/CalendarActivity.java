@@ -7,6 +7,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewConfiguration;
+import android.widget.Button;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -15,6 +18,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.roomorama.caldroid.CaldroidFragment;
+import com.roomorama.caldroid.CaldroidListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,19 +37,38 @@ public class CalendarActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
-        CaldroidFragment caldroidFragment = new CaldroidFragment();
-        Bundle args = new Bundle();
-        Calendar cal = Calendar.getInstance();
-        args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
-        args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
-        caldroidFragment.setArguments(args);
+//        CaldroidFragment caldroidFragment = new CaldroidFragment();
+//        Bundle args = new Bundle();
+//        Calendar cal = Calendar.getInstance();
+//        args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
+//        args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
+//        caldroidFragment.setArguments(args);
+//
+//        FragmentTransaction t = getSupportFragmentManager().beginTransaction();
+//        t.replace(R.id.calendarView, caldroidFragment);
+//        t.commit();
 
+        DatesListGetter datesListGetter = new DatesListGetter();
+        new Thread(datesListGetter, "DatesListGetter").start();
+        final CaldroidFragment caldroidFragment = new CaldroidFragment();
+        final CaldroidListener listener = new CaldroidListener() {
+            @Override
+            public void onSelectDate(Date date, View view) {
+                Log.d("SELECT DATE", date.toString());
+                final Map<Date, Drawable> backgroundForDateMap = new HashMap<>();
+                final Calendar c = Calendar.getInstance();
+                c.setTimeInMillis(date.getTime());
+                backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.GREEN));
+                caldroidFragment.setBackgroundDrawableForDates(backgroundForDateMap);
+            }
+
+        };
+
+        caldroidFragment.setCaldroidListener(listener);
         FragmentTransaction t = getSupportFragmentManager().beginTransaction();
         t.replace(R.id.calendarView, caldroidFragment);
         t.commit();
 
-        DatesListGetter datesListGetter = new DatesListGetter();
-        new Thread(datesListGetter, "DatesListGetter").start();
     }
 
     private class DatesListGetter implements Runnable {
