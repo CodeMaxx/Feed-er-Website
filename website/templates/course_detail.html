@@ -14,20 +14,29 @@
 		{% else %}
 
 			<h3>Course details for {{course.course_code}}</h3>
-			Course name: {{course.name}} <br>
-			Semester: {{course.semester}} <br>
-			Year: {{course.added.year}} <br>
+			<b>Course name</b>: {{course.name}} <br>
+			<b>Semester</b>: {{course.semester}} <br>
+			<b>Year</b>: {{course.added.year}} <br>
+			<b>Students Enrolled</b>: {{students_enrolled}} <br>
+			<b>Number of Teaching Assistants</b>: {{ta_count}} <br>
 			<hr>
 			{% if member.mtype == "AD" %}
-			Professor: {{courseprof}} <br>
+			<b>Professor</b>: {{courseprof}} <br>
 			{% endif %}
-			
-			<h5>Feedbacks</h5>
 
+			
+			<div class="row">
+				<div class="col s7">
+					<h5>Feedbacks</h5>
+				</div>
+				<div class="col s5 right-align">
+					<a href="{% url 'website:add_feedback' course.pk %}" class="btn red">Add Feedback</a>
+				</div>
+			</div>
 			{% if feedbacks %}
-				{% for feedback in feedbacks %}
-				<p>{{feedback.name}}</p>
-				{% endfor %}
+					{% for feedback in feedbacks %}
+						<a class="btn btn-block" href="{% url 'website:view_feedback' feedback.pk %}">{{feedback.name}}</a> <br>
+					{% endfor %}
 			{% else %}
 				<p>Hurray, no feedbacks!</p>
 			{% endif %}

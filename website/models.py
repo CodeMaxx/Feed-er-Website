@@ -35,21 +35,62 @@ class Course(models.Model):
 		return self.course_code
 ##############################################################################
 
+QUESTION_TYPES = (
+	('MCQ','Multiple Choice Question'),
+	('SHORT','Short answer type Question'),
+	('RATE','Rating Type Question'),
+)
+
 ## Contains the feedback for the current course
 class Feedback(models.Model): 
 	name = models.TextField()
 	deadline = models.DateTimeField(blank=True)
 	course = models.ForeignKey(Course)
+	students = models.ManyToManyField(Member,blank=True)
+
+	def __str__(self):
+		return self.name
 
 ## Feedback Questions and answers
 class FeedbackQuestion(models.Model):
 	question = models.TextField()
 	feedback = models.ForeignKey(Feedback)
+	q_type = models.CharField(choices=QUESTION_TYPES, default="RATE",max_length=5)
+
+	def __str__(self):
+		return self.question
 
 ## Answer type to question given by users
+## Each question will have 5 instances of this connected to it.
+## Each one will store the rating number and the votes given to it
 class FeedbackRatingAnswer(models.Model):
 	q = models.ForeignKey(FeedbackQuestion)
 	rating = models.IntegerField(default=0)
+	votes = models.IntegerField(default=0)
+
+	def __str__(self):
+		return self.q
+
+## Feedback Multi choice answer
+## Each answer given through the app will increase its votes_count by 1
+class FeedbackMCQChoice(models.Model):
+	text = models.TextField()
+	q = models.ForeignKey(FeedbackQuestion)
+	votes_count = models.IntegerField(default=0)
+
+	def __str__(self):
+		return self.text
+
+## Each short answer added will get inserted and will be stored in the answer to the feedback question
+class FeedbackShortAnswer(models.Model):
+	q = models.ForeignKey(FeedbackQuestion)
+	text = models.TextField()
+
+	def __str__(self):
+		return self.q
+
+##	Feedback form -> Questions
+##	Question -> Rating / MCQ / Short Answer
 
 ###############################################################################
 ## Contains the assignment details for the current course

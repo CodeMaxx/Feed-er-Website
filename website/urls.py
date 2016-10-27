@@ -14,6 +14,13 @@ urlpatterns = [
     url(r'^courses/add$', views.add_courses, name='add_course'),
     url(r'^courses/(?P<pk>\d+)/', views.course_detail, name='course_detail'),
 
+    # Feedback related stuff
+    url(r'^feedback/add/(?P<course_id>\d+)/$', views.add_feedback, name="add_feedback"),
+    url(r'^feedback/view/(?P<pk>\d+)/$', views.view_feedback, name="view_feedback"),
+    url(r'^feedback/add/$', views.add_feedback_all, name="add_feedback_all"),
+    url(r'^feedback/view/$', views.view_feedback_all, name="view_feedback_all"),
+
+    
     ## Assignments related stuff
     url(r'^assignments$', views.assigns, name='view_assignment'),
     url(r'^assignments/add', views.add_assigns, name='add_assignment'),

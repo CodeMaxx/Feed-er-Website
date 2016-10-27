@@ -30,8 +30,8 @@ Add a new course!
 
 
 				<div class="row">
-
-				<div class="col s6">
+				<!-- Professors -->
+				<div class="col s4">
 					<h5>Professors:</h5>
 					{% for prof in profs %}
 					<div class="input-field">
@@ -40,7 +40,20 @@ Add a new course!
 					</div>
 					{% endfor %}
 				</div>
-				<div class="col s6">
+
+				<!-- Teaching Assistants -->
+				<div class="col s4">
+					<h5>Teaching Assistants:</h5>
+					{% for ta in tas %}
+					<div class="input-field">
+						<input type="checkbox" id="ta{{forloop.counter}}" name="ta" value="{{ta.user.username}}">
+						<label for="ta{{forloop.counter}}">{{ta.fullname}}</label>
+					</div>
+					{% endfor %}
+				</div>
+
+				<!-- Students -->
+				<div class="col s4">
 					<h5>Students:</h5>
 					{% for student in students %}
 					<div class="input-field">

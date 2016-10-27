@@ -4,3 +4,4 @@ django-filter
 markdown
 bcrypt
 python-social-auth
+python-dateutil

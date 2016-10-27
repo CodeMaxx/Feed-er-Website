@@ -1,0 +1,71 @@
+{% extends 'nav.html' %}
+{% load index %}
+{% block title %} Feedback details for {{feedback.name}} {% endblock %}
+
+{% block content %}
+	<div class="container">
+	<br>
+	<br>
+	<br>
+		{% if error %}
+			<div class="center">
+				{{error}}
+			</div>
+		{% else %}
+			<h5>Feedback details for {{feedback.name}}</h5>
+			<b>Course: </b> {{course.name}} <br>
+			<b>Deadline: </b> {{feedback.deadline | date:"M d, Y" }} <br>
+			<br><br>
+			<div class="">
+				<h5>Rating Questions</h5>
+				{% for q in rating %}
+					<div class="card-panel">
+						<h5><b>Q.</b> {{q.question}}</h5>
+						<ol>
+						{% for ans in q.answers %}
+							<li>Rating: {{ans.rating}}, Votes: {{ans.votes}}</li>
+						{% endfor %}
+						</ol>
+					</div>
+				{% endfor %}
+				<!-- MCQ here -->
+				{% if mcq %}
+				<br>
+				<hr>
+					<h5>Multiple Choice Questions</h5>
+					{% for q in mcq %}
+						<div class="card-panel">
+							<h5><b>Q.</b> {{q.question}}</h5>
+							<ol>
+							{% for ans in q.answers %}
+								<li>{{ans.text}},Votes given: {{ans.votes_count}}</li>
+							{% endfor %}
+							</ol>
+						</div>
+					{% endfor %}
+				{% endif %}
+				<!-- Short Answers here -->
+
+				{% if short %}
+					<br>
+					<hr>
+					<h5>Short Answer type Questions</h5>
+					{% for q in short %}
+						<div class="card-panel">
+							<h5><b>Q.</b> {{q.question}}</h5>
+							{% if q.ans %}
+								<ol>
+								{% for ans in q.answers %}
+									<li>{{ans.text}}</li>
+								{% endfor %}
+								</ol>
+							{% else %}
+							No responses to show!
+							{% endif %}
+						</div>
+					{% endfor %}
+				{% endif %}
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}

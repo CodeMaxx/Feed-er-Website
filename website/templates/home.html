@@ -17,18 +17,31 @@ Home
 		{% if member.mtype == "AD" %}
 			<div class="row center">
 				<div class="col s6">
-					<a href="{% url 'website:add_course' %}" class="btn waves-effect">Add Courses!</a>
+					<a href="{% url 'website:add_course' %}" class="btn btn-block">Add Courses!</a>
 				</div>
 				<div class="col s6">
-					<a href="{% url 'website:view_course' %}" class="btn waves-effect">View Courses</a>
+					<a href="{% url 'website:view_course' %}" class="btn btn-block">View Courses</a>
 				</div>
 			</div>
 		{% else %}
 			<div class="row center">
-				<div class="col s12">
-					<a href="{% url 'website:view_course' %}" class="btn waves-effect">View Courses</a>
+				<div class="col s6">
+					<a href="{% url 'website:view_course' %}" class="btn btn-block ">View Courses</a>
+				</div>
+				<div class="col s6">
+					<a href="{% url 'website:add_feedback_all' %}" class="btn btn-block ">Add Feedback</a>
 				</div>
 			</div>
+
+			<div class="row center">
+				<div class="col s6">
+					<a href="{% url 'website:view_feedback_all' %}" class="btn btn-block ">View all Feedbacks</a>
+				</div>
+				<div class="col s6">
+					<!-- <a href="{% url 'website:add_feedback_all' %}" class="btn waves-effect">Add Feedback</a> -->
+				</div>
+			</div>
+
 		{% endif %}
 
 	</div>

@@ -4,6 +4,8 @@
 <head>
 	<meta charset="UTF-8">
 	<title>{% block title %}{% endblock %}</title>
+	<script type="text/javascript" src="{% static 'jquery.js' %}"></script>
+	<script type="text/javascript" src="{% static 'jquery-ui.min.js' %}"></script>
 	<link rel="stylesheet" type="text/css" href="{% static 'materialize/css/materialize.css' %}">
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.0.0/bootstrap-social.css">
 </head>
@@ -15,7 +17,10 @@
 	{% block content %}
 	Base template!
 	{% endblock %}
-	<script type="text/javascript" src="{% static 'jquery.js' %}"></script>
+	<br>
+	<br>
+	<br>
+	<br>
 	<script type="text/javascript" src="{% static 'materialize/js/materialize.js' %}"></script>
 </body>
 </html>
