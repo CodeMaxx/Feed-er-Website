@@ -3,7 +3,6 @@
 {% block title %}
 Add a new course!
 {% endblock %}
-
 {% block content %}
 <br><br>
 <div class="container">
@@ -19,10 +18,14 @@ Add a new course!
 				</div>
 
 				<div class="input-field">
-					<input type="number" min="1" max="3" name="semester" required="required">
-					<label for="semester">Semester:</label>
+					<select name="semester" required>
+                      <option value="" disabled selected>Choose your option</option>
+                      <option value="1">Spring</option>
+                      <option value="2">Fall</option>
+                      <option value="3">Summer</option>
+                    </select>
+                    <label for="semester">Semester:</label>
 				</div>
-
 				<div class="input-field">
 					<input type="text" name="code" required="required">
 					<label for="code">Course Code:</label>

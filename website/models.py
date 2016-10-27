@@ -29,7 +29,7 @@ class Course(models.Model):
 	# assignments are added as foreign keys
 	semester = models.IntegerField()
 	added = models.DateField(auto_now_add=True,auto_now=False)
-	course_code = models.CharField(max_length=5)
+	course_code = models.CharField(max_length=6)
 
 	def __str__(self):
 		return self.course_code
@@ -51,6 +51,7 @@ class Feedback(models.Model):
 	def __str__(self):
 		return self.name
 
+
 ## Feedback Questions and answers
 class FeedbackQuestion(models.Model):
 	question = models.TextField()
@@ -59,6 +60,7 @@ class FeedbackQuestion(models.Model):
 
 	def __str__(self):
 		return self.question
+
 
 ## Answer type to question given by users
 ## Each question will have 5 instances of this connected to it.
@@ -92,6 +94,7 @@ class FeedbackShortAnswer(models.Model):
 ##	Feedback form -> Questions
 ##	Question -> Rating / MCQ / Short Answer
 
+
 ###############################################################################
 ## Contains the assignment details for the current course
 class Assignment(models.Model):
@@ -99,4 +102,7 @@ class Assignment(models.Model):
 	description = models.TextField()
 	deadline = models.DateTimeField(auto_now_add=True)
 	course = models.ForeignKey(Course)
+
+	def __str__(self):
+		return self.name + " - " + self.course.course_code
 

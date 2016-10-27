@@ -10,6 +10,7 @@ from dateutil.parser import parse
 
 # Create your views here.
 
+
 ## Show the main view
 ## More like index page
 def signin(request):
@@ -19,7 +20,6 @@ def signin(request):
             return HttpResponseRedirect(reverse('website:home'))
 
         return render(request, "signin.html")
-
 
     elif request.method == "POST":
 
@@ -66,11 +66,9 @@ def signup(request):
         newmember = Member.objects.create(
             user=newuser,
             fullname=fullname,
-            mtype=mtype,
-        )
+            mtype=mtype, )
         newmember.save()
         return HttpResponseRedirect(reverse('website:signin'))
-
 
 
 ## Add views for Home Page and logic 
@@ -84,36 +82,37 @@ def home(request):
     user = User.objects.get(username=request.user.username)
     member = Member.objects.get(user=user)
 
-    context = {
-        'member':member,
-    }
+    context = {'member': member, }
 
     if member.mtype == "ST":
         logout(request)
-        return HttpResponse('You are not allowed to visit this page. Please use the app since you are a student.')
+        return HttpResponse(
+            'You are not allowed to visit this page. Please use the app since you are a student.'
+        )
 
     return render(request, 'home.html', context)
+
 
 ## Signout and return to homepage
 def signout(request):
     logout(request)
     return HttpResponseRedirect(reverse('website:signin'))
 
+
 ## Complete Registration
 ## Completes facebook signup
 def completeReg(request):
-
-    if request.method == "GET":    # the user is registered now
+    if request.method == "GET":  # the user is registered now
         user = request.user
 
         if not user.is_authenticated():
             return HttpResponse('Invalid Facebook redirect!')
 
         context = {
-            'fullname':user.first_name + ' ' + user.last_name,
-            'username':user.username,
+            'fullname': user.first_name + ' ' + user.last_name,
+            'username': user.username,
         }
-        return render(request,'complete-reg.html',context)
+        return render(request, 'complete-reg.html', context)
 
     elif request.method == "POST":
 
@@ -132,7 +131,8 @@ def completeReg(request):
         if len(member) != 0:
             return HttpResponse('This user already exists! Try logging in!')
 
-        member = Member.objects.create(user=user,fullname=fullname,mtype=mtype)
+        member = Member.objects.create(
+            user=user, fullname=fullname, mtype=mtype)
         member.save()
         return HttpResponseRedirect(reverse('website:home'))
 
@@ -155,21 +155,24 @@ def view_courses(request):
     ## Admin, bring up all the courses
     elif member.mtype == "AD":
         all_courses = Course.objects.all()
-        print (len(all_courses))
-        
         if(len(all_courses) == 0):
-        	return render(request, 'view_courses.html', {'error':'No courses to view. Add some courses first.'})
+            return render(request, 'view_courses.html', {'error':'No courses to view.'})
         try:
-        	profs = [course.members.filter(mtype="PR")[0] for course in all_courses]
+            profs = [course.members.filter(mtype="PR")[0] for course in all_courses]
         except:
-        	return render(request, 'view_courses.html', {'error':'No courses to view. Add some courses first.'})
+            return render(request, 'view_courses.html', {'error':'No courses to view.'})
 
-
-        return render(request, 'view_courses.html', {'all_courses': all_courses, 'member':member, 'profs':profs})
+        return render(request, 'view_courses.html', {
+            'all_courses': all_courses,
+            'member': member,
+            'profs': profs
+        })
     ## Prof or TA, bring up the courses of the prof or TA
     else:
         all_courses = member.course_set.all()
-        return render(request, 'view_courses.html', {'all_courses': all_courses, 'member':member})
+        return render(request, 'view_courses.html',
+                      {'all_courses': all_courses,
+                       'member': member})
 
 
 ### Add courses for Admins
@@ -179,7 +182,8 @@ def add_courses(request):
     if request.method == "GET":
         print(member.mtype)
         if member.mtype == "ST":
-            return HttpResponse("You cannot access the site. Please use the app.")
+            return HttpResponse(
+                "You cannot access the site. Please use the app.")
 
         profs = Member.objects.filter(mtype="PR")
         tas = Member.objects.filter(mtype="TA")
@@ -192,7 +196,7 @@ def add_courses(request):
             'tas':tas,
         }
 
-        return render(request,'add_courses.html',context)
+        return render(request, 'add_courses.html', context)
 
     elif request.method == "POST":
         try:
@@ -200,13 +204,10 @@ def add_courses(request):
             code = request.POST['code']
             semester = int(request.POST['semester'])
         except:
-            return HttpResponse("Invalid POST data.")
+            return HttpResponse(request)
 
         course = Course.objects.create(
-            name=course_name,
-            course_code=code,
-            semester=semester
-        )
+            name=course_name, course_code=code, semester=semester)
 
         prof = request.POST.get('prof')
         students = request.POST.getlist('student')
@@ -225,7 +226,7 @@ def add_courses(request):
             course.members.add(stuObj)
 
         course.save()
-        return HttpResponseRedirect(reverse("website:home"))
+        return HttpResponseRedirect(reverse("website:courses"))
 
 @login_required
 def course_detail(request,pk):
@@ -492,21 +493,21 @@ def view_feedback_all(request):
 ########################################################################################################
 #### Assignment request
 
+
 @login_required()
 def assigns(request):
-    member = Member.objects.filter(user=request.user)
-    all_courses = Course.objects.filter(members=member)
+    member = Member.objects.get(user=request.user)
+    all_courses = member.course_set.all()
     assignments = []
     single_course_assign = []
     for course in all_courses:
-        assign_for_course = course.objects.filter(course=course)
+        assign_for_course = Assignment.objects.filter(course=course)
         for assign in assign_for_course:
             single_course_assign.append(assign)
         assignments.append(single_course_assign)
         single_course_assign = []
 
-    context = { 'courses': all_courses,
-                'assigns': assignments}
+    context = {'courses': all_courses, 'assigns': assignments}
     return render(request, 'assigns.html', context)
 
 
@@ -515,4 +516,3 @@ def add_assigns(request):
     if request.method == "GET":
         return render(request, 'add_assigns.html')
     return HttpResponse('Adding assignment')
-

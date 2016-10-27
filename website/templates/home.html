@@ -1,5 +1,6 @@
 {% extends 'nav.html' %}
 
+{% load staticfiles %}
 {% block title %}
 Home
 {% endblock %}
@@ -9,8 +10,13 @@ Home
 		<br>
 		<br>
 		<br>
+    <center>
 		Welcome, {{member.fullname}} <br>
 		You are a {{member.get_mtype_display}} <br> <br>
+        {% if member.mtype == "AD" %}
+        <img src="{% static 'images/access_granted.png' %}" width="600">
+        {% endif %}
+    </center>
 		<hr>
 
 		<!-- Add content here -->
@@ -28,8 +34,8 @@ Home
 				<div class="col s6">
 					<a href="{% url 'website:view_course' %}" class="btn btn-block ">View Courses</a>
 				</div>
-				<div class="col s6">
-					<a href="{% url 'website:add_feedback_all' %}" class="btn btn-block ">Add Feedback</a>
+                <div class="col s6">
+                    <a href="{% url 'website:view_assignment' %}" class="btn btn-block">View Assignments</a>
 				</div>
 			</div>
 
@@ -38,7 +44,7 @@ Home
 					<a href="{% url 'website:view_feedback_all' %}" class="btn btn-block ">View all Feedbacks</a>
 				</div>
 				<div class="col s6">
-					<!-- <a href="{% url 'website:add_feedback_all' %}" class="btn waves-effect">Add Feedback</a> -->
+					<a href="{% url 'website:add_feedback_all' %}" class="btn btn-block ">Add Feedback</a>
 				</div>
 			</div>
 

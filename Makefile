@@ -5,6 +5,7 @@ help:
 	@echo "make run : runserver"
 	@echo "make mig: migrate"
 	@echo "make mkmg: makemigrations"
+	@echo "make shell: run shell"
 	@echo "feel free to add new features and update the help section."
 	@echo
 run:
