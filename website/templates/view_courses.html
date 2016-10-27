@@ -21,7 +21,15 @@ View Courses
 						       <div class="col s12">
 						         <div class="card">
 						           <div class="card-content">
-						           		Semester: {{course.semester}} <br>
+						           		Semester:
+                                       {%  if course.semester == 1 %}
+                                            Spring
+                                       {% elif course.semester == 2 %}
+                                            Fall
+                                       {% else %}
+                                            Summer
+                                       {% endif %}
+                                       <br>
 						           		Year: {{course.added.year}} <br>
 						           		Course Code: {{course.course_code}} <br>
 										Professor: {{ profs|index:forloop.counter0 }} <br>
@@ -61,5 +69,6 @@ View Courses
 
 		{% endif %}
 	</div>
+    <center><a class="waves-effect waves-light btn" href="{% url 'website:home' %}">Back</a></center>
 
 {% endblock %}

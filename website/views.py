@@ -195,7 +195,7 @@ def add_courses(request):
             code = request.POST['code']
             semester = int(request.POST['semester'])
         except:
-            return HttpResponse("Invalid POST data.")
+            return HttpResponse(request)
 
         course = Course.objects.create(
             name=course_name, course_code=code, semester=semester)
@@ -212,7 +212,7 @@ def add_courses(request):
             course.members.add(stuObj)
 
         course.save()
-        return HttpResponseRedirect(reverse("website:home"))
+        return HttpResponseRedirect(reverse("website:courses"))
 
 @login_required
 def course_detail(request,pk):

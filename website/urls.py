@@ -3,11 +3,14 @@ from django.contrib import admin
 from . import views
 
 urlpatterns = [
+	## Registeration and Signin
     url(r'^$', views.signin, name='signin'),
-    url(r'^signup$', views.signup, name = 'signup'),	# for registering new users
+    url(r'^signup$', views.signup, name = 'signup'),  # for registering new users
     url(r'^signout$', views.signout, name='signout'),
-    url(r'^home$', views.home, name='home'),
     url(r'^complete-reg/', views.completeReg, name='complete-reg'),
+
+	## home sweet home
+	url(r'^home$', views.home, name='home'),
 
     ## Courses relatedstuff
     url(r'^courses$', views.view_courses, name='view_course'),

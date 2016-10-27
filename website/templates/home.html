@@ -1,5 +1,6 @@
 {% extends 'nav.html' %}
 
+{% load staticfiles %}
 {% block title %}
 Home
 {% endblock %}
@@ -9,8 +10,11 @@ Home
 		<br>
 		<br>
 		<br>
+    <center>
 		Welcome, {{member.fullname}} <br>
 		You are a {{member.get_mtype_display}} <br> <br>
+        <img src="{% static 'images/access_granted.png' %}" width="600">
+    </center>
 		<hr>
 
 		<!-- Add content here -->
