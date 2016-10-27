@@ -498,7 +498,7 @@ def view_feedback_all(request):
 def assigns(request):
     member = Member.objects.get(user=request.user)
     all_courses = member.course_set.all()
-    assignments = []
+    assignments = []  # 2D array ; each element contains all assignments of a subject
     single_course_assign = []
     for course in all_courses:
         assign_for_course = Assignment.objects.filter(course=course)

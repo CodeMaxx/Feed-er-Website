@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
-
+{% load index %}
 {% block content %}
     {% for assign in assigns %}
-        {{ courses.forloop.counter0 }}
+        {{ courses | index:forloop.counter0 }}
+        <br>
+        <br>
         {% for foo in assign %}
             {{ foo }}
         {% endfor %}
