@@ -253,12 +253,12 @@ def course_detail(request,pk):
 
 @login_required()
 def assigns(request):
-    member = Member.objects.filter(user=request.user)
-    all_courses = Course.objects.filter(members=member)
+    member = Member.objects.get(user=request.user)
+    all_courses = member.course_set.all()
     assignments = []
     single_course_assign = []
     for course in all_courses:
-        assign_for_course = course.objects.filter(course=course)
+        assign_for_course = Assignment.objects.filter(course=course)
         for assign in assign_for_course:
             single_course_assign.append(assign)
         assignments.append(single_course_assign)

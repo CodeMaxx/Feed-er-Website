@@ -29,11 +29,12 @@ class Course(models.Model):
 	# assignments are added as foreign keys
 	semester = models.IntegerField()
 	added = models.DateField(auto_now_add=True,auto_now=False)
-	course_code = models.CharField(max_length=5)
+	course_code = models.CharField(max_length=6)
 
 	def __str__(self):
 		return self.course_code
 ##############################################################################
+
 
 ## Contains the feedback for the current course
 class Feedback(models.Model): 
@@ -41,15 +42,18 @@ class Feedback(models.Model):
 	deadline = models.DateTimeField(blank=True)
 	course = models.ForeignKey(Course)
 
+
 ## Feedback Questions and answers
 class FeedbackQuestion(models.Model):
 	question = models.TextField()
 	feedback = models.ForeignKey(Feedback)
 
+
 ## Answer type to question given by users
 class FeedbackRatingAnswer(models.Model):
 	q = models.ForeignKey(FeedbackQuestion)
 	rating = models.IntegerField(default=0)
+
 
 ###############################################################################
 ## Contains the assignment details for the current course
@@ -58,4 +62,7 @@ class Assignment(models.Model):
 	description = models.TextField()
 	deadline = models.DateTimeField(auto_now_add=True)
 	course = models.ForeignKey(Course)
+
+	def __str__(self):
+		return self.name + " - " + self.course.course_code
 

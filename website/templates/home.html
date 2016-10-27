@@ -13,7 +13,9 @@ Home
     <center>
 		Welcome, {{member.fullname}} <br>
 		You are a {{member.get_mtype_display}} <br> <br>
+        {% if member.mtype == "AD" %}
         <img src="{% static 'images/access_granted.png' %}" width="600">
+        {% endif %}
     </center>
 		<hr>
 
@@ -29,8 +31,11 @@ Home
 			</div>
 		{% else %}
 			<div class="row center">
-				<div class="col s12">
+				<div class="col s6">
 					<a href="{% url 'website:view_course' %}" class="btn waves-effect">View Courses</a>
+				</div>
+                <div class="col s6">
+                    <a href="{% url 'website:view_assignment' %}" class="btn waves-effect">View Assignments</a>
 				</div>
 			</div>
 		{% endif %}
