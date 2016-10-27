@@ -226,7 +226,7 @@ def add_courses(request):
             course.members.add(stuObj)
 
         course.save()
-        return HttpResponseRedirect(reverse("website:courses"))
+        return HttpResponseRedirect(reverse("website:view_course"))
 
 @login_required
 def course_detail(request,pk):
