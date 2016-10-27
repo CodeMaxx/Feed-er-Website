@@ -3,6 +3,7 @@ package com.homebrew.feed_er;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,14 +26,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static com.homebrew.feed_er.R.id.textView;
 
 public class CalendarActivity extends AppCompatActivity {
-
+    private Map<Date,String> impDates;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +72,7 @@ public class CalendarActivity extends AppCompatActivity {
 
             //Toast t = Toast.makeText(getApplicationContext(),"Will send request",Toast.LENGTH_SHORT);
             //t.show();
-
+            impDates = new HashMap<>();
             Log.d("CLG", "sending request...");
             StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                     new Response.Listener<String>() {
@@ -83,13 +86,15 @@ public class CalendarActivity extends AppCompatActivity {
                                 JSONArray examDates = response.getJSONArray("examDates");
                                 final CaldroidFragment caldroidFragment = new CaldroidFragment();
                                 final Map<Date, Drawable> backgroundForDateMap = new HashMap<>();
+                                impDates.clear();
                                 final Calendar c = Calendar.getInstance();
                                 for (int i = 0; i < assignDeadlines.length(); i++) {
                                     JSONObject assignDeadline = assignDeadlines.getJSONObject(i);
                                     Log.d("JSON", assignDeadline.toString());
                                     Date dL = new Date(assignDeadline.getInt("year")-1900,assignDeadline.getInt("month")-1,assignDeadline.getInt("day"));
-
                                     c.setTimeInMillis(dL.getTime());
+
+                                    impDates.put(c.getTime(),assignDeadline.getString("course")+"#"+assignDeadline.getString("description"));
                                     backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.YELLOW));
                                     Log.d("JSON", assignDeadline.getString("course"));
                                     Log.d("JSON", dL.toString());
@@ -100,6 +105,7 @@ public class CalendarActivity extends AppCompatActivity {
                                     Date dL = new Date(examDate.getInt("year")-1900,examDate.getInt("month")-1,examDate.getInt("day"));
 
                                     c.setTimeInMillis(dL.getTime());
+                                    impDates.put(c.getTime(),examDate.getString("course")+"#"+examDate.getString("description"));
                                     backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.RED));
                                     Log.d("JSON", examDate.getString("course"));
                                     Log.d("JSON", dL.toString());
@@ -109,7 +115,10 @@ public class CalendarActivity extends AppCompatActivity {
                                 final CaldroidListener listener = new CaldroidListener() {
                                     @Override
                                     public void onSelectDate(Date date, View view) {
-                                        Log.d("SELECT DATE", date.toString());
+                                        //Log.d("SELECT DATE", date.toString());
+                                        if(impDates.containsKey(date)){
+                                            Log.d("IMPDATE", impDates.get(date));
+                                        }
                                     }
 
 
