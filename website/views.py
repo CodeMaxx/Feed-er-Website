@@ -140,8 +140,8 @@ def completeReg(request):
         return HttpResponse('Invalid request sent!')
 
 ######################################################################################s
-# 	Course page
-#	View courses, add courses and show details for courses 
+#     Course page
+#    View courses, add courses and show details for courses 
 ### View courses, all courses for admins, Selected courses for Profs, or TAs
 ######################################################################################
 @login_required
@@ -199,6 +199,9 @@ def add_courses(request):
         return render(request, 'add_courses.html', context)
 
     elif request.method == "POST":
+
+        print(request.POST)
+
         try:
             course_name = request.POST['name']
             code = request.POST['code']
@@ -226,6 +229,147 @@ def add_courses(request):
             course.members.add(stuObj)
 
         course.save()
+
+        ## Save the midsem Feedback now
+        ## Copied from add_feedback, remember to change this in case of bugs
+        ##########################################################################################################################
+
+        deadlineM = parse(request.POST['deadlineM'])
+        
+        myfeedback = Feedback.objects.create(name=request.POST['feedbacknameM'], course=course, deadline=deadlineM)
+        myfeedback.save()
+
+        ## Get the rating questions
+        rating_q = request.POST.getlist('RquestionM')
+        for r in rating_q:
+            newRatingQuestion = FeedbackQuestion.objects.create(
+                question=r,
+                feedback=myfeedback,
+                q_type="RATE",
+            )
+            newRatingQuestion.save()
+
+            # Give the rating answers, 5 instances 
+            for i in range(5):
+                rating = FeedbackRatingAnswer.objects.create(
+                    q=newRatingQuestion,
+                    rating=(i+1),
+                )
+                rating.save()
+
+        ## Get the Short Questions
+        short_q = request.POST.getlist('SquestionM')
+        if short_q is not None:
+            for question in short_q:
+                shortQuestion = FeedbackQuestion.objects.create(
+                    question=question, 
+                    feedback=myfeedback,
+                    q_type='SHORT',
+                )
+                shortQuestion.save()
+
+        ## Get the MCQ questions
+        ## Tricky
+        mcq_question = request.POST.getlist('MquestionM')
+        if mcq_question is not None:
+            counter = 0                 # Counter for m_answer
+            q_no = 0                    # Number of questions
+            MAnswer = request.POST.getlist('MAnswerM')
+            NoOptions = request.POST.getlist('NoOptionsM')
+
+            ## Add question and add options
+            for question in mcq_question:
+                m_q = FeedbackQuestion.objects.create(
+                    question=question, 
+                    feedback=myfeedback,
+                    q_type='MCQ',
+                )
+                m_q.save()
+
+                ## Add options
+                options = int(NoOptions[q_no])
+                for i in range(options):
+                    addOption = FeedbackMCQChoice.objects.create(
+                        text = MAnswer[counter],
+                        q = m_q,
+                    )
+                    addOption.save()
+                    counter+=1
+
+                q_no+=1
+
+        ########################################################################################################################## 
+
+        ## Save the midsem Feedback now
+        ## Copied from add_feedback, remember to change this in case of bugs
+        ##########################################################################################################################
+
+        deadlineE = parse(request.POST['deadlineE'])
+        
+        myfeedback = Feedback.objects.create(name=request.POST['feedbacknameE'], course=course, deadline=deadlineE)
+        myfeedback.save()
+
+        ## Get the rating questions
+        rating_q = request.POST.getlist('RquestionE')
+        for r in rating_q:
+            newRatingQuestion = FeedbackQuestion.objects.create(
+                question=r,
+                feedback=myfeedback,
+                q_type="RATE",
+            )
+            newRatingQuestion.save()
+
+            # Give the rating answers, 5 instances 
+            for i in range(5):
+                rating = FeedbackRatingAnswer.objects.create(
+                    q=newRatingQuestion,
+                    rating=(i+1),
+                )
+                rating.save()
+
+        ## Get the Short Questions
+        short_q = request.POST.getlist('SquestionE')
+        if short_q is not None:
+            for question in short_q:
+                shortQuestion = FeedbackQuestion.objects.create(
+                    question=question, 
+                    feedback=myfeedback,
+                    q_type='SHORT',
+                )
+                shortQuestion.save()
+
+        ## Get the MCQ questions
+        ## Tricky
+        mcq_question = request.POST.getlist('MquestionE')
+        if mcq_question is not None:
+            counter = 0                 # Counter for m_answer
+            q_no = 0                    # Number of questions
+            MAnswer = request.POST.getlist('MAnswerE')
+            NoOptions = request.POST.getlist('NoOptionsE')
+
+            ## Add question and add options
+            for question in mcq_question:
+                m_q = FeedbackQuestion.objects.create(
+                    question=question, 
+                    feedback=myfeedback,
+                    q_type='MCQ',
+                )
+                m_q.save()
+
+                ## Add options
+                options = int(NoOptions[q_no])
+                for i in range(options):
+                    addOption = FeedbackMCQChoice.objects.create(
+                        text = MAnswer[counter],
+                        q = m_q,
+                    )
+                    addOption.save()
+                    counter+=1
+
+                q_no+=1
+
+        ########################################################################################################################## 
+
         return HttpResponseRedirect(reverse("website:view_course"))
 
 @login_required
@@ -263,229 +407,230 @@ def course_detail(request,pk):
         
     return render(request, 'course_detail.html',context)
 #################################################################################################
-# 	Feedback pages - Add feedback, view feedback replies
-# 	Anything else? 
+#     Feedback pages - Add feedback, view feedback replies
+#     Anything else? 
 #################################################################################################
 @login_required
 def add_feedback(request,course_id):
 
-	member = Member.objects.get(user = request.user)
-	if member.mtype == "ST":
-		return render(request, 'add_feedback.html', {'error':'You are a student and not allowed. Please use the app.'})
+    member = Member.objects.get(user = request.user)
+    if member.mtype == "ST":
+        return render(request, 'add_feedback.html', {'error':'You are a student and not allowed. Please use the app.'})
 
-	elif member.mtype == "AD":
-		return render(request, 'add_feedback.html', {'error':'Professors and TAs will now handle feedbacks.'})
+    elif member.mtype == "AD":
+        return render(request, 'add_feedback.html', {'error':'Professors and TAs will now handle feedbacks.'})
 
-	else:
-		# GET request, render stuff here
-		if request.method == "GET":
-			course = get_object_or_404(Course,pk=course_id)
-			if course not in member.course_set.all():
-				return render(request, 'add_feedback.html', {'error':'This is not your course. You cannot add a feedback form for the same.'})
+    else:
+        # GET request, render stuff here
+        if request.method == "GET":
+            course = get_object_or_404(Course,pk=course_id)
+            if course not in member.course_set.all():
+                return render(request, 'add_feedback.html', {'error':'This is not your course. You cannot add a feedback form for the same.'})
 
-			context = {
-				"course":course,
-				"member":member,
-			}
-			return render(request, 'add_feedback.html',context)
+            context = {
+                "course":course,
+                "member":member,
+            }
+            return render(request, 'add_feedback.html',context)
 
-		# POST request sent, add the feedback here
-		elif request.method == "POST":
-			print(request.POST)
-			# return HttpResponse("Not added")
+        # POST request sent, add the feedback here
+        elif request.method == "POST":
+            print(request.POST)
+            # return HttpResponse("Not added")
 
-			course = Course.objects.get(pk = int(request.POST['course_id']))
-			deadline = parse(request.POST['deadline'])
-			
-			myfeedback = Feedback.objects.create(name=request.POST['feedbackname'], course=course, deadline=deadline)
-			myfeedback.save()
+            course = Course.objects.get(pk = int(request.POST['course_id']))
+            deadline = parse(request.POST['deadline'])
+            
+            myfeedback = Feedback.objects.create(name=request.POST['feedbackname'], course=course, deadline=deadline)
+            myfeedback.save()
 
-			## Get the rating questions
-			rating_q = request.POST.getlist('Rquestion')
-			for r in rating_q:
-				newRatingQuestion = FeedbackQuestion.objects.create(
-					question=r,
-					feedback=myfeedback,
-					q_type="RATE",
-				)
-				newRatingQuestion.save()
+            ## Get the rating questions
+            rating_q = request.POST.getlist('Rquestion')
+            
+            for r in rating_q:
+                newRatingQuestion = FeedbackQuestion.objects.create(
+                    question=r,
+                    feedback=myfeedback,
+                    q_type="RATE",
+                )
+                newRatingQuestion.save()
 
-				# Give the rating answers, 5 instances 
-				for i in range(5):
-					rating = FeedbackRatingAnswer.objects.create(
-						q=newRatingQuestion,
-						rating=(i+1),
-					)
-					rating.save()
+                # Give the rating answers, 5 instances 
+                for i in range(5):
+                    rating = FeedbackRatingAnswer.objects.create(
+                        q=newRatingQuestion,
+                        rating=(i+1),
+                    )
+                    rating.save()
 
-			## Get the Short Questions
-			short_q = request.POST.getlist('Squestion')
-			if short_q is not None:
-				for question in short_q:
-					shortQuestion = FeedbackQuestion.objects.create(
-						question=r, 
-						feedback=myfeedback,
-						q_type='SHORT',
-					)
-					shortQuestion.save()
+            ## Get the Short Questions
+            short_q = request.POST.getlist('Squestion')
+            if short_q is not None:
+                for question in short_q:
+                    shortQuestion = FeedbackQuestion.objects.create(
+                        question=question, 
+                        feedback=myfeedback,
+                        q_type='SHORT',
+                    )
+                    shortQuestion.save()
 
-			## Get the MCQ questions
-			## Tricky
-			mcq_question = request.POST.getlist('Mquestion')
-			if mcq_question is not None:
-				counter = 0					# Counter for m_answer
-				q_no = 0					# Number of questions
-				MAnswer = request.POST.getlist('MAnswer')
-				NoOptions = request.POST.getlist('NoOptions')
+            ## Get the MCQ questions
+            ## Tricky
+            mcq_question = request.POST.getlist('Mquestion')
+            if mcq_question is not None:
+                counter = 0                    # Counter for m_answer
+                q_no = 0                    # Number of questions
+                MAnswer = request.POST.getlist('MAnswer')
+                NoOptions = request.POST.getlist('NoOptions')
 
-				## Add question and add options
-				for question in mcq_question:
-					m_q = FeedbackQuestion.objects.create(
-						question=r, 
-						feedback=myfeedback,
-						q_type='MCQ',
-					)
-					m_q.save()
+                ## Add question and add options
+                for question in mcq_question:
+                    m_q = FeedbackQuestion.objects.create(
+                        question=question, 
+                        feedback=myfeedback,
+                        q_type='MCQ',
+                    )
+                    m_q.save()
 
-					## Add options
-					options = int(NoOptions[q_no])
-					for i in range(options):
-						addOption = FeedbackMCQChoice.objects.create(
-							text = MAnswer[counter],
-							q = m_q,
-						)
-						addOption.save()
-						counter+=1
+                    ## Add options
+                    options = int(NoOptions[q_no])
+                    for i in range(options):
+                        addOption = FeedbackMCQChoice.objects.create(
+                            text = MAnswer[counter],
+                            q = m_q,
+                        )
+                        addOption.save()
+                        counter+=1
 
-					q_no+=1
+                    q_no+=1
 
 
-			return HttpResponseRedirect(reverse('website:home'))
+            return HttpResponseRedirect(reverse('website:home'))
 
-		else:
-			return HttpResponse("Bad request!")
+        else:
+            return HttpResponse("Bad request!")
 
 @login_required
 def view_feedback(request,pk):
 
-	member = Member.objects.get(user = request.user)
-	if member.mtype == "ST":
-		return render(request, 'add_feedback.html', {'error':'You are a student and not allowed. Please use the app.'})
+    member = Member.objects.get(user = request.user)
+    if member.mtype == "ST":
+        return render(request, 'add_feedback.html', {'error':'You are a student and not allowed. Please use the app.'})
 
-	elif member.mtype == "AD":
-		return render(request, 'add_feedback.html', {'error':'Professors and TAs will now handle feedbacks.'})
+    elif member.mtype == "AD":
+        return render(request, 'add_feedback.html', {'error':'Professors and TAs will now handle feedbacks.'})
 
-	else:
-		# GET request, render stuff here
-		if request.method == "GET":
-			feedback = get_object_or_404(Feedback,pk=pk)
-			course = feedback.course
+    else:
+        # GET request, render stuff here
+        if request.method == "GET":
+            feedback = get_object_or_404(Feedback,pk=pk)
+            course = feedback.course
 
-			if course not in member.course_set.all():
-				return render(request, 'view_feedback.html',{'error':'This is not your course.'})
+            if course not in member.course_set.all():
+                return render(request, 'view_feedback.html',{'error':'This is not your course.'})
 
-			rating_q = feedback.feedbackquestion_set.filter(q_type="RATE")
-			short_q = feedback.feedbackquestion_set.filter(q_type="SHORT")
-			mcq_q = feedback.feedbackquestion_set.filter(q_type="MCQ")
+            rating_q = feedback.feedbackquestion_set.filter(q_type="RATE")
+            short_q = feedback.feedbackquestion_set.filter(q_type="SHORT")
+            mcq_q = feedback.feedbackquestion_set.filter(q_type="MCQ")
 
-			rating = []
-			for q in rating_q:
-				rating.append({
-					'question':q,
-					'answers':q.feedbackratinganswer_set.all(),
-				})
+            rating = []
+            for q in rating_q:
+                rating.append({
+                    'question':q,
+                    'answers':q.feedbackratinganswer_set.all(),
+                })
 
-			short = []
-			if len(short_q) != 0:
-				for q in short_q:
-					short.append({
-						'question':q,
-						'answers':q.feedbackshortanswer_set.all(),
-					})
+            short = []
+            if len(short_q) != 0:
+                for q in short_q:
+                    short.append({
+                        'question':q,
+                        'answers':q.feedbackshortanswer_set.all(),
+                    })
 
-			mcq = []
-			if len(mcq_q) != 0:
-				for q in mcq_q:
-					mcq.append({
-						'question':q,
-						'answers':q.feedbackmcqchoice_set.all(),
-					})
+            mcq = []
+            if len(mcq_q) != 0:
+                for q in mcq_q:
+                    mcq.append({
+                        'question':q,
+                        'answers':q.feedbackmcqchoice_set.all(),
+                    })
 
 
-			context = {
-				'feedback':feedback,
-				'course':course,
-				'rating':rating,
-				'short':short,
-				'mcq':mcq,
-			}
+            context = {
+                'feedback':feedback,
+                'course':course,
+                'rating':rating,
+                'short':short,
+                'mcq':mcq,
+            }
 
-			return render(request,'view_feedback.html',context)
+            return render(request,'view_feedback.html',context)
 
 
 ### Add feedbacks considering all courses.
 @login_required
 def add_feedback_all(request):
-	member = Member.objects.get(user = request.user)
-	if member.mtype == "ST":
-		return render(request, 'add_feedback_all.html', {'error':'You are a student and not allowed. Please use the app.'})
+    member = Member.objects.get(user = request.user)
+    if member.mtype == "ST":
+        return render(request, 'add_feedback_all.html', {'error':'You are a student and not allowed. Please use the app.'})
 
-	elif member.mtype == "AD":
-		return render(request, 'add_feedback_all.html', {'error':'Professors and TAs will now handle feedbacks.'})
+    elif member.mtype == "AD":
+        return render(request, 'add_feedback_all.html', {'error':'Professors and TAs will now handle feedbacks.'})
 
-	else:
-		# GET request, render stuff here
-		if request.method == "GET":
+    else:
+        # GET request, render stuff here
+        if request.method == "GET":
 
-			all_courses = member.course_set.all()
-			if len(all_courses) == 0:
-				return render(request, 'add_feedback_all.html',{'error':'You have no courses right now.'})
+            all_courses = member.course_set.all()
+            if len(all_courses) == 0:
+                return render(request, 'add_feedback_all.html',{'error':'You have no courses right now.'})
 
-			context = {
-				'all_courses':all_courses,
-				'member':member,
-			}
+            context = {
+                'all_courses':all_courses,
+                'member':member,
+            }
 
-			return render(request,'add_feedback_all.html',context)
+            return render(request,'add_feedback_all.html',context)
 
-		else:
-			return HttpResponseRedirect(reverse('website:home'))
+        else:
+            return HttpResponseRedirect(reverse('website:home'))
 
 ### View all feedbacks by courses!
 @login_required
 def view_feedback_all(request):
 
-	member = Member.objects.get(user = request.user)
-	if member.mtype == "ST":
-		return render(request, 'view_feedback_all.html', {'error':'You are a student and not allowed. Please use the app.'})
+    member = Member.objects.get(user = request.user)
+    if member.mtype == "ST":
+        return render(request, 'view_feedback_all.html', {'error':'You are a student and not allowed. Please use the app.'})
 
-	elif member.mtype == "AD":
-		return render(request, 'view_feedback_all.html', {'error':'Professors and TAs will now handle feedbacks.'})
+    elif member.mtype == "AD":
+        return render(request, 'view_feedback_all.html', {'error':'Professors and TAs will now handle feedbacks.'})
 
-	else:
-		# GET request, render stuff here
-		if request.method == "GET":
+    else:
+        # GET request, render stuff here
+        if request.method == "GET":
 
-			all_courses = member.course_set.all()
-			if len(all_courses) == 0:
-				return render(request, 'view_feedback_all.html',{'error':'You have no courses right now.'})
+            all_courses = member.course_set.all()
+            if len(all_courses) == 0:
+                return render(request, 'view_feedback_all.html',{'error':'You have no courses right now.'})
 
-			course_data = []
-			for course in all_courses:
-				course_data.append({
-					'course':course,
-					'feedbacks':course.feedback_set.all(),
-				})
+            course_data = []
+            for course in all_courses:
+                course_data.append({
+                    'course':course,
+                    'feedbacks':course.feedback_set.all(),
+                })
 
-			context = {
-				'course_data':course_data,
-				'member':member,
-			}
+            context = {
+                'course_data':course_data,
+                'member':member,
+            }
 
-			return render(request,'view_feedback_all.html',context)
+            return render(request,'view_feedback_all.html',context)
 
-		else:
-			return HttpResponseRedirect(reverse('website:home'))
+        else:
+            return HttpResponseRedirect(reverse('website:home'))
 
 
 
