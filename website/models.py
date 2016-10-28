@@ -44,12 +44,15 @@ QUESTION_TYPES = (
 ## Contains the feedback for the current course
 class Feedback(models.Model): 
 	name = models.TextField()
-	deadline = models.DateTimeField(blank=True)
+	deadline = models.DateTimeField(blank=False)
 	course = models.ForeignKey(Course)
 	students = models.ManyToManyField(Member,blank=True)
 
 	def __str__(self):
 		return self.name
+
+	class Meta:
+		ordering = ['-deadline']
 
 
 ## Feedback Questions and answers

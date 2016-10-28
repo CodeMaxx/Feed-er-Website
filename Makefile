@@ -1,4 +1,4 @@
-.PHONY: help run mig mkmg shell
+.PHONY: help run mig mkmg shell doall
 
 help:
 	@echo
@@ -19,4 +19,11 @@ mkmg:
 
 shell:
 	@python3 manage.py shell
+
+doall:
+	@python3 manage.py makemigrations
+	@python3 manage.py migrate
+	@python3 manage.py runserver
+
+
 
