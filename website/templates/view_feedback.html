@@ -12,20 +12,23 @@
 				{{error}}
 			</div>
 		{% else %}
+		<!-- Course details -->
 			<h5>Feedback details for {{feedback.name}}</h5>
 			<b>Course: </b> {{course.name}} <br>
 			<b>Deadline: </b> {{feedback.deadline | date:"M d, Y" }} <br>
 			<br><br>
 			<div class="">
+			<!-- Rating Questions -->
 				<h5>Rating Questions</h5>
 				{% for q in rating %}
 					<div class="card-panel">
 						<h5><b>Q.</b> {{q.question}}</h5>
-						<ol>
+						<!-- <ol>
 						{% for ans in q.answers %}
 							<li>Rating: {{ans.rating}}, Votes: {{ans.votes}}</li>
 						{% endfor %}
-						</ol>
+						</ol> -->
+						<div id="rating-answer{{forloop.counter}}"></div>
 					</div>
 				{% endfor %}
 				<!-- MCQ here -->
@@ -36,11 +39,12 @@
 					{% for q in mcq %}
 						<div class="card-panel">
 							<h5><b>Q.</b> {{q.question}}</h5>
-							<ol>
+							<!-- <ol>
 							{% for ans in q.answers %}
 								<li>{{ans.text}},Votes given: {{ans.votes_count}}</li>
 							{% endfor %}
-							</ol>
+							</ol> -->
+							<div id="mcq-answer{{forloop.counter}}"></div>
 						</div>
 					{% endfor %}
 				{% endif %}
@@ -68,4 +72,36 @@
 			</div>
 		{% endif %}
 	</div>
+
+	<script type="text/javascript">
+		// For all the rating Questions
+		{% for q in rating %}
+			new Morris.Bar({
+			  element: 'rating-answer{{forloop.counter}}',
+			  data: [
+			 	{% for ans in q.answers %}{ y: '{{ans.rating}}', 'number_of_students':{{ans.votes}} },{% endfor %}
+			  ],
+			  xkey: 'y',
+			  ykeys: ['number_of_students'],
+			  labels: ['Number of students'],
+			  resize: true,
+			});
+		{% endfor %}
+
+
+		{% for q in mcq %}
+			Morris.Donut({
+			  element: 'mcq-answer{{forloop.counter}}',
+			  data: [
+			    {% for ans in q.answers %}{label: '{{ans.text}}', value: {{ans.votes_count}} },{% endfor %}
+			  ],
+			  resize:true,
+			  formatter: function (y, data) { return 'Votes: ' + y }
+			});
+
+		{% endfor %}
+
+
+
+	</script>
 {% endblock %}
