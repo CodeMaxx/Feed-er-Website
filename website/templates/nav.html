@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 
 {% block navbar %}
-<nav>
-    <div class="nav-wrapper blue">
+<div class="navbar-fixed" style="z-index: 100">
+<nav style="z-index: 100">
+    <div class="nav-wrapper blue" style="z-index: 100">
       <a href="{% url 'website:home' %}" class="brand-logo">&nbsp;&nbsp;Feed'er</a>
       <ul id="nav-mobile" class="right hide-on-med-and-down">
       	<li><a href="{% url 'website:home' %}">Home</a></li>       
@@ -10,6 +11,7 @@
       </ul>
     </div>
 </nav>
+</div>
 {% endblock %}
 
 {#{% block back %}#}

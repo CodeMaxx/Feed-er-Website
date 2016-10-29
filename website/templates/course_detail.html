@@ -30,7 +30,7 @@
 					<h5>Feedbacks</h5>
 				</div>
 				<div class="col s5 right-align">
-				{% if member.mtype != "AD" %}<a href="{% url 'website:add_feedback' course.pk %}" class="btn red">Add Feedback</a>{% endif %}
+				{% if member.mtype != "AD" %}<a href="{% url 'website:add_feedback' course.pk %}" class="btn green">Add Feedback</a>{% endif %}
 				</div>
 			</div>
 			{% if feedbacks %}
@@ -56,18 +56,40 @@
 			{% else %}
 				<p>Hurray, no feedbacks!</p>
 			{% endif %}
-
-			<h5>Assignments</h5>
+			<br><hr>
+			<div class="row">
+				<div class="col s7">
+					<h5>Assignments</h5>
+				</div>
+				<div class="col s5 right-align">
+				{% if member.mtype != "AD" %}<a href="{% url 'website:add_assignment' %}" class="btn green">Add Assignment</a>{% endif %}
+				</div>	
+			</div>		
 			
 			{% if assignments %}
 				{% for assignment in assignments %}
-				<p>{{assignment.name}}</p>
+								<div class="card">
+						           <div class="card-content">
+						           		<b>Name:</b> {{assignment.name}} <br>
+						           		<b>Deadline:</b> {{assignment.deadline | date:'d M, Y'}}
+						           		{% if feedback.deadline < now %}
+						           		<p class="red-text"><b>The deadline for the assignment has passed..</b></p>
+						           		{% else %}
+						           		<p class="green-text"><b>The deadline for the assignment hasn't passed.</b></p>
+						           		{% endif %}
+						           </div>
+									{% if member.mtype != "AD" %}
+									<div class="card-action">
+									<a class="btn" href="{% url 'website:view_assign_info' assignment.pk %}">View assignment details</a> <br>
+									</div>
+									{% endif %}
+						         </div>
 				{% endfor %}
 			{% else %}
 				<p>Hurray, no assignments!</p>
 			{% endif %}
 
 		{% endif %}
+		<center><a class="waves-effect waves-light btn" href="{% url 'website:view_course' %}">Back</a></center>
 	</div>
-    <center><a class="waves-effect waves-light btn" href="{% url 'website:view_course' %}">Back</a></center>
 {% endblock %}
