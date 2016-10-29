@@ -79,8 +79,10 @@ def home(request):
     if request.user.is_anonymous():
         return HttpResponseRedirect(reverse('website:signin'))
 
-    if request.user.is_superuser:
-        return HttpResponseRedirect('/admin')
+    
+    ## Why dude why
+    # if request.user.is_superuser:
+    #     return HttpResponseRedirect('/admin')
 
     ## get member and log out if student
     user = User.objects.get(username=request.user.username)
