@@ -5,3 +5,4 @@ markdown
 bcrypt
 python-social-auth
 python-dateutil
+django-livereload-server

@@ -51,7 +51,7 @@ View Courses
 						           <div class="card-content">
 						           		Semester: {{course.semester}} <br>
 						           		Year: {{course.added.year}} <br>
-						           		Course Code: {{course.course_code}} <br>
+						           		Course Code: {{course.course_code}}
 						           </div>
 						           <div class="card-action">
 						           		<a href="{% url 'website:course_detail' course.pk %}" class="btn waves-effect">{{course.name}}</a>
@@ -69,6 +69,4 @@ View Courses
 
 		{% endif %}
 	</div>
-    <center><a class="waves-effect waves-light btn" href="{% url 'website:home' %}">Back</a></center>
-
 {% endblock %}

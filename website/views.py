@@ -1,4 +1,4 @@
-from django.shortcuts import render,reverse, get_object_or_404
+from django.shortcuts import render, reverse, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -8,6 +8,7 @@ from django.utils.dateparse import parse_date
 from datetime import datetime
 from dateutil.parser import parse
 from django.utils import timezone
+
 # Create your views here.
 
 
@@ -28,7 +29,7 @@ def signin(request):
 
         user = authenticate(username=username, password=password)
         if user is None:
-            return HttpResponse("User not found.")
+            return HttpResponse("Invalid Username/Password")
         login(request, user)
         return HttpResponseRedirect(reverse('website:home'))
 
@@ -54,7 +55,7 @@ def signup(request):
             #return HttpResponseRedirect(reverse('website:signin'))
             return HttpResponse("User already exists. Please login.")
 
-        newuser = User.objects.create(username=username,email=username)
+        newuser = User.objects.create(username=username, email=username)
         newuser.set_password(password)
         newuser.save()
 
@@ -77,6 +78,9 @@ def home(request):
     ## Anon users are shooed away
     if request.user.is_anonymous():
         return HttpResponseRedirect(reverse('website:signin'))
+
+    if request.user.is_superuser:
+        return HttpResponseRedirect('/admin')
 
     ## get member and log out if student
     user = User.objects.get(username=request.user.username)
@@ -139,6 +143,7 @@ def completeReg(request):
     else:
         return HttpResponse('Invalid request sent!')
 
+
 ######################################################################################s
 #     Course page
 #    View courses, add courses and show details for courses 
@@ -155,12 +160,16 @@ def view_courses(request):
     ## Admin, bring up all the courses
     elif member.mtype == "AD":
         all_courses = Course.objects.all()
-        if(len(all_courses) == 0):
-            return render(request, 'view_courses.html', {'error':'No courses to view.'})
+        if (len(all_courses) == 0):
+            return render(request, 'view_courses.html',
+                          {'error': 'No courses to view.'})
         try:
-            profs = [course.members.filter(mtype="PR")[0] for course in all_courses]
+            profs = [
+                course.members.filter(mtype="PR")[0] for course in all_courses
+            ]
         except:
-            return render(request, 'view_courses.html', {'error':'No courses to view.'})
+            return render(request, 'view_courses.html',
+                          {'error': 'No courses to view.'})
 
         return render(request, 'view_courses.html', {
             'all_courses': all_courses,
@@ -190,10 +199,10 @@ def add_courses(request):
         students = Member.objects.filter(mtype="ST")
 
         context = {
-            'mtype':member.mtype,
-            'profs':profs,
-            'students':students,
-            'tas':tas,
+            'mtype': member.mtype,
+            'profs': profs,
+            'students': students,
+            'tas': tas,
         }
 
         return render(request, 'add_courses.html', context)
@@ -215,7 +224,7 @@ def add_courses(request):
         prof = request.POST.get('prof')
         students = request.POST.getlist('student')
         tas = request.POST.getlist('ta')
-        print(prof,students,tas)
+        print(prof, students, tas)
 
         prof = Member.objects.get(user__username=prof)
         course.members.add(prof)
@@ -223,7 +232,7 @@ def add_courses(request):
         for ta in tas:
             taObj = Member.objects.get(user__username=ta)
             course.members.add(taObj)
-            
+
         for student in students:
             stuObj = Member.objects.get(user__username=student)
             course.members.add(stuObj)
@@ -235,8 +244,11 @@ def add_courses(request):
         ##########################################################################################################################
 
         deadlineM = parse(request.POST['deadlineM'])
-        
-        myfeedback = Feedback.objects.create(name=request.POST['feedbacknameM'], course=course, deadline=deadlineM)
+
+        myfeedback = Feedback.objects.create(
+            name=request.POST['feedbacknameM'],
+            course=course,
+            deadline=deadlineM)
         myfeedback.save()
 
         ## Get the rating questions
@@ -245,16 +257,14 @@ def add_courses(request):
             newRatingQuestion = FeedbackQuestion.objects.create(
                 question=r,
                 feedback=myfeedback,
-                q_type="RATE",
-            )
+                q_type="RATE", )
             newRatingQuestion.save()
 
             # Give the rating answers, 5 instances 
             for i in range(5):
                 rating = FeedbackRatingAnswer.objects.create(
                     q=newRatingQuestion,
-                    rating=(i+1),
-                )
+                    rating=(i + 1), )
                 rating.save()
 
         ## Get the Short Questions
@@ -262,41 +272,38 @@ def add_courses(request):
         if short_q is not None:
             for question in short_q:
                 shortQuestion = FeedbackQuestion.objects.create(
-                    question=question, 
+                    question=question,
                     feedback=myfeedback,
-                    q_type='SHORT',
-                )
+                    q_type='SHORT', )
                 shortQuestion.save()
 
         ## Get the MCQ questions
         ## Tricky
         mcq_question = request.POST.getlist('MquestionM')
         if mcq_question is not None:
-            counter = 0                 # Counter for m_answer
-            q_no = 0                    # Number of questions
+            counter = 0  # Counter for m_answer
+            q_no = 0  # Number of questions
             MAnswer = request.POST.getlist('MAnswerM')
             NoOptions = request.POST.getlist('NoOptionsM')
 
             ## Add question and add options
             for question in mcq_question:
                 m_q = FeedbackQuestion.objects.create(
-                    question=question, 
+                    question=question,
                     feedback=myfeedback,
-                    q_type='MCQ',
-                )
+                    q_type='MCQ', )
                 m_q.save()
 
                 ## Add options
                 options = int(NoOptions[q_no])
                 for i in range(options):
                     addOption = FeedbackMCQChoice.objects.create(
-                        text = MAnswer[counter],
-                        q = m_q,
-                    )
+                        text=MAnswer[counter],
+                        q=m_q, )
                     addOption.save()
-                    counter+=1
+                    counter += 1
 
-                q_no+=1
+                q_no += 1
 
         ########################################################################################################################## 
 
@@ -305,8 +312,11 @@ def add_courses(request):
         ##########################################################################################################################
 
         deadlineE = parse(request.POST['deadlineE'])
-        
-        myfeedback = Feedback.objects.create(name=request.POST['feedbacknameE'], course=course, deadline=deadlineE)
+
+        myfeedback = Feedback.objects.create(
+            name=request.POST['feedbacknameE'],
+            course=course,
+            deadline=deadlineE)
         myfeedback.save()
 
         ## Get the rating questions
@@ -315,16 +325,14 @@ def add_courses(request):
             newRatingQuestion = FeedbackQuestion.objects.create(
                 question=r,
                 feedback=myfeedback,
-                q_type="RATE",
-            )
+                q_type="RATE", )
             newRatingQuestion.save()
 
             # Give the rating answers, 5 instances 
             for i in range(5):
                 rating = FeedbackRatingAnswer.objects.create(
                     q=newRatingQuestion,
-                    rating=(i+1),
-                )
+                    rating=(i + 1), )
                 rating.save()
 
         ## Get the Short Questions
@@ -332,52 +340,50 @@ def add_courses(request):
         if short_q is not None:
             for question in short_q:
                 shortQuestion = FeedbackQuestion.objects.create(
-                    question=question, 
+                    question=question,
                     feedback=myfeedback,
-                    q_type='SHORT',
-                )
+                    q_type='SHORT', )
                 shortQuestion.save()
 
         ## Get the MCQ questions
         ## Tricky
         mcq_question = request.POST.getlist('MquestionE')
         if mcq_question is not None:
-            counter = 0                 # Counter for m_answer
-            q_no = 0                    # Number of questions
+            counter = 0  # Counter for m_answer
+            q_no = 0  # Number of questions
             MAnswer = request.POST.getlist('MAnswerE')
             NoOptions = request.POST.getlist('NoOptionsE')
 
             ## Add question and add options
             for question in mcq_question:
                 m_q = FeedbackQuestion.objects.create(
-                    question=question, 
+                    question=question,
                     feedback=myfeedback,
-                    q_type='MCQ',
-                )
+                    q_type='MCQ', )
                 m_q.save()
 
                 ## Add options
                 options = int(NoOptions[q_no])
                 for i in range(options):
                     addOption = FeedbackMCQChoice.objects.create(
-                        text = MAnswer[counter],
-                        q = m_q,
-                    )
+                        text=MAnswer[counter],
+                        q=m_q, )
                     addOption.save()
-                    counter+=1
+                    counter += 1
 
-                q_no+=1
+                q_no += 1
 
         ########################################################################################################################## 
 
         return HttpResponseRedirect(reverse("website:view_course"))
 
+
 @login_required
-def course_detail(request,pk):
-    
+def course_detail(request, pk):
+
     member = Member.objects.get(user=request.user)
-    course = get_object_or_404(Course,pk=pk)
-    
+    course = get_object_or_404(Course, pk=pk)
+
     if member.mtype == "ST":
         return HttpResponse('You cannot access the site. Please use the app.')
 
@@ -385,82 +391,94 @@ def course_detail(request,pk):
         feedbacks = course.feedback_set.all()
         assignments = course.assignment_set.all()
         courseprof = course.members.filter(mtype="PR")[0]
-        
+
     else:
         if course not in member.course_set.all():
-            return render(request, 'course_detail.html',{'error':"Sorry, this is not your course, you aren't allowed to see it."})
+            return render(request, 'course_detail.html', {
+                'error':
+                "Sorry, this is not your course, you aren't allowed to see it."
+            })
 
         feedbacks = course.feedback_set.all()
         assignments = course.assignment_set.all()
         courseprof = None
 
-
     context = {
-        'feedbacks':feedbacks,
-        'member':member,
-        'course':course,
-        'assignments':assignments,
-        'courseprof':courseprof,
-        'students_enrolled':len(course.members.filter(mtype="ST")),
-        'ta_count':len(course.members.filter(mtype="TA"))
+        'feedbacks': feedbacks,
+        'member': member,
+        'course': course,
+        'assignments': assignments,
+        'courseprof': courseprof,
+        'students_enrolled': len(course.members.filter(mtype="ST")),
+        'ta_count': len(course.members.filter(mtype="TA"))
     }
-        
-    return render(request, 'course_detail.html',context)
+
+    return render(request, 'course_detail.html', context)
+
+
 #################################################################################################
 #     Feedback pages - Add feedback, view feedback replies
 #     Anything else? 
 #################################################################################################
 @login_required
-def add_feedback(request,course_id):
+def add_feedback(request, course_id):
 
-    member = Member.objects.get(user = request.user)
+    member = Member.objects.get(user=request.user)
     if member.mtype == "ST":
-        return render(request, 'add_feedback.html', {'error':'You are a student and not allowed. Please use the app.'})
+        return render(request, 'add_feedback.html', {
+            'error': 'You are a student and not allowed. Please use the app.'
+        })
 
     elif member.mtype == "AD":
-        return render(request, 'add_feedback.html', {'error':'Professors and TAs will now handle feedbacks.'})
+        return render(
+            request, 'add_feedback.html',
+            {'error': 'Professors and TAs will now handle feedbacks.'})
 
     else:
         # GET request, render stuff here
         if request.method == "GET":
-            course = get_object_or_404(Course,pk=course_id)
+            course = get_object_or_404(Course, pk=course_id)
             if course not in member.course_set.all():
-                return render(request, 'add_feedback.html', {'error':'This is not your course. You cannot add a feedback form for the same.'})
+                return render(request, 'add_feedback.html', {
+                    'error':
+                    'This is not your course. You cannot add a feedback form for the same.'
+                })
 
             context = {
-                "course":course,
-                "member":member,
+                "course": course,
+                "member": member,
             }
-            return render(request, 'add_feedback.html',context)
+            return render(request, 'add_feedback.html', context)
 
         # POST request sent, add the feedback here
         elif request.method == "POST":
             print(request.POST)
             # return HttpResponse("Not added")
 
-            course = Course.objects.get(pk = int(request.POST['course_id']))
+            course = Course.objects.get(pk=int(request.POST['course_id']))
             deadline = parse(request.POST['deadline'])
-            
-            myfeedback = Feedback.objects.create(name=request.POST['feedbackname'], course=course, deadline=deadline)
+
+            myfeedback = Feedback.objects.create(
+                name=request.POST['feedbackname'],
+                course=course,
+                deadline=deadline)
             myfeedback.save()
 
             ## Get the rating questions
             rating_q = request.POST.getlist('Rquestion')
-            
+
             for r in rating_q:
                 newRatingQuestion = FeedbackQuestion.objects.create(
                     question=r,
                     feedback=myfeedback,
-                    q_type="RATE",
-                )
+                    q_type="RATE", )
                 newRatingQuestion.save()
 
                 # Give the rating answers, 5 instances 
                 for i in range(5):
                     rating = FeedbackRatingAnswer.objects.create(
                         q=newRatingQuestion,
-                        rating=(i+1),
-                    )
+                        rating=(i + 1), )
                     rating.save()
 
             ## Get the Short Questions
@@ -468,66 +486,68 @@ def add_feedback(request,course_id):
             if short_q is not None:
                 for question in short_q:
                     shortQuestion = FeedbackQuestion.objects.create(
-                        question=question, 
+                        question=question,
                         feedback=myfeedback,
-                        q_type='SHORT',
-                    )
+                        q_type='SHORT', )
                     shortQuestion.save()
 
             ## Get the MCQ questions
             ## Tricky
             mcq_question = request.POST.getlist('Mquestion')
             if mcq_question is not None:
-                counter = 0                    # Counter for m_answer
-                q_no = 0                    # Number of questions
+                counter = 0  # Counter for m_answer
+                q_no = 0  # Number of questions
                 MAnswer = request.POST.getlist('MAnswer')
                 NoOptions = request.POST.getlist('NoOptions')
 
                 ## Add question and add options
                 for question in mcq_question:
                     m_q = FeedbackQuestion.objects.create(
-                        question=question, 
+                        question=question,
                         feedback=myfeedback,
-                        q_type='MCQ',
-                    )
+                        q_type='MCQ', )
                     m_q.save()
 
                     ## Add options
                     options = int(NoOptions[q_no])
                     for i in range(options):
                         addOption = FeedbackMCQChoice.objects.create(
-                            text = MAnswer[counter],
-                            q = m_q,
-                        )
+                            text=MAnswer[counter],
+                            q=m_q, )
                         addOption.save()
-                        counter+=1
+                        counter += 1
 
-                    q_no+=1
-
+                    q_no += 1
 
             return HttpResponseRedirect(reverse('website:home'))
 
         else:
             return HttpResponse("Bad request!")
 
-@login_required
-def view_feedback(request,pk):
 
-    member = Member.objects.get(user = request.user)
+@login_required
+def view_feedback(request, pk):
+
+    member = Member.objects.get(user=request.user)
     if member.mtype == "ST":
-        return render(request, 'add_feedback.html', {'error':'You are a student and not allowed. Please use the app.'})
+        return render(request, 'add_feedback.html', {
+            'error': 'You are a student and not allowed. Please use the app.'
+        })
 
     elif member.mtype == "AD":
-        return render(request, 'add_feedback.html', {'error':'Professors and TAs will now handle feedbacks.'})
+        return render(
+            request, 'add_feedback.html',
+            {'error': 'Professors and TAs will now handle feedbacks.'})
 
     else:
         # GET request, render stuff here
         if request.method == "GET":
-            feedback = get_object_or_404(Feedback,pk=pk)
+            feedback = get_object_or_404(Feedback, pk=pk)
             course = feedback.course
 
             if course not in member.course_set.all():
-                return render(request, 'view_feedback.html',{'error':'This is not your course.'})
+                return render(request, 'view_feedback.html',
+                              {'error': 'This is not your course.'})
 
             rating_q = feedback.feedbackquestion_set.filter(q_type="RATE")
             short_q = feedback.feedbackquestion_set.filter(q_type="SHORT")
@@ -536,47 +556,50 @@ def view_feedback(request,pk):
             rating = []
             for q in rating_q:
                 rating.append({
-                    'question':q,
-                    'answers':q.feedbackratinganswer_set.all(),
+                    'question': q,
+                    'answers': q.feedbackratinganswer_set.all(),
                 })
 
             short = []
             if len(short_q) != 0:
                 for q in short_q:
                     short.append({
-                        'question':q,
-                        'answers':q.feedbackshortanswer_set.all(),
+                        'question': q,
+                        'answers': q.feedbackshortanswer_set.all(),
                     })
 
             mcq = []
             if len(mcq_q) != 0:
                 for q in mcq_q:
                     mcq.append({
-                        'question':q,
-                        'answers':q.feedbackmcqchoice_set.all(),
+                        'question': q,
+                        'answers': q.feedbackmcqchoice_set.all(),
                     })
 
-
             context = {
-                'feedback':feedback,
-                'course':course,
-                'rating':rating,
-                'short':short,
-                'mcq':mcq,
+                'feedback': feedback,
+                'course': course,
+                'rating': rating,
+                'short': short,
+                'mcq': mcq,
             }
 
-            return render(request,'view_feedback.html',context)
+            return render(request, 'view_feedback.html', context)
 
 
 ### Add feedbacks considering all courses.
 @login_required
 def add_feedback_all(request):
-    member = Member.objects.get(user = request.user)
+    member = Member.objects.get(user=request.user)
     if member.mtype == "ST":
-        return render(request, 'add_feedback_all.html', {'error':'You are a student and not allowed. Please use the app.'})
+        return render(request, 'add_feedback_all.html', {
+            'error': 'You are a student and not allowed. Please use the app.'
+        })
 
     elif member.mtype == "AD":
-        return render(request, 'add_feedback_all.html', {'error':'Professors and TAs will now handle feedbacks.'})
+        return render(
+            request, 'add_feedback_all.html',
+            {'error': 'Professors and TAs will now handle feedbacks.'})
 
     else:
         # GET request, render stuff here
@@ -584,28 +607,34 @@ def add_feedback_all(request):
 
             all_courses = member.course_set.all()
             if len(all_courses) == 0:
-                return render(request, 'add_feedback_all.html',{'error':'You have no courses right now.'})
+                return render(request, 'add_feedback_all.html',
+                              {'error': 'You have no courses right now.'})
 
             context = {
-                'all_courses':all_courses,
-                'member':member,
+                'all_courses': all_courses,
+                'member': member,
             }
 
-            return render(request,'add_feedback_all.html',context)
+            return render(request, 'add_feedback_all.html', context)
 
         else:
             return HttpResponseRedirect(reverse('website:home'))
+
 
 ### View all feedbacks by courses!
 @login_required
 def view_feedback_all(request):
 
-    member = Member.objects.get(user = request.user)
+    member = Member.objects.get(user=request.user)
     if member.mtype == "ST":
-        return render(request, 'view_feedback_all.html', {'error':'You are a student and not allowed. Please use the app.'})
+        return render(request, 'view_feedback_all.html', {
+            'error': 'You are a student and not allowed. Please use the app.'
+        })
 
     elif member.mtype == "AD":
-        return render(request, 'view_feedback_all.html', {'error':'Professors and TAs will now handle feedbacks.'})
+        return render(
+            request, 'view_feedback_all.html',
+            {'error': 'Professors and TAs will now handle feedbacks.'})
 
     else:
         # GET request, render stuff here
@@ -613,26 +642,25 @@ def view_feedback_all(request):
 
             all_courses = member.course_set.all()
             if len(all_courses) == 0:
-                return render(request, 'view_feedback_all.html',{'error':'You have no courses right now.'})
+                return render(request, 'view_feedback_all.html',
+                              {'error': 'You have no courses right now.'})
 
             course_data = []
             for course in all_courses:
                 course_data.append({
-                    'course':course,
-                    'feedbacks':course.feedback_set.all(),
+                    'course': course,
+                    'feedbacks': course.feedback_set.all(),
                 })
 
             context = {
-                'course_data':course_data,
-                'member':member,
+                'course_data': course_data,
+                'member': member,
             }
 
-            return render(request,'view_feedback_all.html',context)
+            return render(request, 'view_feedback_all.html', context)
 
         else:
             return HttpResponseRedirect(reverse('website:home'))
-
-
 
 
 ########################################################################################################
@@ -643,7 +671,8 @@ def view_feedback_all(request):
 def assigns(request):
     member = Member.objects.get(user=request.user)
     all_courses = member.course_set.all()
-    assignments = []  # 2D array ; each element contains all assignments of a subject
+    assignments = [
+    ]  # 2D array ; each element contains all assignments of a subject
     single_course_assign = []
     for course in all_courses:
         assign_for_course = Assignment.objects.filter(course=course)
@@ -653,11 +682,39 @@ def assigns(request):
         single_course_assign = []
 
     context = {'courses': all_courses, 'assigns': assignments}
-    return render(request, 'assigns.html', context)
+    return render(request, 'view_assignments.html', context)
 
 
 @login_required()
 def add_assigns(request):
     if request.method == "GET":
-        return render(request, 'add_assigns.html')
-    return HttpResponse('Adding assignment')
+        member = Member.objects.get(user=request.user)
+        if member.mtype == "ST":
+            return render(request, 'add_assigns.html', {
+                'error':
+                'Sorry Hacker Boy!'
+            })
+
+        elif member.mtype == "AD":
+            return render(
+                request, 'add_assigns.html',
+                {'error': 'Professors and TAs handle course assignments.'})
+        all_courses = member.course_set.all()
+        return render(request, 'add_assigns.html', {'courses': all_courses})
+    elif request.method == "POST":
+        name = request.POST['name']
+        desc = request.POST.get('desc')
+        deadline = parse(request.POST['deadline'])
+        course_code = request.POST['course']
+        course = Course.objects.get(course_code=course_code)
+
+        assignment = Assignment.objects.create(
+            name=name, description=desc, deadline=deadline, course=course)
+        assignment.save()
+
+        return HttpResponseRedirect(reverse('website:view_assignment'))
+
+
+@login_required
+def view_assign(request, pk):
+    return HttpResponse('View this assignment')
