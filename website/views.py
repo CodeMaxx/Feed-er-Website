@@ -362,6 +362,25 @@ def add_courses(request):
                 q_no += 1
 
         ########################################################################################################################## 
+        ## Store the midsems and endsems exams now
+
+        name = request.POST['enamem']
+        desc = request.POST.get('edescm')
+        deadline = parse(request.POST['edeadlinem'])
+
+        assignment = Assignment.objects.create(
+            name=name, description=desc, deadline=deadline, course=course)
+        assignment.save()
+
+        ## Store the endsems now
+
+        name = request.POST['enamee']
+        desc = request.POST.get('edesce')
+        deadline = parse(request.POST['edeadlinee'])
+
+        assignment = Assignment.objects.create(
+            name=name, description=desc, deadline=deadline, course=course)
+        assignment.save()
 
         return HttpResponseRedirect(reverse("website:view_course"))
 
@@ -734,7 +753,7 @@ def view_assign(request, pk):
         member_list = course.members.all()
         if member in member_list:
             return render(request, 'view_assignment_info.html',
-                          {'assign': assign})
+                          {'assign': assign,"now":datetime.now()})
 
         else:
             return render(request, 'view_assignment_info.html',

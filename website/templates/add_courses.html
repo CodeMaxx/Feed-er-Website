@@ -273,7 +273,7 @@ Add a new course!
 					<!-- General data like name of Feedback form -->
 					<div class="input-field">
 						<input type="text" name="feedbacknameE" required="required" id="fnameE">
-						<label for="fnameM">Name of Feedback form</label>
+						<label for="fnameE">Name of Feedback form</label>
 					</div>
 
 					<div class="input-field">
@@ -429,13 +429,83 @@ Add a new course!
 				<!--  -->
 				<!--  -->
 				<!--  -->
+				<!-- Midsem Exam here -->
 				<!--  -->
+				<!--  -->
+				<br><hr><br>
+				<div class="card-panel">
+				<h5 class="center"> Midsem Exam form </h5>
+				<div>
+				        <div class="row card-panel">
+				            <div class="input-field">
+				                <input id="enamem" name="enamem" type="text" required>
+				                <label for="enamem">Name of Assignment</label>
+				        	</div>
+				        </div>
+
+				        <div class="row card-panel">
+				            <div class="input-field">
+				                <textarea class="materialize-textarea" id="edescm" name="edescm" type="text"></textarea>
+				                <label for="edescm">Description</label>
+				            </div>
+				        </div>
+
+				        <div class="row card-panel">
+
+				            <div class>
+				                <div class="input-field">
+				                    <input type="date" id="edeadlinem" name="edeadlinem" class="datepicker" required>
+				                    <label for="edeadlinem">Deadline</label>
+				                </div>
+				            </div>
+
+				        </div>
+				</div>
+				</div>
+				
+				<!-- E-NAME-M -> exam name midsem -->
+				<!--  -->
+				<!--  -->
+				<!--  -->
+				<!-- Endsem Exam here -->
+				<!--  -->
+				<!--  -->
+
+				<br><hr><br>
+				<div class="card-panel">
+				<h5 class="center"> Endsem Exam form </h5>
+				<div>
+				        <div class="row card-panel">
+				            <div class="input-field">
+				                <input id="enamee" name="enamee" type="text" required>
+				                <label for="enamee">Name of Assignment</label>
+				        	</div>
+				        </div>
+
+				        <div class="row card-panel">
+				            <div class="input-field">
+				                <textarea class="materialize-textarea" id="edesce" name="edesce" type="text"></textarea>
+				                <label for="edesce">Description</label>
+				            </div>
+				        </div>
+
+				        <div class="row card-panel">
+
+				            <div class>
+				                <div class="input-field">
+				                    <input type="date" id="edeadlinee" name="edeadlinee" class="datepicker" required>
+				                    <label for="edeadlinee">Deadline</label>
+				                </div>
+				            </div>
+
+				        </div>
+				</div>
+				</div>
+
 				<br>
 				<div class="input-field center">
 					<input type="submit" class="btn light-waves" value="Add Course!">
 				</div>
-
-
 			</form>
 		{% else %}
 			There are insufficient Professors or students. <br>
