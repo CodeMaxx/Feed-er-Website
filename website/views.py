@@ -30,6 +30,9 @@ def signin(request):
         user = authenticate(username=username, password=password)
         if user is None:
             return HttpResponse("Invalid Username/Password")
+        member = user.member
+        if member.mtype == 'ST':
+            return HttpResponse("Invalid Username/Password")
         login(request, user)
         return HttpResponseRedirect(reverse('website:home'))
 
@@ -80,22 +83,14 @@ def home(request):
     if request.user.is_anonymous():
         return HttpResponseRedirect(reverse('website:signin'))
 
-    
-    ## Why dude why
-    # if request.user.is_superuser:
-    #     return HttpResponseRedirect('/admin')
+    if request.user.is_superuser:
+        return HttpResponseRedirect('/admin')
 
     ## get member and log out if student
     user = User.objects.get(username=request.user.username)
-    member = get_object_or_404(Member,user=user)
+    member = get_object_or_404(Member, user=user)
 
     context = {'member': member, }
-
-    if member.mtype == "ST":
-        logout(request)
-        return HttpResponse(
-            'You are not allowed to visit this page. Please use the app since you are a student.'
-        )
 
     return render(request, 'home.html', context)
 
@@ -157,11 +152,8 @@ def view_courses(request):
 
     member = Member.objects.get(user=request.user)
 
-    if member.mtype == "ST":
-        return HttpResponse("You cannot access the site. Please use the app.")
-
     ## Admin, bring up all the courses
-    elif member.mtype == "AD":
+    if member.mtype == "AD":
         all_courses = Course.objects.all()
         if (len(all_courses) == 0):
             return render(request, 'view_courses.html',
@@ -192,11 +184,6 @@ def view_courses(request):
 def add_courses(request):
     member = Member.objects.get(user=request.user)
     if request.method == "GET":
-        print(member.mtype)
-        if member.mtype == "ST":
-            return HttpResponse(
-                "You cannot access the site. Please use the app.")
-
         profs = Member.objects.filter(mtype="PR")
         tas = Member.objects.filter(mtype="TA")
         students = Member.objects.filter(mtype="ST")
@@ -387,10 +374,7 @@ def course_detail(request, pk):
     member = Member.objects.get(user=request.user)
     course = get_object_or_404(Course, pk=pk)
 
-    if member.mtype == "ST":
-        return HttpResponse('You cannot access the site. Please use the app.')
-
-    elif member.mtype == "AD":
+    if member.mtype == "AD":
         feedbacks = course.feedback_set.all()
         assignments = course.assignment_set.all()
         courseprof = course.members.filter(mtype="PR")[0]
@@ -427,12 +411,8 @@ def course_detail(request, pk):
 def add_feedback(request, course_id):
 
     member = Member.objects.get(user=request.user)
-    if member.mtype == "ST":
-        return render(request, 'add_feedback.html', {
-            'error': 'You are a student and not allowed. Please use the app.'
-        })
 
-    elif member.mtype == "AD":
+    if member.mtype == "AD":
         return render(
             request, 'add_feedback.html',
             {'error': 'Professors and TAs will now handle feedbacks.'})
@@ -532,12 +512,8 @@ def add_feedback(request, course_id):
 def view_feedback(request, pk):
 
     member = Member.objects.get(user=request.user)
-    if member.mtype == "ST":
-        return render(request, 'add_feedback.html', {
-            'error': 'You are a student and not allowed. Please use the app.'
-        })
 
-    elif member.mtype == "AD":
+    if member.mtype == "AD":
         return render(
             request, 'add_feedback.html',
             {'error': 'Professors and TAs will now handle feedbacks.'})
@@ -594,12 +570,8 @@ def view_feedback(request, pk):
 @login_required
 def add_feedback_all(request):
     member = Member.objects.get(user=request.user)
-    if member.mtype == "ST":
-        return render(request, 'add_feedback_all.html', {
-            'error': 'You are a student and not allowed. Please use the app.'
-        })
 
-    elif member.mtype == "AD":
+    if member.mtype == "AD":
         return render(
             request, 'add_feedback_all.html',
             {'error': 'Professors and TAs will now handle feedbacks.'})
@@ -629,12 +601,8 @@ def add_feedback_all(request):
 def view_feedback_all(request):
 
     member = Member.objects.get(user=request.user)
-    if member.mtype == "ST":
-        return render(request, 'view_feedback_all.html', {
-            'error': 'You are a student and not allowed. Please use the app.'
-        })
 
-    elif member.mtype == "AD":
+    if member.mtype == "AD":
         return render(
             request, 'view_feedback_all.html',
             {'error': 'Professors and TAs will now handle feedbacks.'})
@@ -692,18 +660,15 @@ def assigns(request):
 def add_assigns(request):
     if request.method == "GET":
         member = Member.objects.get(user=request.user)
-        if member.mtype == "ST":
-            return render(request, 'add_assignments.html', {
-                'error':
-                'Sorry Hacker Boy!'
-            })
 
-        elif member.mtype == "AD":
+        if member.mtype == "AD":
             return render(
                 request, 'add_assignments.html',
                 {'error': 'Professors and TAs handle course assignments.'})
         all_courses = member.course_set.all()
-        return render(request, 'add_assignments.html', {'courses': all_courses})
+        return render(request, 'add_assignments.html',
+                      {'courses': all_courses})
+
     elif request.method == "POST":
         name = request.POST['name']
         desc = request.POST.get('desc')

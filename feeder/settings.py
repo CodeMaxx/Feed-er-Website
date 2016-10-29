@@ -40,10 +40,11 @@ INSTALLED_APPS = [
     'website',
     'rest_framework',
     'social.apps.django_app.default',
-    'livereload'
+    'livereload',
+	'security'
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -52,7 +53,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'livereload.middleware.LiveReloadScript'
+    'livereload.middleware.LiveReloadScript',
+	'security.middleware.DoNotTrackMiddleware',
+	'security.middleware.ContentNoSniff',
+	'security.middleware.XssProtectMiddleware',
+	'security.middleware.XFrameOptionsMiddleware'
 ]
 
 ROOT_URLCONF = 'feeder.urls'

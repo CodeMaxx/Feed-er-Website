@@ -6,3 +6,4 @@ bcrypt
 python-social-auth
 python-dateutil
 django-livereload-server
+django-security
