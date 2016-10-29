@@ -27,4 +27,5 @@ urlpatterns = [
     ## Assignments related stuff
     url(r'^assignments$', views.assigns, name='view_assignment'),
     url(r'^assignments/add', views.add_assigns, name='add_assignment'),
+	url(r'assignments/view/(?P<pk>\d+)/$', views.view_assign, name='view_assign_info')
 ]
