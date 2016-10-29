@@ -103,9 +103,11 @@ class FeedbackShortAnswer(models.Model):
 class Assignment(models.Model):
 	name = models.TextField()
 	description = models.TextField()
-	deadline = models.DateTimeField(auto_now_add=True)
+	deadline = models.DateTimeField(blank=False)
 	course = models.ForeignKey(Course)
 
 	def __str__(self):
 		return self.name + " - " + self.course.course_code
 
+	class Meta:
+		ordering = ['-deadline']
