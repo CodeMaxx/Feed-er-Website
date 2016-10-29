@@ -8,6 +8,12 @@
 {% endblock %}
 
 {% block content %}
+    {% if error %}
+        <div class="row">
+<div class="col s8 offset-m2">
+    <h4 style="font-weight: 200; color: #f00;text-align: center">{{ error }}</h4>
+        </div></div>
+    {% else %}
     <div class="row">
 <div class="col s8 offset-m2">
     <h3 class="center">Assignments</h3>
@@ -47,4 +53,5 @@
     </center>
 </div>
     </div>
+    {% endif %}
 {% endblock %}

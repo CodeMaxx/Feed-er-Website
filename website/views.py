@@ -38,7 +38,6 @@ def signin(request):
 
 
 ## Signup view which takes data and creates the account
-## View is here
 def signup(request):
 
     if request.method == "GET":
@@ -55,8 +54,8 @@ def signup(request):
         ## We have the data
         userexists = User.objects.filter(username=username)
         if len(userexists) != 0:
-            #return HttpResponseRedirect(reverse('website:signin'))
-            return HttpResponse("User already exists. Please login.")
+            return HttpResponse(
+                "Email already used. Please used a different email.")
 
         newuser = User.objects.create(username=username, email=username)
         newuser.set_password(password)
@@ -75,7 +74,7 @@ def signup(request):
         return HttpResponseRedirect(reverse('website:signin'))
 
 
-## Add views for Home Page and logic 
+## Add views for Home Page
 ## Will contain different stuff for Admins and TAs/Profs
 @login_required
 def home(request):
@@ -86,11 +85,10 @@ def home(request):
     if request.user.is_superuser:
         return HttpResponseRedirect('/admin')
 
-    ## get member and log out if student
-    user = User.objects.get(username=request.user.username)
+    user = request.user
     member = get_object_or_404(Member, user=user)
 
-    context = {'member': member, }
+    context = {'member': member}
 
     return render(request, 'home.html', context)
 
@@ -127,7 +125,10 @@ def completeReg(request):
 
         user = User.objects.get(username=username)
 
-        mtype = "PR" if isProf else "TA"
+        if isProf == "on":
+            mtype = "PR"
+        else:
+            mtype = "TA"
 
         member = Member.objects.filter(user=user)
         if len(member) != 0:
@@ -137,9 +138,6 @@ def completeReg(request):
             user=user, fullname=fullname, mtype=mtype)
         member.save()
         return HttpResponseRedirect(reverse('website:home'))
-
-    else:
-        return HttpResponse('Invalid request sent!')
 
 
 ######################################################################################s
@@ -635,16 +633,25 @@ def view_feedback_all(request):
 
 
 ########################################################################################################
-#### Assignment request
+#### Assignments
 
 
+## Display all assignments of all courses of the prof/TA
 @login_required()
 def assigns(request):
     member = Member.objects.get(user=request.user)
+
+    if member.mtype == "AD":
+        return render(request, 'view_assignments.html', {
+            "error":
+            "Trespassers will be shot. Survivors will be shot again :P"
+        })
+
     all_courses = member.course_set.all()
-    assignments = [
-    ]  # 2D array ; each element contains all assignments of a subject
+    assignments = []  # 2D array ; each element contains all assignments of a subject
+
     single_course_assign = []
+
     for course in all_courses:
         assign_for_course = Assignment.objects.filter(course=course)
         for assign in assign_for_course:
@@ -656,6 +663,7 @@ def assigns(request):
     return render(request, 'view_assignments.html', context)
 
 
+## Allows prof and TAs to add assignments
 @login_required()
 def add_assigns(request):
     if request.method == "GET":
@@ -665,11 +673,24 @@ def add_assigns(request):
             return render(
                 request, 'add_assignments.html',
                 {'error': 'Professors and TAs handle course assignments.'})
+
         all_courses = member.course_set.all()
+
+        if len(all_courses) == 0:
+            return render(request, 'add_assignments.html',
+                          {'error': 'You are not taking any course.'})
+
         return render(request, 'add_assignments.html',
                       {'courses': all_courses})
 
     elif request.method == "POST":
+        member = Member.objects.get(user=request.user)
+
+        if member.mtype == "AD":
+            return render(
+                request, 'add_assignments.html',
+                {'error': 'Professors and TAs handle course assignments.'})
+
         name = request.POST['name']
         desc = request.POST.get('desc')
         deadline = parse(request.POST['deadline'])
@@ -683,8 +704,30 @@ def add_assigns(request):
         return HttpResponseRedirect(reverse('website:view_assignment'))
 
 
+## View informations of a specific assingment
 @login_required
 def view_assign(request, pk):
+    user = request.user
+    member = Member.objects.get(user=user)
+
+    if member.mtype == "AD":
+        return render(request, 'view_assignment_info.html', {
+            "error":
+            "Trespassers will be shot. Survivors will be shot again :P"
+        })
+
     if request.method == "GET":
         assign = Assignment.objects.get(pk=pk)
-        return render(request, 'view_assignment_info.html', {'assign': assign})
+        course = assign.course
+        member_list = course.members.all()
+        if member in member_list:
+            return render(request, 'view_assignment_info.html',
+                          {'assign': assign})
+        
+        else:
+            return render(request, 'view_assignment_info.html',
+                          {'error': "Sorry you are not taking this course."})
+
+
+########################################################################################################
+##################### Website Ends Here. Mobile API begins

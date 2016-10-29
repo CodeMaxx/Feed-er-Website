@@ -9,14 +9,17 @@
 
 {% block content %}
 
-    <h3 class="center"> Add Assignemnts </h3>
 {#    <div class="input-field col s12">#}
 {#    <label for="timepicker">Time</label>#}
 {#    <input id="timepicker" class="timepicker" type="time">#}
 {#    </div>#}
 {% if error %}
-    <h3>{{ error }}</h3>
+        <div class="row">
+<div class="col s8 offset-m2">
+    <h4 style="font-weight: 200; color: #f00;text-align: center">{{ error }}</h4>
+        </div></div>
     {% else %}
+    <h3 class="center"> Add Assignemnts </h3>
     <div class="row">
         <form class="col s8 offset-m2" action="" method="post">
             {% csrf_token %}

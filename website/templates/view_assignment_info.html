@@ -7,6 +7,12 @@
 {% endblock %}
 
 {% block content %}
+    {% if error %}
+        <div class="row">
+<div class="col s8 offset-m2">
+    <h4 style="font-weight: 200; color: #f00;text-align: center">{{ error }}</h4>
+        </div></div>
+    {% else %}
 <div class="row">
 <div class="col s8 offset-m2">
     <h3 style="font-weight: 200" class="center">{{ assign.name }} - {{ assign.course }}</h3>
@@ -18,4 +24,5 @@
     <a class="waves-effect waves-light btn" href="{% url 'website:view_assignment' %}">Back</a>
     </center>
     </div></div>
+    {% endif %}
 {% endblock %}
