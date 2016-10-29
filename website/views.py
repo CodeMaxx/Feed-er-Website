@@ -727,7 +727,9 @@ def view_assign(request, pk):
         })
 
     if request.method == "GET":
-        assign = Assignment.objects.get(pk=pk)
+        assign = get_object_or_404(Assignment,pk=pk)
+        # assign = Assignment.objects.get(pk=pk)
+        # believe me, they are going to put in random values of assignment Primary keys
         course = assign.course
         member_list = course.members.all()
         if member in member_list:
