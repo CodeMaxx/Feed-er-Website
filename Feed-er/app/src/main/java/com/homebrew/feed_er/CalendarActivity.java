@@ -38,25 +38,19 @@ public class CalendarActivity extends AppCompatActivity {
     private Map<Date,String> impDates;
     private Map<Date, Drawable> backgroundForDateMap;
     private CaldroidFragment caldroidFragment;
+    private String token;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
-//        CaldroidFragment caldroidFragment = new CaldroidFragment();
-//        Bundle args = new Bundle();
-//        Calendar cal = Calendar.getInstance();
-//        args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
-//        args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
-//        caldroidFragment.setArguments(args);
-//
-//        FragmentTransaction t = getSupportFragmentManager().beginTransaction();
-//        t.replace(R.id.calendarView, caldroidFragment);
-//        t.commit();
 
         caldroidFragment = new CaldroidFragment();
         FragmentTransaction t = getSupportFragmentManager().beginTransaction();
         t.replace(R.id.calendarView, caldroidFragment);
         t.commit();
+
+        token = getIntent().getExtras().getString("token");
+
 
         DatesListGetter datesListGetter = new DatesListGetter();
         new Thread(datesListGetter, "DatesListGetter").start();
@@ -72,7 +66,7 @@ public class CalendarActivity extends AppCompatActivity {
         public void run() {
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-            String url = "http://10.42.0.29:8000";
+            String url = "http://10.42.0.29:8000/api/courses";
             impDates = new HashMap<>();
             Log.d("CLG", "sending request...");
             StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -149,8 +143,15 @@ public class CalendarActivity extends AppCompatActivity {
                     //textView.setText("Please check your internet connection.");
                     Log.d("DLG","response not received");
                 }
-            });
-            // Add the request to the RequestQueue.
+            }){
+                @Override
+                protected Map<String,String> getParams(){
+                    Map<String,String> params = new HashMap<String, String>();
+                    params.put("token",token);
+                    return params;
+                }
+
+            };
             queue.add(stringRequest);
         }
     }

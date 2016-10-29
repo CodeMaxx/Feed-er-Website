@@ -3,10 +3,12 @@ package com.homebrew.feed_er;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
@@ -43,18 +45,15 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.crypto.Cipher;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -224,8 +223,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         } else {
             Loginer datesListGetter = new Loginer();
             new Thread(datesListGetter, "DatesListGetter").start();
-//            Intent intent = new Intent().setClass(this, CalendarActivity.class);
-//            startActivity(intent);
         }
     }
     private class Loginer implements Runnable {
@@ -237,53 +234,57 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         public void run() {
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-            String url = "http://10.42.0.29:8000";
-            String email = mEmailView.getText().toString();
-            String password = mPasswordView.getText().toString();
+            String url = "http://10.42.0.29:8000/api/login";
+            final String email = mEmailView.getText().toString();
+            final String password = mPasswordView.getText().toString();
             Log.d("LOGIN", "sending request...");
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost(url);
 
-            try{
-                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
-                nameValuePairs.add(new BasicNameValuePair("username", email));
-                nameValuePairs.add(new BasicNameValuePair("password", password));
-                httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
-                HttpResponse response = httpclient.execute(httppost);
-                if(!response.toString().equals("-1")){
-                    Intent intent = new Intent().setClass(getApplicationContext(), CalendarActivity.class);
-                    startActivity(intent);
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String responseString) {
+                            Log.d("LOGIN",responseString);
+                            if(responseString.equals("-1")){
+                                Log.d("LOGIN","Invalid up");
+                               TextView textView = (TextView) findViewById(R.id.invalid_login);
+                                textView.setVisibility(View.VISIBLE);
+                            }
+                            else{
+                                Intent intent = new Intent(getApplicationContext(),CalendarActivity.class);
+                                intent.putExtra("token",responseString);
+                                startActivity(intent);
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //textView.setText("Please check your internet connection.");
+                    Log.d("LOGIN","response not received");
                 }
-            }
-            catch (IOException e){}
+            }){
+                @Override
+                protected Map<String,String> getParams(){
+                    Map<String,String> params = new HashMap<String, String>();
+                    params.put("username",email);
+                    params.put("password",password);
+//                    params.put("token","f57609bb7440377f34628ba65047537ed316d8d665e4eed899629a9e8e9f");
+                    return params;
+                }
 
+            };
 
-//            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-//                    new Response.Listener<String>() {
-//                        @Override
-//                        public void onResponse(String responseString) {
-//
-//                        }
-//                    }, new Response.ErrorListener() {
-//                @Override
-//                public void onErrorResponse(VolleyError error) {
-//                    //textView.setText("Please check your internet connection.");
-//                    Log.d("DLG","response not received");
-//                }
-//            })
-            // Add the request to the RequestQueue.
-//            queue.add(stringRequest);
+            queue.add(stringRequest);
         }
     }
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return true;
+        Pattern pattern = Pattern.compile("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}");
+        Matcher mat =pattern.matcher(email);
+        return mat.matches();
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return true;
+        return password.length()>=8;
     }
 
     /**
