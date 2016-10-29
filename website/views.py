@@ -138,6 +138,62 @@ def completeReg(request):
             user=user, fullname=fullname, mtype=mtype)
         member.save()
         return HttpResponseRedirect(reverse('website:home'))
+#######################################################################################
+### Admin features
+### View and add students
+@login_required
+def view_students(request):
+
+    member = Member.objects.get(user=request.user)
+    if member.mtype != "AD":
+        return render(request, 'view_students.html',{
+            'error':'Only admin(s) can view the list.'
+        })
+
+    students = Member.objects.filter(mtype="ST").order_by('fullname')
+    context = {
+        'students':students,
+    }
+    return render(request, 'view_students.html',context)
+
+# Add student 
+@login_required
+def add_students(request):
+    member = Member.objects.get(user=request.user)
+    if member.mtype != "AD":
+        return render(request, 'add_students.html',{
+            'error':'Only admin(s) can view the list.',
+            'hide':True
+        })
+
+    if request.method == "GET":
+        return render(request, 'add_students.html')
+
+    else:
+        
+        fullname = request.POST['fullname']
+        username = request.POST['rollnumber'] + "@iitb.ac.in"
+        test = User.objects.filter(username=username)
+        if len(test) != 0:
+            return render(request, 'add_students.html',{
+                'error':'This roll number already exists. Please try again.',
+            })
+
+        password = request.POST['password']
+        u = User.objects.create(
+            username=username,
+            password=password,
+            )
+        u.save()
+
+        m = Member.objects.create(
+            user=u,
+            fullname=fullname,
+            mtype="ST",
+            )
+
+        return HttpResponseRedirect(reverse('website:view_students'))
+
 
 
 ######################################################################################s
