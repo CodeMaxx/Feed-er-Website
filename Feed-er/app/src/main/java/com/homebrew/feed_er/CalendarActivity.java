@@ -36,6 +36,8 @@ import static com.homebrew.feed_er.R.id.textView;
 
 public class CalendarActivity extends AppCompatActivity {
     private Map<Date,String> impDates;
+    private Map<Date, Drawable> backgroundForDateMap;
+    private CaldroidFragment caldroidFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +52,11 @@ public class CalendarActivity extends AppCompatActivity {
 //        FragmentTransaction t = getSupportFragmentManager().beginTransaction();
 //        t.replace(R.id.calendarView, caldroidFragment);
 //        t.commit();
+
+        caldroidFragment = new CaldroidFragment();
+        FragmentTransaction t = getSupportFragmentManager().beginTransaction();
+        t.replace(R.id.calendarView, caldroidFragment);
+        t.commit();
 
         DatesListGetter datesListGetter = new DatesListGetter();
         new Thread(datesListGetter, "DatesListGetter").start();
@@ -66,12 +73,6 @@ public class CalendarActivity extends AppCompatActivity {
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
             String url = "https://beta.randomapi.com/api/f0221e9d1d6f3ddb01478db39edf1ae4";
-            //System.out.println("Response recorded");
-
-            // Request a string response from the provided URL.
-
-            //Toast t = Toast.makeText(getApplicationContext(),"Will send request",Toast.LENGTH_SHORT);
-            //t.show();
             impDates = new HashMap<>();
             Log.d("CLG", "sending request...");
             StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -84,8 +85,7 @@ public class CalendarActivity extends AppCompatActivity {
                                 final JSONObject response = new JSONObject(responseString).getJSONArray("results").getJSONObject(0);
                                 JSONArray assignDeadlines = response.getJSONArray("assignmentDeadlines");
                                 JSONArray examDates = response.getJSONArray("examDates");
-                                final CaldroidFragment caldroidFragment = new CaldroidFragment();
-                                final Map<Date, Drawable> backgroundForDateMap = new HashMap<>();
+                                backgroundForDateMap = new HashMap<>();
                                 impDates.clear();
                                 final Calendar c = Calendar.getInstance();
                                 for (int i = 0; i < assignDeadlines.length(); i++) {
@@ -118,6 +118,9 @@ public class CalendarActivity extends AppCompatActivity {
                                         //Log.d("SELECT DATE", date.toString());
                                         if(impDates.containsKey(date)){
                                             Log.d("IMPDATE", impDates.get(date));
+                                            backgroundForDateMap.put(date, new ColorDrawable(Color.GREEN));
+                                            caldroidFragment.setBackgroundDrawableForDates(backgroundForDateMap);
+                                            caldroidFragment.refreshView();
                                         }
                                     }
 
@@ -125,15 +128,14 @@ public class CalendarActivity extends AppCompatActivity {
                                 };
 
                                 caldroidFragment.setCaldroidListener(listener);
+
                                 //
 
 
 
 
                                 caldroidFragment.setBackgroundDrawableForDates(backgroundForDateMap);
-                                FragmentTransaction t = getSupportFragmentManager().beginTransaction();
-                                t.replace(R.id.calendarView, caldroidFragment);
-                                t.commit();
+                                caldroidFragment.refreshView();
                             }
                             catch (JSONException e){
                                 Log.d("JSON","JSON error");
