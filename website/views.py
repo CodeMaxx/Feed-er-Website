@@ -8,6 +8,15 @@ from django.utils.dateparse import parse_date
 from datetime import datetime
 from dateutil.parser import parse
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from Crypto import Random
+import binascii
+from django.core import serializers
+import simplejson as json
+from django.core.serializers.json import DjangoJSONEncoder
+import datetime
+from time import mktime
 
 # Create your views here.
 
@@ -471,7 +480,7 @@ def course_detail(request, pk):
         'courseprof': courseprof,
         'students_enrolled': len(course.members.filter(mtype="ST")),
         'ta_count': len(course.members.filter(mtype="TA")),
-        'now':datetime.now(),
+        'now': datetime.now(),
     }
 
     return render(request, 'course_detail.html', context)
@@ -743,7 +752,7 @@ def assigns(request):
 
     if zero:
         return render(request, 'view_assignments.html',
-                          {"error": "No assignments for now."})
+                      {"error": "No assignments for now."})
     context = {'courses': all_courses, 'assigns': assignments}
     return render(request, 'view_assignments.html', context)
 
@@ -802,7 +811,7 @@ def view_assign(request, pk):
         })
 
     if request.method == "GET":
-        assign = get_object_or_404(Assignment,pk=pk)
+        assign = get_object_or_404(Assignment, pk=pk)
         # assign = Assignment.objects.get(pk=pk)
         # believe me, they are going to put in random values of assignment Primary keys
         course = assign.course
@@ -818,3 +827,98 @@ def view_assign(request, pk):
 
 ########################################################################################################
 ##################### Website Ends Here. Mobile API begins
+
+
+## Checks if token is correct
+@method_decorator(csrf_exempt, name='checkstud')
+def stud_check(request):
+    token = request.POST.get('token')
+    if token is None:
+        return HttpResponse("Bad POST request. No token received.")
+
+    member = Member.objects.get(token=token)
+    if member.mtype != "ST":
+        return HttpResponse("Send token of a student")
+    return member
+
+
+## Signin for mobile app
+@method_decorator(csrf_exempt, name='loginapi')
+def login_api(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = authenticate(username=username, password=password)
+        if user is None:
+            return HttpResponse("-1")
+        member = Member.objects.get(user=user)
+        if member.mtype != "ST":
+            return HttpResponse("-1")
+        my_hex_value = binascii.hexlify(Random.get_random_bytes(30))
+        member.token = my_hex_value
+        member.save()
+        return HttpResponse(my_hex_value)
+
+    elif request.method == "GET":
+        return HttpResponse("Sorry Bro.")
+
+
+## Signout for mobileapp
+@method_decorator(csrf_exempt, name='signoutapi')
+def signout_api(request):
+    if request.method == "POST":
+        member = stud_check(request)
+        member.token = ""
+
+    return HttpResponse("0")
+
+
+## List of all courses of user
+@method_decorator(csrf_exempt, name='courselistapi')
+def course_list_api(request):
+    if request.method == "POST":
+        member = stud_check(request)
+        course_list = member.course_set.all()
+
+        json_list = serializers.serialize('json', course_list)
+        return HttpResponse(json_list)
+    else:
+        member = Member.objects.filter(mtype="ST")[1]
+        course_list = member.course_set.all()
+        json_list = serializers.serialize('json', course_list)
+        return HttpResponse(json_list)
+
+
+#### JSON Encoder for datetime
+class MyEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            return obj.strftime('%Y/%m/%d')
+        elif isinstance(obj, datetime.date):
+            return obj.strftime('%Y/%m/%d')
+
+        return json.JSONEncoder.default(self, obj)
+
+
+## Send all deadlines for user
+@method_decorator(csrf_exempt, name='datesapi')
+def dates(request):
+    if request.method == "POST":
+        member = stud_check(request)
+        course_list = member.course_set.all()
+        assignments = []
+        feedback = []
+        for course in course_list:
+            for assign in course.assignment_set.all():
+                assignments.append(str(json.dumps(assign.deadline, cls=MyEncoder))[1:-1])
+                # assignments[course.pk] = assign.deadline
+            for feed in course.feedback_set.all():
+                feedback.append(str(json.dumps(feed.deadline, cls=MyEncoder))[1:-1])
+
+        total = {}
+        total["assignments"] = assignments
+        total["feedback"] = feedback
+        json_dates = json.dumps(total)
+        return HttpResponse(json_dates)
