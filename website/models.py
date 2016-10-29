@@ -74,7 +74,7 @@ class FeedbackRatingAnswer(models.Model):
 	votes = models.IntegerField(default=0)
 
 	def __str__(self):
-		return self.q
+		return self.q.question
 
 ## Feedback Multi choice answer
 ## Each answer given through the app will increase its votes_count by 1
@@ -92,7 +92,7 @@ class FeedbackShortAnswer(models.Model):
 	text = models.TextField()
 
 	def __str__(self):
-		return self.q
+		return self.text
 
 ##	Feedback form -> Questions
 ##	Question -> Rating / MCQ / Short Answer

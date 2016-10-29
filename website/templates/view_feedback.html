@@ -28,7 +28,7 @@
 				<h5>Rating Questions</h5>
 				{% for q in rating %}
 					<div class="card-panel">
-						<h5><b>Q.</b> {{q.question}}</h5>
+						<h6><b>Q.</b> {{q.question}}</h6><br>
 						<!-- <ol>
 						{% for ans in q.answers %}
 							<li>Rating: {{ans.rating}}, Votes: {{ans.votes}}</li>
@@ -41,10 +41,10 @@
 				{% if mcq %}
 				<br>
 				<hr>
-					<h5>Multiple Choice Questions</h5>
+					<h5>Multiple Choice Questions</h5><br>
 					{% for q in mcq %}
 						<div class="card-panel">
-							<h5><b>Q.</b> {{q.question}}</h5>
+							<h6><b>Q.</b> {{q.question}}</h6><br>
 							<!-- <ol>
 							{% for ans in q.answers %}
 								<li>{{ans.text}},Votes given: {{ans.votes_count}}</li>
@@ -59,16 +59,27 @@
 				{% if short %}
 					<br>
 					<hr>
-					<h5>Short Answer type Questions</h5>
+					<h5>Short Answer type Questions</h5><br>
 					{% for q in short %}
 						<div class="card-panel">
-							<h5><b>Q.</b> {{q.question}}</h5>
-							{% if q.ans %}
-								<ol>
-								{% for ans in q.answers %}
-									<li>{{ans.text}}</li>
-								{% endfor %}
-								</ol>
+							<h6><b>Q.</b> {{q.question}}</h6><br>
+							{% if q.answers %}
+								<table class="highlight">
+									<thead>
+										<tr>
+											<th width="20%" class="center">Student Number</th>
+											<th>Response</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for ans in q.answers %}
+											<tr>
+												<td class="center">{{forloop.counter}}</td>
+												<td>{{ans.text}}</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
 							{% else %}
 							No responses to show!
 							{% endif %}
@@ -96,13 +107,15 @@
 
 
 		{% for q in mcq %}
-			Morris.Donut({
+			Morris.Bar({
 			  element: 'mcq-answer{{forloop.counter}}',
 			  data: [
-			    {% for ans in q.answers %}{label: '{{ans.text}}', value: {{ans.votes_count}} },{% endfor %}
+			    {% for ans in q.answers %}{y: '{{ans.text}}', 'number_of_students': {{ans.votes_count}} },{% endfor %}
 			  ],
 			  resize:true,
-			  formatter: function (y, data) { return 'Votes: ' + y }
+			  xkey: 'y',
+			  ykeys: ['number_of_students'],
+			  labels: ['Number of students'],
 			});
 
 		{% endfor %}
