@@ -74,6 +74,7 @@ def signup(request):
 
 ## Add views for Home Page and logic 
 ## Will contain different stuff for Admins and TAs/Profs
+@login_required
 def home(request):
     ## Anon users are shooed away
     if request.user.is_anonymous():
@@ -86,7 +87,7 @@ def home(request):
 
     ## get member and log out if student
     user = User.objects.get(username=request.user.username)
-    member = Member.objects.get(user=user)
+    member = get_object_or_404(Member,user=user)
 
     context = {'member': member, }
 
@@ -692,17 +693,17 @@ def add_assigns(request):
     if request.method == "GET":
         member = Member.objects.get(user=request.user)
         if member.mtype == "ST":
-            return render(request, 'add_assigns.html', {
+            return render(request, 'add_assignments.html', {
                 'error':
                 'Sorry Hacker Boy!'
             })
 
         elif member.mtype == "AD":
             return render(
-                request, 'add_assigns.html',
+                request, 'add_assignments.html',
                 {'error': 'Professors and TAs handle course assignments.'})
         all_courses = member.course_set.all()
-        return render(request, 'add_assigns.html', {'courses': all_courses})
+        return render(request, 'add_assignments.html', {'courses': all_courses})
     elif request.method == "POST":
         name = request.POST['name']
         desc = request.POST.get('desc')
@@ -719,4 +720,6 @@ def add_assigns(request):
 
 @login_required
 def view_assign(request, pk):
-    return HttpResponse('View this assignment')
+    if request.method == "GET":
+        assign = Assignment.objects.get(pk=pk)
+        return render(request, 'view_assignment_info.html', {'assign': assign})
