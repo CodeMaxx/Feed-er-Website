@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,12 +32,30 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import javax.crypto.Cipher;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -203,15 +222,60 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-//            mAuthTask = new UserLoginTask(email, password);
-//            mAuthTask.execute((Void) null);
-            Intent intent = new Intent().setClass(this, CalendarActivity.class);
-            startActivity(intent);
+            Loginer datesListGetter = new Loginer();
+            new Thread(datesListGetter, "DatesListGetter").start();
+//            Intent intent = new Intent().setClass(this, CalendarActivity.class);
+//            startActivity(intent);
         }
     }
+    private class Loginer implements Runnable {
+        public Loginer() {
+            Log.d("DLG", "DLG constructed");
+        }
 
+        @Override
+        public void run() {
+            // Instantiate the RequestQueue.
+            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+            String url = "http://10.42.0.29:8000";
+            String email = mEmailView.getText().toString();
+            String password = mPasswordView.getText().toString();
+            Log.d("LOGIN", "sending request...");
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPost httppost = new HttpPost(url);
+
+            try{
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+                nameValuePairs.add(new BasicNameValuePair("username", email));
+                nameValuePairs.add(new BasicNameValuePair("password", password));
+                httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+                HttpResponse response = httpclient.execute(httppost);
+                if(!response.toString().equals("-1")){
+                    Intent intent = new Intent().setClass(getApplicationContext(), CalendarActivity.class);
+                    startActivity(intent);
+                }
+            }
+            catch (IOException e){}
+
+
+//            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+//                    new Response.Listener<String>() {
+//                        @Override
+//                        public void onResponse(String responseString) {
+//
+//                        }
+//                    }, new Response.ErrorListener() {
+//                @Override
+//                public void onErrorResponse(VolleyError error) {
+//                    //textView.setText("Please check your internet connection.");
+//                    Log.d("DLG","response not received");
+//                }
+//            })
+            // Add the request to the RequestQueue.
+//            queue.add(stringRequest);
+        }
+    }
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
         return true;

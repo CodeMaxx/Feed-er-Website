@@ -72,7 +72,7 @@ public class CalendarActivity extends AppCompatActivity {
         public void run() {
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-            String url = "https://beta.randomapi.com/api/f0221e9d1d6f3ddb01478db39edf1ae4";
+            String url = "http://10.42.0.29:8000";
             impDates = new HashMap<>();
             Log.d("CLG", "sending request...");
             StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -80,6 +80,7 @@ public class CalendarActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(String responseString) {
                             Log.d("CLG", "response obtained...");
+                            Log.d("Response",responseString);
                             // Display the first 500 characters of the response string.
                             try{
                                 final JSONObject response = new JSONObject(responseString).getJSONArray("results").getJSONObject(0);
