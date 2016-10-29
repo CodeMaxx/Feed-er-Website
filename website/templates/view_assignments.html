@@ -42,10 +42,9 @@
         <hr style="width: 100%">
         <br>
     {% endfor %}
+<center>
+    <a class="waves-effect waves-light btn" href="{% url 'website:add_assignment' %}">Add Assignment</a>
+    </center>
 </div>
     </div>
-
-        <div class="col s5 offset-l4 center">
-            <a class="waves-effect waves-light btn center" href="{% url 'website:add_assignment' %}">Add Assignments</a>
-        </div>
 {% endblock %}
