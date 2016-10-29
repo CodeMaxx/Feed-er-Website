@@ -15,8 +15,14 @@
 		<!-- Course details -->
 			<h5>Feedback details for {{feedback.name}}</h5>
 			<b>Course: </b> {{course.name}} <br>
-			<b>Deadline: </b> {{feedback.deadline | date:"M d, Y" }} <br>
-			<br><br>
+			<b>Deadline: </b> {{feedback.deadline | date:"M d, Y" }} 
+			{% if feedback.deadline < now %}
+			<p class="red-text"><b>This Feedback form is no longer accepting responses.</b></p>
+			{% else %}
+			<p class="green-text"><b>This Feedback form is active and is accepting responses.</b></p>
+			{% endif %}
+			<hr>
+			<br>
 			<div class="">
 			<!-- Rating Questions -->
 				<h5>Rating Questions</h5>

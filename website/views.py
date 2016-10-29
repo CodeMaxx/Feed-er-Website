@@ -395,7 +395,8 @@ def course_detail(request, pk):
         'assignments': assignments,
         'courseprof': courseprof,
         'students_enrolled': len(course.members.filter(mtype="ST")),
-        'ta_count': len(course.members.filter(mtype="TA"))
+        'ta_count': len(course.members.filter(mtype="TA")),
+        'now':datetime.now(),
     }
 
     return render(request, 'course_detail.html', context)
@@ -559,6 +560,7 @@ def view_feedback(request, pk):
                 'rating': rating,
                 'short': short,
                 'mcq': mcq,
+                'now': datetime.now(),
             }
 
             return render(request, 'view_feedback.html', context)

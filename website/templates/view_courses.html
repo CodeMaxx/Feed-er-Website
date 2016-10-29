@@ -21,7 +21,7 @@ View Courses
 						       <div class="col s12">
 						         <div class="card">
 						           <div class="card-content">
-						           		Semester:
+						           	   Semester:
                                        {%  if course.semester == 1 %}
                                             Fall
                                        {% elif course.semester == 2 %}
@@ -32,7 +32,7 @@ View Courses
                                        <br>
 						           		Year: {{course.added.year}} <br>
 						           		Course Code: {{course.course_code}} <br>
-										Professor: {{ profs|index:forloop.counter0 }} <br>
+										Professor: {{ profs|index:forloop.counter0 }}
 						           </div>
 						           <div class="card-action">
 						           		<a href="{% url 'website:course_detail' course.pk %}" class="btn waves-effect">{{course.name}}</a>
