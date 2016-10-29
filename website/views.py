@@ -856,14 +856,13 @@ def dates(request):
         feedback = []
         for course in course_list:
             for assign in course.assignment_set.all():
-                assignments.append(json.dumps(assign.deadline, cls=MyEncoder))
+                assignments.append(str(json.dumps(assign.deadline, cls=MyEncoder))[1:-1])
                 # assignments[course.pk] = assign.deadline
             for feed in course.feedback_set.all():
-                feedback.append(json.dumps(feed.deadline, cls=MyEncoder))
+                feedback.append(str(json.dumps(feed.deadline, cls=MyEncoder))[1:-1])
 
         total = {}
         total["assignments"] = assignments
         total["feedback"] = feedback
         json_dates = json.dumps(total)
         return HttpResponse(json_dates)
-
