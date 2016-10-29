@@ -650,17 +650,25 @@ def assigns(request):
         })
 
     all_courses = member.course_set.all()
-    assignments = []  # 2D array ; each element contains all assignments of a subject
+    assignments = [
+    ]  # 2D array ; each element contains all assignments of a subject
 
     single_course_assign = []
-
+    zero = True
     for course in all_courses:
         assign_for_course = Assignment.objects.filter(course=course)
+
         for assign in assign_for_course:
             single_course_assign.append(assign)
+
+        if len(single_course_assign) != 0:
+            zero = False
         assignments.append(single_course_assign)
         single_course_assign = []
 
+    if zero:
+        return render(request, 'view_assignments.html',
+                          {"error": "No assignments for now."})
     context = {'courses': all_courses, 'assigns': assignments}
     return render(request, 'view_assignments.html', context)
 
@@ -725,7 +733,7 @@ def view_assign(request, pk):
         if member in member_list:
             return render(request, 'view_assignment_info.html',
                           {'assign': assign})
-        
+
         else:
             return render(request, 'view_assignment_info.html',
                           {'error': "Sorry you are not taking this course."})
