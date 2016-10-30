@@ -16,50 +16,68 @@ View Courses
 				<h3 class="center">View all courses</h3>
 				{% if member.mtype == "AD" %}
 					<!-- Admin format -->
-					{% for course in all_courses %}
-						<div class="row">
-						       <div class="col s12">
-						         <div class="card hoverable">
-						           <div class="card-content">
-						           	   Semester:
-                                       {%  if course.semester == 1 %}
+					<table class="highlight">
+						<thead>
+							<th>Course Name</th>
+							<th>Course Code</th>
+							<th>Professor</th>
+							<th>Semester</th>
+							<th>Year</th>
+							<th>View details</th>
+						</thead>
+
+						<tbody>
+							{% for course in all_courses %}
+							<tr>
+								<td>{{course.name}}</td>
+								<td>{{course.course_code}}</td>
+								<td>{{ profs|index:forloop.counter0 }}</td>
+								<td>{%  if course.semester == 1 %}
                                             Fall
                                        {% elif course.semester == 2 %}
                                             Spring
                                        {% else %}
                                             Summer
-                                       {% endif %}
-                                       <br>
-						           		Year: {{course.added.year}} <br>
-						           		Course Code: {{course.course_code}} <br>
-										Professor: {{ profs|index:forloop.counter0 }}
-						           </div>
-						           <div class="card-action">
-						           		<a href="{% url 'website:course_detail' course.pk %}" class="btn waves-effect">{{course.name}}</a>
-						           </div>
-						         </div>
-						       </div>
-						     </div>	           
-					{% endfor %}
+                                       {% endif %}</td>
+								<td>{{course.added.year}}</td>
+								<td><a href="{% url 'website:course_detail' course.pk %}" class="btn waves-effect">View</a></td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+
 
 				{% else %}
 					<!-- Professor/TA side -->
-					{% for course in all_courses %}
-						<div class="row">
-						       <div class="col s12">
-						         <div class="card">
-						           <div class="card-content">
-						           		Semester: {{course.semester}} <br>
-						           		Year: {{course.added.year}} <br>
-						           		Course Code: {{course.course_code}}
-						           </div>
-						           <div class="card-action">
-						           		<a href="{% url 'website:course_detail' course.pk %}" class="btn waves-effect">{{course.name}}</a>
-						           </div>
-						         </div>
-						       </div>
-						     </div>	           
-					{% endfor %}
+					<br>
+					<p class="center"><b>{{member.fullname}}</b></p>
+					<table class="highlight">
+						<thead>
+							<th>Course Name</th>
+							<th>Course Code</th>
+							<th>Semester</th>
+							<th>Year</th>
+							<th>View details</th>
+						</thead>
+
+						<tbody>
+							{% for course in all_courses %}
+							<tr>
+								<td>{{course.name}}</td>
+								<td>{{course.course_code}}</td>
+								<td>{%  if course.semester == 1 %}
+                                            Fall
+                                       {% elif course.semester == 2 %}
+                                            Spring
+                                       {% else %}
+                                            Summer
+                                       {% endif %}</td>
+								<td>{{course.added.year}}</td>
+								<td><a href="{% url 'website:course_detail' course.pk %}" class="btn waves-effect">View</a></td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
 
 				{% endif %}
 			

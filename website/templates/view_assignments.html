@@ -30,11 +30,34 @@
         </div>
 
         {% if  assign|length == 0 %}
-            <h5 class="center">Hurray no Assignments!</h5>
-        {% endif %}
+            <div class="center">No assignments. Add one <a href="{% url 'website:add_assignment' %}">here.</a></div>
+        {% else %}
         <div>
-        {% for foo in assign %}
-            <div class="col s12 m6">
+            <table class="highlight">
+                <thead>
+                    <th>Name</th>
+                    <th>Deadline</th>
+                    <th class="center">Accepting Submissions</th>
+                    <th class="center">View</th>
+                </thead>
+
+                <tbody>
+                    {% for foo in assign %}
+                        <tr>
+                            <td>{{ foo.name }}</td>
+                            <td>{{ foo.deadline|date }}</td>
+                            <td class="center">{% if foo.deadline < now %}
+                                <i class="material-icons red-text">clear</i>
+                                {% else %}
+                                <i class="material-icons green-text">done</i>
+                                {% endif %}
+                            </td>
+                            <td><a class="btn btn-block" href="{% url 'website:view_assign_info' foo.pk %}">See Description</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+           <!--  <div class="col s12 m6">
             <div class="card horizontal">
               <div class="card-stacked">
                 <div class="card-content">
@@ -42,13 +65,12 @@
                     <p class="center">{{ foo.deadline|date }}</p>
                 </div>
                 <div class="card-action center">
-                  <a href="{% url 'website:view_assign_info' foo.pk %}">See Description</a>
                 </div>
               </div>
             </div>
-            </div>
-        {% endfor %}
+            </div> -->
         </div>
+        {% endif %}
         <br>
         <hr style="width: 100%">
         <br>
