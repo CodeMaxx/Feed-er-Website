@@ -18,7 +18,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from datetime import datetime as dt
 import datetime
 from time import mktime
-
+import threading
 # Create your views here.
 
 
@@ -179,6 +179,7 @@ def view_students(request):
 # Add student 
 @login_required
 def add_students(request):
+
     member = Member.objects.get(user=request.user)
     if member.mtype != "AD":
         return render(request, 'add_students.html',{
@@ -191,30 +192,74 @@ def add_students(request):
 
     else:
         
-        fullname = request.POST['fullname']
-        username = request.POST['rollnumber'] + "@iitb.ac.in"
-        test = User.objects.filter(username=username)
-        if len(test) != 0:
-            return render(request, 'add_students.html',{
-                'error':'This roll number already exists. Please try again.',
-            })
+        checkSingle = request.POST.get('fullname')
 
-        password = request.POST['password']
-        u = User.objects.create(
-            username=username,
-            password=password,
-            )
-        u.save()
+        ## Single register
+        if checkSingle is not None:
 
-        m = Member.objects.create(
-            user=u,
-            fullname=fullname,
-            mtype="ST",
-            )
+            fullname = request.POST['fullname']
+            username = request.POST['rollnumber'] + "@iitb.ac.in"
+            test = User.objects.filter(username=username)
+            if len(test) != 0:
+                return render(request, 'add_students.html',{
+                    'error':'This roll number already exists. Please try again.',
+                })
 
-        messages.add_message(request, messages.SUCCESS, 'Successfully added student!')
-        return HttpResponseRedirect(reverse('website:view_students'))
+            password = request.POST['password']
+            u = User.objects.create(
+                username=username,
+                password=password,
+                )
+            u.save()
 
+            m = Member.objects.create(
+                user=u,
+                fullname=fullname,
+                mtype="ST",
+                )
+
+            messages.add_message(request, messages.SUCCESS, 'Successfully added student!')
+            return HttpResponseRedirect(reverse('website:view_students'))
+
+        else:
+            try:
+                print(request.FILES)
+                studentdata = request.FILES['students']
+                ## read data
+                lines = studentdata.readlines()
+                lines = list(map(lambda x: x.decode("utf-8"), lines))
+                lines = list(map(lambda x: x[0:-1].split(','), lines))
+                lines = list(map(lambda x: [x[0],x[1] + "@iitb.ac.in", x[2]], lines))
+
+                for line in lines:
+                    if len(line[2]) < 8:
+                        messages.add_message(request, messages.ERROR, 'Password must be at least 8 characters long. Please check the file again.')
+                        return HttpResponseRedirect(reverse('website:add_students'))
+            except:
+                messages.add_message(request, messages.ERROR, 'Incorrect format of submitted file!')
+                return HttpResponseRedirect(reverse('website:add_students'))
+
+            # Filter the line
+            lines = list(filter(lambda x: len(User.objects.filter(username=x[1]))==0, lines))
+            print(lines)
+            print("\n\n\n\n")
+
+            users = list(map(lambda x: User(username=x[1],password=x[2]), lines))
+            User.objects.bulk_create(users)
+
+            members = []
+            for line in lines:
+                members.append(Member(
+                    user=User.objects.get(username=line[1]),
+                    mtype="ST",
+                    fullname=line[0],
+                ))
+
+            Member.objects.bulk_create(members)
+            ### Send response
+            messages.add_message(request, messages.SUCCESS, 'Student list is being added! It may take a few moments.')
+            # return HttpResponse(request)
+            return HttpResponseRedirect(reverse('website:add_students'))
 
 
 ######################################################################################s
