@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth import logout, authenticate, login
 from .models import *
 from django.utils.dateparse import parse_date
-from datetime import datetime
 from dateutil.parser import parse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -15,6 +14,7 @@ import binascii
 from django.core import serializers
 import simplejson as json
 from django.core.serializers.json import DjangoJSONEncoder
+from datetime import datetime as dt
 import datetime
 from time import mktime
 
@@ -217,7 +217,7 @@ def view_courses(request):
 
     ## Admin, bring up all the courses
     if member.mtype == "AD":
-        all_courses = Course.objects.all()
+        all_courses = Course.objects.all().order_by('-added')
         if (len(all_courses) == 0):
             return render(request, 'view_courses.html',
                           {'error': 'No courses to view.'})
@@ -480,7 +480,7 @@ def course_detail(request, pk):
         'courseprof': courseprof,
         'students_enrolled': len(course.members.filter(mtype="ST")),
         'ta_count': len(course.members.filter(mtype="TA")),
-        'now': datetime.now(),
+        'now': dt.now(),
     }
 
     return render(request, 'course_detail.html', context)
@@ -644,7 +644,7 @@ def view_feedback(request, pk):
                 'rating': rating,
                 'short': short,
                 'mcq': mcq,
-                'now': datetime.now(),
+                'now': dt.now(),
             }
 
             return render(request, 'view_feedback.html', context)
@@ -710,6 +710,7 @@ def view_feedback_all(request):
             context = {
                 'course_data': course_data,
                 'member': member,
+                'now':dt.now(),
             }
 
             return render(request, 'view_feedback_all.html', context)
@@ -753,7 +754,7 @@ def assigns(request):
     if zero:
         return render(request, 'view_assignments.html',
                       {"error": "No assignments for now."})
-    context = {'courses': all_courses, 'assigns': assignments}
+    context = {'courses': all_courses, 'assigns': assignments, 'now':dt.now()}
     return render(request, 'view_assignments.html', context)
 
 
@@ -818,7 +819,7 @@ def view_assign(request, pk):
         member_list = course.members.all()
         if member in member_list:
             return render(request, 'view_assignment_info.html',
-                          {'assign': assign,"now":datetime.now()})
+                          {'assign': assign,"now":dt.now()})
 
         else:
             return render(request, 'view_assignment_info.html',

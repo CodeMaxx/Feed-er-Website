@@ -26,70 +26,99 @@
 
 			
 			<div class="row">
-				<div class="col s7">
+				<div class="col s12">
 					<h5>Feedbacks</h5>
 				</div>
-				<div class="col s5 right-align">
-				{% if member.mtype != "AD" %}<a href="{% url 'website:add_feedback' course.pk %}" class="btn green">Add Feedback</a>{% endif %}
+				<div class="col s12">
+					{% if member.mtype != "AD" %}<a href="{% url 'website:add_feedback' course.pk %}" class="btn green">Add Feedback</a>{% endif %}
 				</div>
 			</div>
 			{% if feedbacks %}
-					{% for feedback in feedbacks %}
-					
-								<div class="card">
-						           <div class="card-content">
-						           		<b>Name:</b> {{feedback.name}} <br>
-						           		<b>Deadline:</b> {{feedback.deadline | date:'d M, Y'}}
-						           		{% if feedback.deadline < now %}
-						           		<p class="red-text"><b>This Feedback form is no longer accepting responses.</b></p>
-						           		{% else %}
-						           		<p class="green-text"><b>This Feedback form is active and is accepting responses.</b></p>
-						           		{% endif %}
-						           </div>
-									{% if member.mtype != "AD" %}
-									<div class="card-action">
-									<a class="btn" href="{% url 'website:view_feedback' feedback.pk %}">View feedback details</a> <br>
-									</div>
+					<table class="highlight">
+						<thead>
+							<th>Name</th>
+							<th>Deadline</th>
+							<th class="center">Accepting Responses</th>
+							{% if member.mtype != "AD" %}
+							<th class="center">View feedback details</th>
+							{% endif %}
+						</thead>
+
+						<tbody>
+						{% for feedback in feedbacks %}
+							<tr>
+								<td>{{feedback.name}}</td>
+								<td>{{feedback.deadline | date:'d M, Y'}}</td>
+								<td class="center">
+									{% if feedback.deadline < now %}
+										<i class="material-icons red-text">clear</i>
+									{% else %}
+										<i class="material-icons green-text">done</i>
 									{% endif %}
-						         </div>
-					{% endfor %}
+								</td>
+								{% if member.mtype != "AD" %}
+								<td class="center">
+								<a class="btn" href="{% url 'website:view_feedback' feedback.pk %}">View</a>
+								</td>
+								{% endif %}
+							</tr>
+						{% endfor %}
+						</tbody>
+					</table>
+								
 			{% else %}
 				<p>Hurray, no feedbacks!</p>
 			{% endif %}
 			<br><hr>
+			<br>
 			<div class="row">
-				<div class="col s7">
+				<div class="col s12">
 					<h5>Assignments</h5>
 				</div>
-				<div class="col s5 right-align">
+				<div class="col s12">
 				{% if member.mtype != "AD" %}<a href="{% url 'website:add_assignment' %}" class="btn green">Add Assignment</a>{% endif %}
 				</div>	
 			</div>		
 			
 			{% if assignments %}
-				{% for assignment in assignments %}
-								<div class="card">
-						           <div class="card-content">
-						           		<b>Name:</b> {{assignment.name}} <br>
-						           		<b>Deadline:</b> {{assignment.deadline | date:'d M, Y'}}
-						           		{% if feedback.deadline < now %}
-						           		<p class="red-text"><b>The deadline for the assignment has passed..</b></p>
-						           		{% else %}
-						           		<p class="green-text"><b>The deadline for the assignment hasn't passed.</b></p>
-						           		{% endif %}
-						           </div>
-									{% if member.mtype != "AD" %}
-									<div class="card-action">
-									<a class="btn" href="{% url 'website:view_assign_info' assignment.pk %}">View assignment details</a> <br>
-									</div>
-									{% endif %}
-						         </div>
-				{% endfor %}
+				
+				<table class="highlight">
+					<thead>
+						<th>Name</th>
+						<th>Deadline</th>
+						<th class="center">Accepting submissions</th>
+						{% if member.mtype != "AD" %}
+						<th class="center">View assignment details</th>
+						{% endif %}
+					</thead>
+
+					<tbody>
+					{% for assignment in assignments %}
+						<tr>
+							<td>{{assignment.name}}</td>
+							<td>{{assignment.deadline | date:'d M, Y'}}</td>
+							<td class="center">
+								{% if assignment.deadline < now %}
+									<i class="material-icons red-text">clear</i>
+								{% else %}
+									<i class="material-icons green-text">done</i>
+								{% endif %}
+							</td>
+							{% if member.mtype != "AD" %}
+							<td class="center"><a class="btn" href="{% url 'website:view_assign_info' assignment.pk %}">View</a></td>
+							{% endif %}
+						</tr>
+					{% endfor %}
+					</tbody>
+
+				</table>
+
 			{% else %}
 				<p>Hurray, no assignments!</p>
 			{% endif %}
 
 		{% endif %}
+		<br>
 		<center><a class="waves-effect waves-light btn" href="{% url 'website:view_course' %}">Back</a></center>
 	</div>
 {% endblock %}
