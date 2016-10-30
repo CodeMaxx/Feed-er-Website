@@ -234,7 +234,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         public void run() {
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-            String url = "http://10.42.0.29:8000/api/login";
+            String url = getString(R.string.api_base_url)+"login";
+            Log.d("URL",url);
             final String email = mEmailView.getText().toString();
             final String password = mPasswordView.getText().toString();
             Log.d("LOGIN", "sending request...");

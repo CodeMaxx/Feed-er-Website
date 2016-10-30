@@ -3,6 +3,7 @@ package com.homebrew.feed_er;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.IntegerRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -66,44 +67,60 @@ public class CalendarActivity extends AppCompatActivity {
         public void run() {
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-            String url = "http://10.42.0.29:8000/api/courses";
+            String url = getString(R.string.api_base_url)+"dates";
             impDates = new HashMap<>();
             Log.d("CLG", "sending request...");
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String responseString) {
                             Log.d("CLG", "response obtained...");
                             Log.d("Response",responseString);
+                            Log.d("TOKEN",token);
                             // Display the first 500 characters of the response string.
                             try{
-                                final JSONObject response = new JSONObject(responseString).getJSONArray("results").getJSONObject(0);
-                                JSONArray assignDeadlines = response.getJSONArray("assignmentDeadlines");
-                                JSONArray examDates = response.getJSONArray("examDates");
+                                final JSONObject response = new JSONObject(responseString);
+//                                Log.d("JSON","1 "+response.toString());
+                                JSONArray assignDeadlines = response.getJSONArray("assignments");
+                                JSONArray examDates = response.getJSONArray("feedback");
                                 backgroundForDateMap = new HashMap<>();
                                 impDates.clear();
                                 final Calendar c = Calendar.getInstance();
                                 for (int i = 0; i < assignDeadlines.length(); i++) {
-                                    JSONObject assignDeadline = assignDeadlines.getJSONObject(i);
-                                    Log.d("JSON", assignDeadline.toString());
-                                    Date dL = new Date(assignDeadline.getInt("year")-1900,assignDeadline.getInt("month")-1,assignDeadline.getInt("day"));
+                                    //Log.d("JSON","2");
+                                    String assignDeadline = assignDeadlines.getString(i);
+                                    //Log.d("JSON", assignDeadline);
+                                    String components[] = assignDeadline.split("/");
+                                    //Log.d("COMP",components[0]);
+                                    int yyyy = Integer.parseInt(components[0]);
+                                    int mm = Integer.parseInt(components[1]);
+                                    int dd = Integer.parseInt(components[2]);
+                                    Date dL = new Date(yyyy-1900,mm-1,dd);
                                     c.setTimeInMillis(dL.getTime());
 
-                                    impDates.put(c.getTime(),assignDeadline.getString("course")+"#"+assignDeadline.getString("description"));
+                                    impDates.put(c.getTime(),"what is this?");
                                     backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.YELLOW));
-                                    Log.d("JSON", assignDeadline.getString("course"));
                                     Log.d("JSON", dL.toString());
                                 }
                                 for (int i = 0; i < examDates.length(); i++) {
-                                    JSONObject examDate = examDates.getJSONObject(i);
-                                    Log.d("JSON", examDate.toString());
-                                    Date dL = new Date(examDate.getInt("year")-1900,examDate.getInt("month")-1,examDate.getInt("day"));
-
+//                                    //Log.d("JSON","2");
+                                    String examDate = examDates.getString(i);
+                                    //Log.d("JSON", assignDeadline);
+                                    String components[] = examDate.split("/");
+                                    //Log.d("COMP",components[0]);
+                                    int yyyy = Integer.parseInt(components[0]);
+                                    int mm = Integer.parseInt(components[1]);
+                                    int dd = Integer.parseInt(components[2]);
+                                    Date dL = new Date(yyyy-1900,mm-1,dd);
                                     c.setTimeInMillis(dL.getTime());
-                                    impDates.put(c.getTime(),examDate.getString("course")+"#"+examDate.getString("description"));
-                                    backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.RED));
-                                    Log.d("JSON", examDate.getString("course"));
+
+                                    impDates.put(c.getTime(),"what is this?");
+                                    if(backgroundForDateMap.get(c.getTime())==new ColorDrawable(Color.YELLOW))
+                                        backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.GREEN));
+                                    else
+                                        backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.BLUE));
                                     Log.d("JSON", dL.toString());
+
                                 }
 
                                 //listeners
@@ -141,13 +158,14 @@ public class CalendarActivity extends AppCompatActivity {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     //textView.setText("Please check your internet connection.");
-                    Log.d("DLG","response not received");
+                    Log.d("DATES","response not received");
                 }
             }){
                 @Override
                 protected Map<String,String> getParams(){
                     Map<String,String> params = new HashMap<String, String>();
                     params.put("token",token);
+                    Log.d("TOKEN",token);
                     return params;
                 }
 
