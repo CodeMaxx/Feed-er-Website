@@ -9,6 +9,11 @@ urlpatterns = [
     url(r'^signout$', views.signout, name='signout'),
     url(r'^complete-reg/', views.completeReg, name='complete-reg'),
 
+    ## View and register Students
+    ## Only for Admin :(
+    url(r'^students/view$', views.view_students, name="view_students"),
+    url(r'^students/add$', views.add_students, name="add_students"),
+
     ## home sweet home
     url(r'^home$', views.home, name='home'),
 

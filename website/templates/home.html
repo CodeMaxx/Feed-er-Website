@@ -31,6 +31,14 @@ Home
 					<a href="{% url 'website:view_course' %}" class="btn btn-block">View Courses</a>
 				</div>
 			</div>
+			<div class="row center">
+				<div class="col s6">
+					<a href="{% url 'website:view_students' %}" class="btn btn-block">View student list</a>
+				</div>
+				<div class="col s6">
+					<a href="{% url 'website:add_students' %}" class="btn btn-block">Add student</a>
+				</div>
+			</div>
 		{% else %}
             <div class="row center">
                     <div class="col s6 offset-m3">
