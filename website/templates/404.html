@@ -1,0 +1,12 @@
+{% extends 'nav.html' %}
+
+{% block title %}404 Not Found! {% endblock %}
+
+{% block content %}
+	<div class="center container">
+		<h2 class="flow-text">404! Not Found! </h2>
+
+		<p>You have landed on some invalid page! </p>
+		<a href="{% url 'website:signin' %}" class="btn green">Back to Homepage!</a>
+	</div>
+{% endblock %}

@@ -2,6 +2,8 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from . import views
 
+from django.conf.urls import handler404
+
 urlpatterns = [
     ## Registeration and Signin
     url(r'^$', views.signin, name='signin'),
@@ -46,3 +48,6 @@ urlpatterns = [
 	url(r'api/courses', views.course_list_api, name='courses_api'),
     url(r'api/dates$', views.dates, name='dates')
 ]
+
+
+handler404 = 'website.views.handler404'

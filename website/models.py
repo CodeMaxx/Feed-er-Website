@@ -26,7 +26,7 @@ class Member(models.Model):
 ## Course details
 class Course(models.Model):
 	name = models.TextField()
-	members = models.ManyToManyField(Member,null=True,blank=True)
+	members = models.ManyToManyField(Member,blank=True)
 	# assignments are added as foreign keys
 	semester = models.IntegerField()
 	added = models.DateField(auto_now_add=True,auto_now=False)
