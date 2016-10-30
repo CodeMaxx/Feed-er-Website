@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import logout, authenticate, login
 from .models import *
+from django.contrib import messages
 from django.utils.dateparse import parse_date
 from dateutil.parser import parse
 from django.utils import timezone
@@ -38,10 +39,14 @@ def signin(request):
 
         user = authenticate(username=username, password=password)
         if user is None:
-            return HttpResponse("Invalid Username/Password")
+            messages.add_message(request, messages.ERROR, 'Invalid Username/Password.')
+            return render(request, 'signin.html')
+
         member = user.member
         if member.mtype == 'ST':
-            return HttpResponse("Invalid Username/Password")
+            messages.add_message(request, messages.ERROR, 'Student logins are not allowed.')
+            return render(request, 'signin.html')
+
         login(request, user)
         return HttpResponseRedirect(reverse('website:home'))
 
@@ -58,13 +63,14 @@ def signup(request):
             password = request.POST['sPassword']
             isProf = request.POST.get('prof')
         except:
-            return HttpResponse(request)
+            messages.add_message(request, messages.ERROR, 'Invalid details!')
+            return HttpResponseRedirect(reverse('website:signin'))
 
         ## We have the data
         userexists = User.objects.filter(username=username)
         if len(userexists) != 0:
-            return HttpResponse(
-                "Email already used. Please used a different email.")
+            messages.add_message(request, messages.ERROR, "Email already used. Please use a different email.")
+            return HttpResponseRedirect(reverse('website:signin'))
 
         newuser = User.objects.create(username=username, email=username)
         newuser.set_password(password)
@@ -80,6 +86,7 @@ def signup(request):
             fullname=fullname,
             mtype=mtype, )
         newmember.save()
+        messages.add_message(request, messages.SUCCESS, 'Successfully registered! Now you can log in.')
         return HttpResponseRedirect(reverse('website:signin'))
 
 
@@ -89,6 +96,7 @@ def signup(request):
 def home(request):
     ## Anon users are shooed away
     if request.user.is_anonymous():
+        messages.add_message(request, messages.ERROR, 'Please login first!')
         return HttpResponseRedirect(reverse('website:signin'))
 
     if request.user.is_superuser:
@@ -115,7 +123,8 @@ def completeReg(request):
         user = request.user
 
         if not user.is_authenticated():
-            return HttpResponse('Invalid Facebook redirect!')
+            messages.add_message(request, messages.ERROR, 'Invalid Facebook redirect!')
+            return HttpResponseRedirect(reverse('website:signin'))
 
         context = {
             'fullname': user.first_name + ' ' + user.last_name,
@@ -130,7 +139,8 @@ def completeReg(request):
             username = request.POST['username']
             isProf = request.POST.get('prof')
         except:
-            return HttpResponse("Invalid fields!")
+            messages.add_message(request, messages.ERROR, 'Invalid details!')
+            return HttpResponseRedirect(reverse('website:signin'))
 
         user = User.objects.get(username=username)
 
@@ -141,7 +151,8 @@ def completeReg(request):
 
         member = Member.objects.filter(user=user)
         if len(member) != 0:
-            return HttpResponse('This user already exists! Try logging in!')
+            messages.add_message(request, messages.ERROR, 'This user already exists! Try logging in!')
+            return HttpResponseRedirect(reverse('website:signin'))
 
         member = Member.objects.create(
             user=user, fullname=fullname, mtype=mtype)
@@ -201,6 +212,7 @@ def add_students(request):
             mtype="ST",
             )
 
+        messages.add_message(request, messages.SUCCESS, 'Successfully added student!')
         return HttpResponseRedirect(reverse('website:view_students'))
 
 
@@ -269,6 +281,7 @@ def add_courses(request):
             code = request.POST['code']
             semester = int(request.POST['semester'])
         except:
+            messages.add_message(request, messages.ERROR, 'Invalid details!')
             return HttpResponse(request)
 
         course = Course.objects.create(
@@ -588,7 +601,8 @@ def add_feedback(request, course_id):
             return HttpResponseRedirect(reverse('website:home'))
 
         else:
-            return HttpResponse("Bad request!")
+            messages.add_message(request, messages.ERROR, 'Bad request!')
+            return HttpResponse(request)
 
 
 @login_required

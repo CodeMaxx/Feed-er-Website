@@ -7,6 +7,19 @@ Add feedback!
 {% block content %}
 	<div class="container">
 	<br>
+
+	<div class="messages center">
+	    {% if messages %}
+	        {% for message in messages %}
+	            {% if 'error' in message.tags %}
+	            <p class="red-text">{{message}}</p>
+	            {% elif 'success' in message.tags %}
+	            <p class="green-text">{{message}}</p>
+	            {% endif %}
+	        {% endfor %}
+	    {% endif %}
+	</div>
+	
 	<br>
 	<br>
 		{% if error %}
