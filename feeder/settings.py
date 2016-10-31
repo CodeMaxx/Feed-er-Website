@@ -38,8 +38,6 @@ INSTALLED_APPS = [
     'website',
     'rest_framework',
     'social.apps.django_app.default',
-    'livereload',
-	'security'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -51,11 +49,6 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'livereload.middleware.LiveReloadScript',
-	'security.middleware.DoNotTrackMiddleware',
-	'security.middleware.ContentNoSniff',
-	'security.middleware.XssProtectMiddleware',
-	'security.middleware.XFrameOptionsMiddleware'
 ]
 
 ROOT_URLCONF = 'feeder.urls'
@@ -128,8 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 PASSWORD_HASHERS = [
-    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
-    'django.contrib.auth.hashers.BCryptPasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
     'django.contrib.auth.hashers.Argon2PasswordHasher',

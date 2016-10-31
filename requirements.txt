@@ -1,11 +1,6 @@
 django
 djangorestframework
-django-filter
-markdown
-bcrypt
 python-social-auth
 python-dateutil
-django-livereload-server
-django-security
 pycrypto
 simplejson
