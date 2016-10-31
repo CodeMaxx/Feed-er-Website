@@ -201,8 +201,9 @@ def add_students(request):
             password = request.POST['password']
             u = User.objects.create(
                 username=username,
-                password=password,
                 )
+
+            u.set_password(password)
             u.save()
 
             m = Member.objects.create(
@@ -237,7 +238,11 @@ def add_students(request):
             print(lines)
             print("\n\n\n\n")
 
-            users = list(map(lambda x: User(username=x[1],password=x[2]), lines))
+            users = list(map(lambda x: User(username=x[1]), lines))
+            for index in range(len(users)):
+                users[index].set_password(lines[index][2])
+            # Set all passwords
+
             User.objects.bulk_create(users)
 
             members = []
@@ -911,12 +916,18 @@ def stud_check(request):
 @method_decorator(csrf_exempt, name='loginapi')
 def login_api(request):
     if request.method == "POST":
-        username = request.POST['username']
-        password = request.POST['password']
+
+        try:
+            username = request.POST['username']
+            password = request.POST['password']
+        except:
+            return HttpResponse("{'error':'No username or password'}")
 
         user = authenticate(username=username, password=password)
+
         if user is None:
-            return HttpResponse("-1")
+            return HttpResponse("Unauthorized.")
+
         member = Member.objects.get(user=user)
         if member.mtype != "ST":
             return HttpResponse("-1")
