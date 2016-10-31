@@ -1,25 +1,18 @@
 from django.shortcuts import render, reverse, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.contrib.auth import logout, authenticate, login
 from .models import *
 from django.contrib import messages
-from django.utils.dateparse import parse_date
 from dateutil.parser import parse
-from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from Crypto.Random import get_random_bytes
+import os
 import binascii
 from django.core import serializers
 import simplejson as json
-from django.core.serializers.json import DjangoJSONEncoder
 from datetime import datetime as dt
 import datetime
-from time import mktime
-import threading
-# Create your views here.
 
 
 ## Show the main view
@@ -927,7 +920,7 @@ def login_api(request):
         member = Member.objects.get(user=user)
         if member.mtype != "ST":
             return HttpResponse("-1")
-        my_hex_value = binascii.hexlify(Random.get_random_bytes(30))
+        my_hex_value = binascii.hexlify(os.urandom(30)).decode('utf-8')
         member.token = my_hex_value
         member.save()
         return HttpResponse(my_hex_value)

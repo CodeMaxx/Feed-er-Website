@@ -36,8 +36,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'website',
-    'rest_framework',
-    'social.apps.django_app.default',
     'livereload',
 	'security'
 ]
