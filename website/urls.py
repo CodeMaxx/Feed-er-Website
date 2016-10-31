@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^$', views.signin, name='signin'),
     url(r'^signup$', views.signup, name='signup'),  # for registering new users
     url(r'^signout$', views.signout, name='signout'),
-    url(r'^complete-reg/', views.completeReg, name='complete-reg'),
+    url(r'^complete-reg/$', views.completeReg, name='complete-reg'),
 
     ## View and register Students
     ## Only for Admin :(
@@ -22,7 +22,7 @@ urlpatterns = [
     ## Courses relatedstuff
     url(r'^courses$', views.view_courses, name='view_course'),
     url(r'^courses/add$', views.add_courses, name='add_course'),
-    url(r'^courses/(?P<pk>\d+)/', views.course_detail, name='course_detail'),
+    url(r'^courses/(?P<pk>\d+)/$', views.course_detail, name='course_detail'),
 
     # Feedback related stuff
     url(r'^feedback/add/(?P<course_id>\d+)/$',
@@ -37,7 +37,7 @@ urlpatterns = [
 
     ## Assignments related stuff
     url(r'^assignments$', views.assigns, name='view_assignment'),
-    url(r'^assignments/add', views.add_assigns, name='add_assignment'),
+    url(r'^assignments/add$', views.add_assigns, name='add_assignment'),
     url(r'assignments/view/(?P<pk>\d+)/$',
         views.view_assign,
         name='view_assign_info'),
