@@ -252,7 +252,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 textView.setVisibility(View.VISIBLE);
                             }
                             else{
-                                Intent intent = new Intent(getApplicationContext(),CalendarActivity.class);
+                                Intent intent = new Intent(getApplicationContext(),HomeActivity.class);
                                 intent.putExtra("token",responseString);
                                 startActivity(intent);
                             }
