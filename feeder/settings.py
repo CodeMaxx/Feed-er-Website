@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'website',
     'rest_framework',
-    'social.apps.django_app.default',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -74,7 +73,6 @@ WSGI_APPLICATION = 'feeder.wsgi.application'
 
 
 AUTHENTICATION_BACKENDS = (
-   'social.backends.facebook.FacebookOAuth2',
    'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -86,8 +84,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
    'django.core.context_processors.static',
    'django.core.context_processors.tz',
    'django.contrib.messages.context_processors.messages',
-   'social.apps.django_app.context_processors.backends',
-   'social.apps.django_app.context_processors.login_redirect',
 )
 
 
@@ -146,9 +142,9 @@ LOGIN_URL = "/"
 STATIC_URL = '/static/'
 
 ## Social Auth Settings for Facebook
-SOCIAL_AUTH_FACEBOOK_KEY = '1114137342016241' # Not to be compromised
-SOCIAL_AUTH_FACEBOOK_SECRET = 'ee3af435f1cf54f970e28edda022039d' # Not to be compromised
+# SOCIAL_AUTH_FACEBOOK_KEY = '1114137342016241' # Not to be compromised
+# SOCIAL_AUTH_FACEBOOK_SECRET = 'ee3af435f1cf54f970e28edda022039d' # Not to be compromised
 
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/home'
-SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/complete-reg/'
+# SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/home'
+# SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/complete-reg/'
 # SOCIAL_AUTH_LOGIN_ERROR_URL = '/fb/login-error/'

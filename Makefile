@@ -9,7 +9,7 @@ help:
 	@echo "feel free to add new features and update the help section."
 	@echo
 run:
-	@python3 manage.py runserver
+	@python3 manage.py runserver 8037
 
 mig:
 	@python3 manage.py migrate
@@ -23,7 +23,7 @@ shell:
 doall:
 	@python3 manage.py makemigrations
 	@python3 manage.py migrate
-	@python3 manage.py runserver
+	@python3 manage.py runserver 8037
 
 
 

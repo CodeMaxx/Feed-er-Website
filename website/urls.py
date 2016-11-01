@@ -9,7 +9,8 @@ urlpatterns = [
     url(r'^$', views.signin, name='signin'),
     url(r'^signup$', views.signup, name='signup'),  # for registering new users
     url(r'^signout$', views.signout, name='signout'),
-    url(r'^complete-reg/$', views.completeReg, name='complete-reg'),
+    url(r'^complete-reg$', views.completeReg, name='complete-reg'),
+    url(r'^complete-signup$',views.complete_signup,name="complete_signup"),
 
     ## View and register Students
     ## Only for Admin :(

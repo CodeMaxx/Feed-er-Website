@@ -4,6 +4,57 @@ Login / Sign Up
 {% endblock %}
 
 {% block content %}
+    <script type="text/javascript">
+      window.fbAsyncInit = function() {
+          FB.init({
+            appId      : '1114137342016241',
+            cookie     : true,
+            xfbml      : true,
+            status     : true,
+            version    : 'v2.8',
+          });
+
+          // FB.AppEvents.logPageView();
+      };
+
+      (function(d, s, id){
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) {return;}
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_US/sdk.js";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+
+      function loginFB() {
+
+            FB.getLoginStatus(function(response){
+                console.log(response);
+                if(response.status == "connected") {  
+                    var accessToken = response.authResponse.accessToken; 
+                    document.getElementById('access_token').value = accessToken;
+                    document.getElementById('access_token_form').submit();
+                }
+                else {
+
+                    FB.login(function(response) {
+
+                        FB.getLoginStatus(function(response){
+                            if(response.status == "connected") {
+                                var accessToken = response.authResponse.accessToken; 
+                                document.getElementById('access_token').value = accessToken;
+                                document.getElementById('access_token_form').submit();
+                            }
+                        });
+
+                    });
+                        
+                }
+
+            });
+      }
+
+    </script>
     <!-- This is where the login and signup form will be! -->
     <div class="container">
 
@@ -58,7 +109,7 @@ Login / Sign Up
                     <center>OR</center>
                     <br>
                     <div class="center">
-                        <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-facebook">Login with Facebook</a>
+                        <button type="button" onclick="loginFB()" class="btn btn-facebook">Login with Facebook</button>
                     </div>
                 </div>
             </div>
@@ -99,12 +150,16 @@ Login / Sign Up
                         OR
                         <br>
                         <br>
-                        <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-facebook">Signup with Facebook</a>
+                        <button type="button" onclick="loginFB()" class="btn btn-facebook">Signup with Facebook</button>
                     </div>
                 </form>
 
-
             </div>
+
+            <form action="{% url 'website:complete-reg' %}" method="POST" id="access_token_form">
+                {% csrf_token %}
+                <input type="hidden" name="access_token" id="access_token" value="">
+            </form>
 
           </div>
 

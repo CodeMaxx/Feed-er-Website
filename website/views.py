@@ -13,12 +13,13 @@ from django.utils.decorators import method_decorator
 from Crypto.Random import get_random_bytes
 import binascii
 from django.core import serializers
-import simplejson as json
+import json
 from django.core.serializers.json import DjangoJSONEncoder
 from datetime import datetime as dt
 import datetime
 from time import mktime
 import threading
+from urllib import request as urlreq
 # Create your views here.
 
 
@@ -119,30 +120,72 @@ def signout(request):
 ## Complete Registration
 ## Completes facebook signup
 def completeReg(request):
-    if request.method == "GET":  # the user is registered now
-        user = request.user
 
-        if not user.is_authenticated():
-            messages.add_message(request, messages.ERROR, 'Invalid Facebook redirect!')
-            return HttpResponseRedirect(reverse('website:signin'))
+    if request.method == "POST":
+        print(request)
+        try:
+            token = request.POST['access_token']
+        except:
+            messages.add_message(request, messages.ERROR, 'Invalid access.')
+            return HttpResponseRedirect(reverse('website:home'))
 
-        context = {
-            'fullname': user.first_name + ' ' + user.last_name,
-            'username': user.username,
-        }
-        return render(request, 'complete-reg.html', context)
+        ## Token has been retrieved
+        print(token)
 
-    elif request.method == "POST":
+        ## Use Facebook ID to store things
+        url = "https://graph.facebook.com/v2.8/me?fields=first_name,middle_name,last_name&access_token="+token
+        content = json.loads((urlreq.urlopen(url).readall()).decode('utf-8'))
 
+        print(content)
+
+        ## if user exists, log in
+        try:
+            user = User.objects.filter(username=content['id'])
+            if len(user) != 0:
+                user = user[0]
+                login(request,user)
+                return HttpResponseRedirect(reverse('website:home'))
+
+
+            context = {
+                'fullname': content['first_name'] + " " + content['last_name'],
+                'username': content['id'],
+            }
+            
+        except:
+            messages.add_message(request, messages.ERROR, 'Invalid access token!')
+            return HttpResponseRedirect(reverse('website:home'))
+
+
+        return render(request,'complete-reg.html',context)
+
+    else:
+        messages.add_message(request, messages.ERROR, 'Invalid details!')
+        return HttpResponseRedirect(reverse('website:home'))
+
+
+## Complete signup here
+def complete_signup(request):
+
+    if request.method == "POST":
+        # response from form
         try:
             fullname = request.POST['fullname']
+            fb_id = request.POST['username']
             username = request.POST['username']
             isProf = request.POST.get('prof')
         except:
             messages.add_message(request, messages.ERROR, 'Invalid details!')
             return HttpResponseRedirect(reverse('website:signin'))
 
-        user = User.objects.get(username=username)
+        user = User.objects.filter(username=fb_id)
+        if len(user) != 0:
+            print(user)
+            login(request,user)
+            return HttpResponseRedirect(reverse('website:signin'))
+
+        user = User.objects.create(username=fb_id)
+        user.save()
 
         if isProf == "on":
             mtype = "PR"
@@ -151,12 +194,18 @@ def completeReg(request):
 
         member = Member.objects.filter(user=user)
         if len(member) != 0:
+            user.delete()
             messages.add_message(request, messages.ERROR, 'This user already exists! Try logging in!')
             return HttpResponseRedirect(reverse('website:signin'))
 
         member = Member.objects.create(
             user=user, fullname=fullname, mtype=mtype)
         member.save()
+        messages.add_message(request, messages.SUCCESS, 'The account is successfully created.')
+        return HttpResponseRedirect(reverse('website:home'))
+
+    else:
+        messages.add_message(request, messages.ERROR, 'Invalid access.')
         return HttpResponseRedirect(reverse('website:home'))
 #######################################################################################
 ### Admin features
