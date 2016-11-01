@@ -1,26 +1,21 @@
 from django.shortcuts import render, reverse, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.contrib.auth import logout, authenticate, login
 from .models import *
 from django.contrib import messages
-from django.utils.dateparse import parse_date
 from dateutil.parser import parse
-from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from Crypto.Random import get_random_bytes
+import os
 import binascii
-from django.core import serializers
 import json
-from django.core.serializers.json import DjangoJSONEncoder
-from datetime import datetime as dt
-import datetime
 from time import mktime
 import threading
 from urllib import request as urlreq
 # Create your views here.
+from datetime import datetime as dt
+import datetime
 
 
 ## Show the main view
@@ -956,15 +951,24 @@ def handler404(request):
 
 
 ## Checks if token is correct
+## This function wll return a member or None (if there is no member)
 @method_decorator(csrf_exempt, name='checkstud')
 def stud_check(request):
     token = request.POST.get('token')
     if token is None:
-        return HttpResponse("Bad POST request. No token received.")
+        print("No token")
+        return None
+    try:
+        user = User.objects.get(username=token)
+    except:
+        print("Something is wrong here")
+        return None
 
-    member = Member.objects.get(token=token)
+    member = Member.objects.get(user=user)
+
     if member.mtype != "ST":
-        return HttpResponse("Send token of a student")
+        print("Not a student")
+        return None
     return member
 
 
@@ -972,7 +976,6 @@ def stud_check(request):
 @method_decorator(csrf_exempt, name='loginapi')
 def login_api(request):
     if request.method == "POST":
-
         try:
             username = request.POST['username']
             password = request.POST['password']
@@ -986,24 +989,13 @@ def login_api(request):
 
         member = Member.objects.get(user=user)
         if member.mtype != "ST":
-            return HttpResponse("Give student data.")
-        my_hex_value = binascii.hexlify(get_random_bytes(30))
-        member.token = my_hex_value
-        member.save()
-        return HttpResponse(my_hex_value)
+            return HttpResponse("-1")
+
+        return HttpResponse(member.user.username)
 
     elif request.method == "GET":
         return HttpResponse("Sorry Bro.")
 
-
-## Signout for mobileapp
-@method_decorator(csrf_exempt, name='signoutapi')
-def signout_api(request):
-    if request.method == "POST":
-        member = stud_check(request)
-        member.token = ""
-
-    return HttpResponse("0")
 
 
 ## List of all courses of user
@@ -1011,46 +1003,31 @@ def signout_api(request):
 def course_list_api(request):
     if request.method == "POST":
         member = stud_check(request)
+        if member is None:
+            return HttpResponse('Invalid request.')
         course_list = member.course_set.all()
 
-        json_list = serializers.serialize('json', course_list)
-        return HttpResponse(json_list)
+        # json_list = serializers.serialize('json', course_list)
+        json_list = list(map(lambda x: {
+            'pk':x.pk,
+            'name':x.name,
+            'semester':x.semester,
+            'added':x.added.strftime("%B %d, %Y"),
+            'course_code':x.course_code,
+            },course_list))
+        return HttpResponse(json.dumps(json_list))
     else:
         member = Member.objects.filter(mtype="ST")[1]
         course_list = member.course_set.all()
-        json_list = serializers.serialize('json', course_list)
-        return HttpResponse(json_list)
+        json_list = list(map(lambda x: {
+            'pk':x.pk,
+            'name':x.name,
+            'semester':x.semester,
+            'added':x.added.strftime("%B %d, %Y"),
+            'course_code':x.course_code,
+            },course_list))
+        # json_list = serializers.serialize('json', course_list)
+        return HttpResponse(json.dumps(json_list))
 
-
-#### JSON Encoder for datetime
-class MyEncoder(json.JSONEncoder):
-
-    def default(self, obj):
-        if isinstance(obj, datetime.datetime):
-            return obj.strftime('%Y/%m/%d')
-        elif isinstance(obj, datetime.date):
-            return obj.strftime('%Y/%m/%d')
-
-        return json.JSONEncoder.default(self, obj)
-
-
-## Send all deadlines for user
-@method_decorator(csrf_exempt, name='datesapi')
-def dates(request):
-    if request.method == "POST":
-        member = stud_check(request)
-        course_list = member.course_set.all()
-        assignments = []
-        feedback = []
-        for course in course_list:
-            for assign in course.assignment_set.all():
-                assignments.append(str(json.dumps(assign.deadline, cls=MyEncoder))[1:-1])
-                # assignments[course.pk] = assign.deadline
-            for feed in course.feedback_set.all():
-                feedback.append(str(json.dumps(feed.deadline, cls=MyEncoder))[1:-1])
-
-        total = {}
-        total["assignments"] = assignments
-        total["feedback"] = feedback
-        json_dates = json.dumps(total)
-        return HttpResponse(json_dates)
+## Deadlines
+## That function was mostly wrong, need to rewrite it using json module  
