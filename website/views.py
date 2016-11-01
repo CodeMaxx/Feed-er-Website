@@ -4,20 +4,16 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout, authenticate, login
 from .models import *
 from django.contrib import messages
-from dateutil.parser import parse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import os
 import binascii
 import json
 from time import mktime
-import threading
 from urllib import request as urlreq
 # Create your views here.
 from datetime import datetime as dt
 import datetime
-
-
 ## Show the main view
 ## More like index page
 def signin(request):
@@ -403,7 +399,8 @@ def add_courses(request):
         ## Copied from add_feedback, remember to change this in case of bugs
         ##########################################################################################################################
 
-        deadlineM = parse(request.POST['deadlineM'])
+        deadlineM = (request.POST['deadlineM'])
+        deadlineM = datetime.datetime.strptime(deadlineM,'%d %B, %Y')
 
         myfeedback = Feedback.objects.create(
             name=request.POST['feedbacknameM'],
@@ -471,7 +468,7 @@ def add_courses(request):
         ## Copied from add_feedback, remember to change this in case of bugs
         ##########################################################################################################################
 
-        deadlineE = parse(request.POST['deadlineE'])
+        deadlineE = datetime.datetime.strptime((request.POST['deadlineE']),'%d %B, %Y')
 
         myfeedback = Feedback.objects.create(
             name=request.POST['feedbacknameE'],
@@ -538,7 +535,7 @@ def add_courses(request):
 
         name = request.POST['enamem']
         desc = request.POST.get('edescm')
-        deadline = parse(request.POST['edeadlinem'])
+        deadline = datetime.datetime.strptime((request.POST['edeadlinem']),'%d %B, %Y')
 
         assignment = Assignment.objects.create(
             name=name, description=desc, deadline=deadline, course=course)
@@ -548,7 +545,7 @@ def add_courses(request):
 
         name = request.POST['enamee']
         desc = request.POST.get('edesce')
-        deadline = parse(request.POST['edeadlinee'])
+        deadline = datetime.datetime.strptime((request.POST['edeadlinee']),'%d %B, %Y')
 
         assignment = Assignment.objects.create(
             name=name, description=desc, deadline=deadline, course=course)
@@ -629,7 +626,7 @@ def add_feedback(request, course_id):
             # return HttpResponse("Not added")
 
             course = Course.objects.get(pk=int(request.POST['course_id']))
-            deadline = parse(request.POST['deadline'])
+            deadline = datetime.datetime.strptime((request.POST['deadline']),'%d %B, %Y')
 
             myfeedback = Feedback.objects.create(
                 name=request.POST['feedbackname'],
@@ -896,7 +893,7 @@ def add_assigns(request):
 
         name = request.POST['name']
         desc = request.POST.get('desc')
-        deadline = parse(request.POST['deadline'])
+        deadline = datetime.datetime.strptime((request.POST['deadline']),'%d %B, %Y')
         course_code = request.POST['course']
         course = Course.objects.get(course_code=course_code)
 
