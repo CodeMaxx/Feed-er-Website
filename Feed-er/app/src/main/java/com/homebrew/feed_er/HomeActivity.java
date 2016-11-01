@@ -66,13 +66,62 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        
+        Button logout = (Button) findViewById(R.id.logout);
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("LOGOUT","CLICK");
+                Logouter logouter = new Logouter();
+                new Thread(logouter, "Logouter").start();
+            }
+        });
 
 
 
     }
 
+    private class Logouter implements Runnable {
+        public Logouter() {
+            Log.d("DLG", "DLG constructed");
+        }
 
+        @Override
+        public void run() {
+            // Instantiate the RequestQueue.
+            Log.d("LOGOUT","RUN");
+            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+            String url = getString(R.string.api_base_url)+"signout";
+            final String token = getIntent().getExtras().getString("token");
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String responseString) {
+                            Log.d("LOGOUT","RESPONSE :#"+responseString+"#");
+                            //TextView textView = (TextView) findViewById(R.id.invalid_login);
+                            //textView.setVisibility(View.VISIBLE);
+                            //textView.setText("Logged out successfully.");
+
+                            Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
+                            intent.putExtra("status","logout");
+                            startActivity(intent);
+
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {Log.d("LOGOUT","No response");}
+            }){
+                @Override
+                protected Map<String,String> getParams(){
+                    Map<String,String> params = new HashMap<String, String>();
+                    params.put("token",token);
+                    return params;
+                }
+
+            };
+
+            queue.add(stringRequest);
+        }
+    }
 
     public interface OnFragmentInteractionListener {
         public void onFragmentInteraction(String string);

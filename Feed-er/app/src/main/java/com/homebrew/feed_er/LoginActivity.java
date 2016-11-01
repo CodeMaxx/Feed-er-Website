@@ -101,7 +101,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 
 
-
+        try{
+            if(getIntent().getExtras().getString("status").equals("logout")){
+                TextView textView = (TextView) findViewById(R.id.invalid_login);
+                textView.setText("Logged out successfully.");
+                SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.remove("token");
+                editor.commit();
+            }
+        }
+        catch (Exception e){}
 
         
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
