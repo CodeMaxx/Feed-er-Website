@@ -98,6 +98,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+
+
+
+
+
+        
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         String token = sharedPref.getString("token","-1");
         if(!token.equals("-1")){
@@ -231,8 +237,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // form field with an error.
             focusView.requestFocus();
         } else {
-            Loginer datesListGetter = new Loginer();
-            new Thread(datesListGetter, "DatesListGetter").start();
+            Loginer loginer = new Loginer();
+            new Thread(loginer, "Loginer").start();
         }
     }
     private class Loginer implements Runnable {
