@@ -115,8 +115,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        String token = sharedPref.getString("token","-1");
-        if(!token.equals("-1")){
+        String token = sharedPref.getString("token","Unauthorized.");
+        if(!token.equals("Unauthorized.")){
             Intent intent = new Intent(getApplicationContext(),HomeActivity.class);
             intent.putExtra("token",token);
             startActivity(intent);

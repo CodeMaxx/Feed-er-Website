@@ -982,7 +982,7 @@ def login_api(request):
         user = authenticate(username=username, password=password)
 
         if user is None:
-            return HttpResponse("Unauthorized.")
+            return HttpResponse("-1")
 
         member = Member.objects.get(user=user)
         if member.mtype != "ST":
