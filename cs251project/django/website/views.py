@@ -6,6 +6,7 @@ from .models import *
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.core import serializers
 import os
 import binascii
 import json
@@ -956,43 +957,82 @@ def stud_check(request):
         print("No token")
         return None
     try:
-        user = User.objects.get(username=token)
+        member = Member.objects.get(token=token)
     except:
         print("Something is wrong here")
         return None
 
-    member = Member.objects.get(user=user)
-
     if member.mtype != "ST":
         print("Not a student")
         return None
+
     return member
 
 
 ## Signin for mobile app
 @method_decorator(csrf_exempt, name='loginapi')
 def login_api(request):
+
     if request.method == "POST":
         try:
             username = request.POST['username']
             password = request.POST['password']
         except:
-            return HttpResponse("{'error':'No username or password'}")
+            return HttpResponse("-1")
 
         user = authenticate(username=username, password=password)
 
         if user is None:
-            return HttpResponse("Unauthorized.")
+            return HttpResponse("-1")
 
         member = Member.objects.get(user=user)
         if member.mtype != "ST":
             return HttpResponse("-1")
 
-        return HttpResponse(member.user.username)
+        # generate the Token
+        import random,string
+        token = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
+        member.token = token
+        member.save()
+
+        return HttpResponse(token)
 
     elif request.method == "GET":
-        return HttpResponse("Sorry Bro.")
+        return HttpResponse("-1")
 
+
+# Logout view
+@method_decorator(csrf_exempt,name="signoutapi")
+def signout_api(request):
+    try:
+        token = request.POST['token']
+        member = Member.objects.get(token=token)
+        if token == "-1":
+            return HttpResponse("-1")
+        member.token = "-1"
+        member.save()
+        return HttpResponse("0")
+    except:
+        return HttpResponse("-1")
+
+@method_decorator(csrf_exempt,name="datesapi")
+def dates_api(request):
+    try:
+        member = stud_check(request)
+        print(member)
+        assignment_deadlines = []
+        feedback_deadlines = []
+        assignment_deadlines = []
+        from operator import attrgetter
+        from itertools import chain
+        for course in member.course_set.all():
+            feedback_deadlines = sorted(chain(feedback_deadlines, Feedback.objects.filter(course=course)),key=attrgetter('deadline'))
+            assignment_deadlines = sorted(chain(assignment_deadlines, Assignment.objects.filter(course=course)),key=attrgetter('deadline'))
+        # print(feedback_deadlines)
+        response = serializers.serialize('json',assignment_deadlines+feedback_deadlines, fields=('deadline'))
+        return HttpResponse(response)
+    except:
+        return HttpResponse("-1")
 
 
 ## List of all courses of user
@@ -1000,31 +1040,12 @@ def login_api(request):
 def course_list_api(request):
     if request.method == "POST":
         member = stud_check(request)
+        print(member)
         if member is None:
-            return HttpResponse('Invalid request.')
+            return HttpResponse("-1")
         course_list = member.course_set.all()
-
-        # json_list = serializers.serialize('json', course_list)
-        json_list = list(map(lambda x: {
-            'pk':x.pk,
-            'name':x.name,
-            'semester':x.semester,
-            'added':x.added.strftime("%B %d, %Y"),
-            'course_code':x.course_code,
-            },course_list))
-        return HttpResponse(json.dumps(json_list))
+        json_list = serializers.serialize('json',course_list,fields=('name','course_code'))
+        return HttpResponse(json_list)
     else:
-        member = Member.objects.filter(mtype="ST")[1]
-        course_list = member.course_set.all()
-        json_list = list(map(lambda x: {
-            'pk':x.pk,
-            'name':x.name,
-            'semester':x.semester,
-            'added':x.added.strftime("%B %d, %Y"),
-            'course_code':x.course_code,
-            },course_list))
-        # json_list = serializers.serialize('json', course_list)
-        return HttpResponse(json.dumps(json_list))
+        return HttpResponse("-1")
 
-## Deadlines
-## That function was mostly wrong, need to rewrite it using json module  

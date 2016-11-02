@@ -39,15 +39,15 @@ urlpatterns = [
     ## Assignments related stuff
     url(r'^assignments$', views.assigns, name='view_assignment'),
     url(r'^assignments/add$', views.add_assigns, name='add_assignment'),
-    url(r'assignments/view/(?P<pk>\d+)/$',
+    url(r'^assignments/view/(?P<pk>\d+)/$',
         views.view_assign,
         name='view_assign_info'),
 
 	## Mobile API
-	url(r'api/login$', views.login_api, name='login_api'),
-	# url(r'api/signout$', views.signout_api, name='signout_api'),
-	url(r'api/courses$', views.course_list_api, name='courses_api'),
-    # url(r'api/dates$', views.dates, name='dates')
+	url(r'^api/login$', views.login_api, name='login_api'),
+	url(r'^api/signout$', views.signout_api, name='signout_api'),
+	url(r'^api/courses$', views.course_list_api, name='courses_api'),
+    url(r'^api/dates$', views.dates_api, name='dates_api')
 ]
 
 
