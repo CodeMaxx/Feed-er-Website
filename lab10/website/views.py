@@ -126,7 +126,7 @@ def completeReg(request):
 
         ## Use Facebook ID to store things
         url = "https://graph.facebook.com/v2.8/me?fields=first_name,middle_name,last_name&access_token="+token
-        content = json.loads((urlreq.urlopen(url).readall()).decode('utf-8'))
+        content = json.loads((urlreq.urlopen(url).read()).decode('utf-8'))
 
         print(content)
 
