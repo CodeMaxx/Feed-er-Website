@@ -47,7 +47,8 @@ urlpatterns = [
 	url(r'^api/login$', views.login_api, name='login_api'),
 	url(r'^api/signout$', views.signout_api, name='signout_api'),
 	url(r'^api/courses$', views.course_list_api, name='courses_api'),
-    url(r'^api/dates$', views.dates_api, name='dates_api')
+    url(r'^api/dates$', views.dates_api, name='dates_api'),
+    url(r'^api/eventsondate$', views.events_on_date_api, name='eventsondate_api')
 ]
 
 

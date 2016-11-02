@@ -10,6 +10,8 @@ from django.core import serializers
 import os
 import binascii
 import json
+from operator import attrgetter
+from itertools import chain
 from time import mktime
 from urllib import request as urlreq
 # Create your views here.
@@ -126,7 +128,7 @@ def completeReg(request):
 
         ## Use Facebook ID to store things
         url = "https://graph.facebook.com/v2.8/me?fields=first_name,middle_name,last_name&access_token="+token
-        content = json.loads((urlreq.urlopen(url).readall()).decode('utf-8'))
+        content = json.loads((urlreq.urlopen(url).read()).decode('utf-8'))
 
         print(content)
 
@@ -1023,8 +1025,6 @@ def dates_api(request):
         assignment_deadlines = []
         feedback_deadlines = []
         assignment_deadlines = []
-        from operator import attrgetter
-        from itertools import chain
         for course in member.course_set.all():
             feedback_deadlines = sorted(chain(feedback_deadlines, Feedback.objects.filter(course=course)),key=attrgetter('deadline'))
             assignment_deadlines = sorted(chain(assignment_deadlines, Assignment.objects.filter(course=course)),key=attrgetter('deadline'))
@@ -1041,11 +1041,16 @@ def course_list_api(request):
     if request.method == "POST":
         member = stud_check(request)
         print(member)
-        if member is None:
-            return HttpResponse("-1")
         course_list = member.course_set.all()
         json_list = serializers.serialize('json',course_list,fields=('name','course_code'))
         return HttpResponse(json_list)
     else:
         return HttpResponse("-1")
 
+@method_decorator(csrf_exempt, name='eventsondateapi')
+def events_on_date_api(request):
+    try:
+        pass
+
+    except:
+        return HttpResponse("-1")
