@@ -6,6 +6,7 @@ from .models import *
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.core import serializers
 import os
 import binascii
 import json
@@ -971,6 +972,7 @@ def stud_check(request):
 ## Signin for mobile app
 @method_decorator(csrf_exempt, name='loginapi')
 def login_api(request):
+
     if request.method == "POST":
         try:
             username = request.POST['username']
@@ -993,7 +995,7 @@ def login_api(request):
         member.token = token
         member.save()
 
-        return token
+        return HttpResponse(token)
 
     elif request.method == "GET":
         return HttpResponse("-1")
@@ -1019,11 +1021,11 @@ def signout_api(request):
 def course_list_api(request):
     if request.method == "POST":
         member = stud_check(request)
+        print(member)
         if member is None:
-            return HttpResponse('-1')
+            return HttpResponse("-1")
         course_list = member.course_set.all()
-        json_list = serializers.serialize('json',course_list)
-        
+        json_list = serializers.serialize('json',course_list,fields=('name','course_code'))
         return HttpResponse(json_list)
     else:
         return HttpResponse("-1")
