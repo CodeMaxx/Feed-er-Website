@@ -17,6 +17,7 @@ class Member(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	fullname = models.CharField(max_length=30)
 	# Member type
+	token = models.TextField(null=True,blank=True,default="-1")
 	mtype = models.CharField(choices=CHOICES, default="ST",max_length=25)
 	
 	def __str__(self):
