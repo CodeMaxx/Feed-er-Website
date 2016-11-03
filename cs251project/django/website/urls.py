@@ -47,7 +47,10 @@ urlpatterns = [
 	url(r'^api/login$', views.login_api, name='login_api'),
 	url(r'^api/signout$', views.signout_api, name='signout_api'),
 	url(r'^api/courses$', views.course_list_api, name='courses_api'),
-    url(r'api/dates$', views.dates_api, name='dates_api'),
+    url(r'^api/dates$', views.dates_api, name='dates_api'),
+
+    ## Get course wise details
+    url(r'^api/course_detail$',views.course_data_api, name="course_detail_api"),
 
 ]
 

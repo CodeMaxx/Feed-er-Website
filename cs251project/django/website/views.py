@@ -1051,3 +1051,24 @@ def dates_api(request):
 
     else:
         return HttpResponse("-1")
+
+
+@method_decorator(csrf_exempt,name="course_code")
+def course_data_api(request):
+    if request.method == "POST":
+        member = stud_check(request)
+        if member is None:
+            return HttpResponse("-1")
+        try:
+            c_pk = request.POST['course_id']
+            course = Course.objects.get(pk=c_pk)
+        except:
+            return HttpResponse("-1")
+
+        course_json = json.loads(serializers.serialize('json',[course],fields=('name','semester','added','course_code')))
+        course_json[0]['feedbacks']  = json.loads(serializers.serialize('json',course.feedback_set.all()))
+        course_json[0]['assignments'] = json.loads(serializers.serialize('json',course.assignment_set.all()))
+
+        return HttpResponse(json.dumps(course_json))
+    else:
+        return HttpResponse("-1")
