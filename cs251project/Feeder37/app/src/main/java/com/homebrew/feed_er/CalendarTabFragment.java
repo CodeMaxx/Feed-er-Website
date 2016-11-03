@@ -1,6 +1,8 @@
 package com.homebrew.feed_er;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -152,7 +154,16 @@ public class CalendarTabFragment extends Fragment {
                                 caldroidFragment.refreshView();
                             }
                             catch (JSONException e){
-                                Log.d("JSON","JSON error");
+                                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.remove("token");
+                                editor.remove("fullname");
+                                editor.commit();
+
+                                Intent intent = new Intent(getActivity().getApplicationContext(),LoginActivity.class);
+                                intent.putExtra("status","logout");
+                                startActivity(intent);
+                                Log.d("Logout","Logged Out");
                             }
                             //System.out.println("Response recorded");
                         }
