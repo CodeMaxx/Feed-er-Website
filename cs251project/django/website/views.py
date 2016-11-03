@@ -1033,3 +1033,23 @@ def course_list_api(request):
     else:
         return HttpResponse("-1")
 
+
+@method_decorator(csrf_exempt,name="dates")
+def dates_api(request):
+    if request.method == "POST":
+        member = stud_check(request)
+        if member is None:
+            return HttpResponse("-1")
+        course_list = member.course_set.all()
+
+        from itertools import chain
+
+        feedback = list(map(lambda x: json.loads(serializers.serialize('json', x.feedback_set.all())) , course_list))
+        assignment = list(map(lambda x: json.loads(serializers.serialize('json',x.assignment_set.all())), course_list))
+
+        json_data = feedback + assignment
+
+        return HttpResponse(json.dumps(json_data))
+
+    else:
+        return HttpResponse("-1")
