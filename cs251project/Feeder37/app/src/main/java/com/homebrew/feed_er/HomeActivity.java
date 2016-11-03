@@ -80,7 +80,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d("LOGOUT","CLICK");
-                Logouter logouter = new Logouter();
+                Logouter logouter = new Logouter(getApplicationContext());
                 new Thread(logouter, "Logouter").start();
             }
         });
@@ -109,7 +109,9 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private class Logouter implements Runnable {
-        public Logouter() {
+        Context context;
+        public Logouter(Context someContext) {
+            context = someContext;
             Log.d("DLG", "DLG constructed");
         }
 
@@ -133,7 +135,10 @@ public class HomeActivity extends AppCompatActivity {
                         }
                     }, new Response.ErrorListener() {
                 @Override
-                public void onErrorResponse(VolleyError error) {Log.d("LOGOUT","No response");}
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(context,"Please connect to the internet.",Toast.LENGTH_SHORT).show();
+                    Log.d("LOGOUT","No response");
+                }
             }){
                 @Override
                 protected Map<String,String> getParams(){
