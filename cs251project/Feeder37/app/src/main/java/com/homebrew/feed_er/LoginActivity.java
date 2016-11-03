@@ -85,7 +85,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
         try{
-            if(getIntent().getExtras().getString("status").equals("logout")){
+            String status = getIntent().getExtras().getString("status");
+            if(status.equals("logout")){
                 TextView textView = (TextView) findViewById(R.id.invalid_login);
                 textView.setText("Logged out successfully.");
                 SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
@@ -93,6 +94,11 @@ public class LoginActivity extends AppCompatActivity {
                 editor.remove("token");
                 editor.remove("fullname");
                 editor.commit();
+            }
+            else if(status.equals("multiple"))
+            {
+                TextView textView = (TextView) findViewById(R.id.invalid_login);
+                textView.setText("Logged out because you have logged in from some other device.");
             }
         }
         catch (Exception e){

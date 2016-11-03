@@ -130,9 +130,8 @@ public class HomeActivity extends AppCompatActivity {
                             Log.d("LOGOUT","RESPONSE :#"+responseString+"#");
 
                             Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
-                            intent.putExtra("status","logout");
+                            intent.putExtra("status","multiple");
                             startActivity(intent);
-
                         }
                     }, new Response.ErrorListener() {
                 @Override
@@ -153,24 +152,4 @@ public class HomeActivity extends AppCompatActivity {
             queue.add(stringRequest);
         }
     }
-
-    public interface OnFragmentInteractionListener {
-        public void onFragmentInteraction(String string);
-    }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        int id = item.getItemId();
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
 }
