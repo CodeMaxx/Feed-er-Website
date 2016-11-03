@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
@@ -47,6 +48,8 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -93,6 +96,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private GoogleApiClient client;
 
+    private String fullname;
+    boolean doubleBackToExitPressedOnce = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,17 +113,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.remove("token");
+                editor.remove("fullname");
                 editor.commit();
             }
         }
-        catch (Exception e){}
+        catch (Exception e){
+            Log.e("LO","LOGOUT NS");
+        }
 
         
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         String token = sharedPref.getString("token","-1");
-        if(!token.equals("-1")){
+        if(sharedPref.contains("token")){
             Intent intent = new Intent(getApplicationContext(),HomeActivity.class);
             intent.putExtra("token",token);
+            intent.putExtra("fullname", sharedPref.getString("fullname", "you"));
             startActivity(intent);
         }
         // Set up the login form.
@@ -153,6 +162,27 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
+
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            this.finishAffinity();
+            System.exit(0);
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
+    }
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
             return;
@@ -275,15 +305,41 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             if(responseString.equals("-1")){
                                 Log.d("LOGIN","Invalid up");
                                TextView textView = (TextView) findViewById(R.id.invalid_login);
+                                textView.setText("Invalid username or password.");
                                 textView.setVisibility(View.VISIBLE);
                             }
                             else{
-                                SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sharedPref.edit();
-                                editor.putString("token", responseString);
-                                editor.commit();
+                                String token,fullname;
+                                try {
+                                    Log.e("JSON",responseString);
+                                    final JSONArray response = new JSONArray(responseString);
+                                    Log.e("JSON","1");
+                                    JSONObject user = response.getJSONObject(0).getJSONObject("fields");
+                                    Log.e("JSON","2");
+                                    fullname = user.getString("fullname");
+                                    Log.e("JSON","3");
+                                    token = user.getString("token");
+                                    Log.e("JSON","4");
+
+                                }
+                                catch (Exception e){
+                                    Log.e("JSON","Login");
+                                    token = null;
+                                    fullname = null;
+                                }
+
+
                                 Intent intent = new Intent(getApplicationContext(),HomeActivity.class);
-                                intent.putExtra("token",responseString);
+                                if(token!=null) {
+                                    SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPref.edit();
+                                    editor.putString("token", token);
+                                    editor.putString("fullname",fullname);
+                                    editor.commit();
+
+                                    intent.putExtra("token", token);
+                                    intent.putExtra("fullname", fullname);
+                                }
                                 startActivity(intent);
                             }
                         }
