@@ -154,15 +154,15 @@ public class CalendarTabFragment extends Fragment {
                                 caldroidFragment.refreshView();
                             }
                             catch (JSONException e){
-                                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sharedPref.edit();
-                                editor.remove("token");
-                                editor.remove("fullname");
-                                editor.commit();
-
-                                Intent intent = new Intent(getActivity().getApplicationContext(),LoginActivity.class);
-                                intent.putExtra("status","logout");
-                                startActivity(intent);
+//                                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+//                                SharedPreferences.Editor editor = sharedPref.edit();
+//                                editor.remove("token");
+//                                editor.remove("fullname");
+//                                editor.commit();
+//
+//                                Intent intent = new Intent(getActivity().getApplicationContext(),LoginActivity.class);
+//                                intent.putExtra("status","multiple");
+//                                startActivity(intent);
                                 Log.d("Logout","Logged Out");
                             }
                             //System.out.println("Response recorded");
@@ -185,27 +185,6 @@ public class CalendarTabFragment extends Fragment {
             };
             queue.add(stringRequest);
         }
-    }
-
-
-    public static CalendarTabFragment newInstance(String param1, String param2) {
-        CalendarTabFragment fragment = new CalendarTabFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-
     }
 
     @Override

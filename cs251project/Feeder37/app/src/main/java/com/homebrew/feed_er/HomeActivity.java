@@ -130,7 +130,7 @@ public class HomeActivity extends AppCompatActivity {
                             Log.d("LOGOUT","RESPONSE :#"+responseString+"#");
 
                             Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
-                            intent.putExtra("status","multiple");
+                            intent.putExtra("status","logout");
                             startActivity(intent);
                         }
                     }, new Response.ErrorListener() {
