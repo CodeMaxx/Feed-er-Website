@@ -43,7 +43,14 @@ import java.util.Map;
  * create an instance of this fragment.
  */
 public class CalendarTabFragment extends Fragment {
-    private Map<Date,String> impDates;
+
+    public class Deadline {
+        public String name;
+        public Date deadline;
+        public String type;
+    };
+
+    private Map<Date,Deadline> impDates;
     private Map<Date, Drawable> backgroundForDateMap;
     private CaldroidFragment caldroidFragment;
     private String token;
@@ -83,57 +90,42 @@ public class CalendarTabFragment extends Fragment {
                             Log.d("TOKEN",token);
                             // Display the first 500 characters of the response string.
                             try{
-                                final JSONObject response = new JSONObject(responseString);
+                                final JSONArray response = new JSONArray(responseString);
 //                                Log.d("JSON","1 "+response.toString());
-                                JSONArray assignDeadlines = response.getJSONArray("assignments");
-                                JSONArray examDates = response.getJSONArray("feedback");
+//                                JSONArray assignDeadlines = response.getJSONArray("assignments");
+//                                JSONArray examDates = response.getJSONArray("feedback");
                                 backgroundForDateMap = new HashMap<>();
                                 impDates.clear();
                                 final Calendar c = Calendar.getInstance();
-                                for (int i = 0; i < assignDeadlines.length(); i++) {
-                                    //Log.d("JSON","2");
-                                    String assignDeadline = assignDeadlines.getString(i);
-                                    //Log.d("JSON", assignDeadline);
-                                    String components[] = assignDeadline.split("/");
-                                    //Log.d("COMP",components[0]);
-                                    int yyyy = Integer.parseInt(components[0]);
-                                    int mm = Integer.parseInt(components[1]);
-                                    int dd = Integer.parseInt(components[2]);
-                                    Date dL = new Date(yyyy-1900,mm-1,dd);
-                                    c.setTimeInMillis(dL.getTime());
 
-                                    impDates.put(c.getTime(),"what is this?");
-                                    backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.YELLOW));
-                                    Log.d("JSON", dL.toString());
-                                }
-                                for (int i = 0; i < examDates.length(); i++) {
-//                                    //Log.d("JSON","2");
-                                    String examDate = examDates.getString(i);
-                                    //Log.d("JSON", assignDeadline);
-                                    String components[] = examDate.split("/");
-                                    //Log.d("COMP",components[0]);
-                                    int yyyy = Integer.parseInt(components[0]);
-                                    int mm = Integer.parseInt(components[1]);
-                                    int dd = Integer.parseInt(components[2]);
-                                    Date dL = new Date(yyyy-1900,mm-1,dd);
-                                    c.setTimeInMillis(dL.getTime());
-
-                                    impDates.put(c.getTime(),"what is this?");
-                                    if(backgroundForDateMap.get(c.getTime())==new ColorDrawable(Color.YELLOW))
-                                        backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.GREEN));
+                                for(int i=0;i < response.length(); i++) {
+                                    Deadline mydeadline = new Deadline();
+                                    JSONObject rDetail = (JSONObject)response.get(i);
+                                    JSONObject rFields = (JSONObject)rDetail.get("fields");
+                                    mydeadline.name = rFields.getString("name");
+                                    String dds[] = rFields.getString("deadline").split("-");
+                                    int yyyy = Integer.parseInt(dds[0]);
+                                    int mm = Integer.parseInt(dds[1]);
+                                    int dd = Integer.parseInt(dds[2].substring(0,2));
+                                    mydeadline.deadline = new Date(yyyy-1900,mm-1,dd);
+                                    c.setTimeInMillis(mydeadline.deadline.getTime());
+                                    mydeadline.type = rDetail.getString("model");
+                                    impDates.put(c.getTime(),mydeadline);
+                                    // TODO: Change this for multiple colors
+                                    if(mydeadline.type.equals("website.feedback"))
+                                        backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.YELLOW));
                                     else
-                                        backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.BLUE));
-                                    Log.d("JSON", dL.toString());
+                                        backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.GREEN));
+                                    Log.d("JSON","Added");
 
                                 }
-
                                 //listeners
                                 final CaldroidListener listener = new CaldroidListener() {
                                     @Override
                                     public void onSelectDate(Date date, View view) {
                                         //Log.d("SELECT DATE", date.toString());
                                         if(impDates.containsKey(date)){
-                                            Log.d("IMPDATE", impDates.get(date));
+                                            Log.d("IMPDATE", impDates.get(date).name);
                                             backgroundForDateMap.put(date, new ColorDrawable(Color.GREEN));
                                             caldroidFragment.setBackgroundDrawableForDates(backgroundForDateMap);
                                             caldroidFragment.refreshView();
@@ -144,11 +136,6 @@ public class CalendarTabFragment extends Fragment {
                                 };
 
                                 caldroidFragment.setCaldroidListener(listener);
-
-                                //
-
-
-
 
                                 caldroidFragment.setBackgroundDrawableForDates(backgroundForDateMap);
                                 caldroidFragment.refreshView();

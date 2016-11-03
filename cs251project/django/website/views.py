@@ -1047,6 +1047,7 @@ def dates_api(request):
             json_data += json.loads(serializers.serialize('json',course.feedback_set.all()))
             json_data += json.loads(serializers.serialize('json',course.assignment_set.all()))
 
+        print(json_data)
         return HttpResponse(json.dumps(json_data))
 
     else:
