@@ -105,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
         if(sharedPref.contains("token")){
             Intent intent = new Intent(getApplicationContext(),HomeActivity.class);
             intent.putExtra("token",token);
-            intent.putExtra("fullname", sharedPref.getString("fullname", "you"));
+            intent.putExtra("fullname", sharedPref.getString("fullname", "Student"));
             startActivity(intent);
         }
         // Set up the login form.
@@ -284,6 +284,6 @@ public class LoginActivity extends AppCompatActivity {
     private boolean isPasswordValid(String password) {
         return password.length()>=8;
     }
-    
+
 }
 

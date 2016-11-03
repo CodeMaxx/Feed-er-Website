@@ -42,9 +42,6 @@ public class HomeActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         fullname = getIntent().getExtras().getString("fullname");
-        if(fullname == null){
-
-        }
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Calendar"));
@@ -129,9 +126,6 @@ public class HomeActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(String responseString) {
                             Log.d("LOGOUT","RESPONSE :#"+responseString+"#");
-                            //TextView textView = (TextView) findViewById(R.id.invalid_login);
-                            //textView.setVisibility(View.VISIBLE);
-                            //textView.setText("Logged out successfully.");
 
                             Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
                             intent.putExtra("status","logout");
