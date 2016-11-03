@@ -6,7 +6,6 @@
 
     <FrameLayout
         android:orientation="vertical"
-        android:background="@color/caldroid_sky_blue"
         android:layout_width="match_parent"
         android:layout_height="800dp"
         android:id="@+id/calendarView"

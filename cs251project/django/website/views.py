@@ -996,8 +996,9 @@ def login_api(request):
         token = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
         member.token = token
         member.save()
-
-        return HttpResponse(token)
+        response  =serializers.serialize('json',[member],fields=('fullname','token'))
+        print(response)
+        return HttpResponse(response)
 
     elif request.method == "GET":
         return HttpResponse("-1")

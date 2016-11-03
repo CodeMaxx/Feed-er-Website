@@ -47,6 +47,8 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -275,15 +277,41 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             if(responseString.equals("-1")){
                                 Log.d("LOGIN","Invalid up");
                                TextView textView = (TextView) findViewById(R.id.invalid_login);
+                                textView.setText("Invalid username or password.");
                                 textView.setVisibility(View.VISIBLE);
                             }
                             else{
-                                SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sharedPref.edit();
-                                editor.putString("token", responseString);
-                                editor.commit();
+                                String token,fullname;
+                                try {
+                                    Log.e("JSON",responseString);
+                                    final JSONArray response = new JSONArray(responseString);
+                                    Log.e("JSON","1");
+                                    JSONObject user = response.getJSONObject(0).getJSONObject("fields");
+                                    Log.e("JSON","2");
+                                    fullname = user.getString("fullname");
+                                    Log.e("JSON","3");
+                                    token = user.getString("token");
+                                    Log.e("JSON","4");
+
+                                }
+                                catch (Exception e){
+                                    Log.e("JSON","Login");
+                                    token = null;
+                                    fullname = null;
+                                }
+
+
                                 Intent intent = new Intent(getApplicationContext(),HomeActivity.class);
-                                intent.putExtra("token",responseString);
+                                if(token!=null) {
+                                    SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPref.edit();
+                                    editor.putString("token", token);
+                                    editor.putString("fullname",fullname);
+                                    editor.commit();
+
+                                    intent.putExtra("token", token);
+                                    intent.putExtra("fullname", fullname);
+                                }
                                 startActivity(intent);
                             }
                         }
