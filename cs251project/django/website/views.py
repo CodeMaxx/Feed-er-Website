@@ -1042,12 +1042,10 @@ def dates_api(request):
             return HttpResponse("-1")
         course_list = member.course_set.all()
 
-        from itertools import chain
-
-        feedback = list(map(lambda x: json.loads(serializers.serialize('json', x.feedback_set.all())) , course_list))
-        assignment = list(map(lambda x: json.loads(serializers.serialize('json',x.assignment_set.all())), course_list))
-
-        json_data = feedback + assignment
+        json_data = []
+        for course in course_list:
+            json_data += json.loads(serializers.serialize('json',course.feedback_set.all()))
+            json_data += json.loads(serializers.serialize('json',course.assignment_set.all()))
 
         return HttpResponse(json.dumps(json_data))
 
