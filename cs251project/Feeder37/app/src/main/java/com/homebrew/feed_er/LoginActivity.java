@@ -97,6 +97,7 @@ public class LoginActivity extends AppCompatActivity {
             }
             else if(status.equals("multiple"))
             {
+                Log.e("MULTIPLE","Why?");
                 TextView textView = (TextView) findViewById(R.id.invalid_login);
                 textView.setText("Logged out because you have logged in from some other device.");
             }
