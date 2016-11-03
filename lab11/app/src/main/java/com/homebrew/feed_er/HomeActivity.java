@@ -33,12 +33,18 @@ import java.util.regex.Pattern;
 
 public class HomeActivity extends AppCompatActivity {
     boolean doubleBackToExitPressedOnce = false;
+    String fullname;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        fullname = getIntent().getExtras().getString("fullname");
+        if(fullname == null){
+
+        }
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("Calendar"));
@@ -51,7 +57,7 @@ public class HomeActivity extends AppCompatActivity {
 
         viewPager.setAdapter(adapter);
 
-        Toast toast = Toast.makeText(getApplicationContext(),"Welcome "+getIntent().getExtras().getString("fullname"),Toast.LENGTH_LONG);
+        Toast toast = Toast.makeText(getApplicationContext(),"Welcome "+fullname,Toast.LENGTH_SHORT);
         toast.show();
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
@@ -117,6 +123,7 @@ public class HomeActivity extends AppCompatActivity {
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
             String url = getString(R.string.api_base_url)+"signout";
             final String token = getIntent().getExtras().getString("token");
+
             StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override

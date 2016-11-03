@@ -95,6 +95,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private GoogleApiClient client;
 
+    private String fullname;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,17 +112,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.remove("token");
+                editor.remove("fullname");
                 editor.commit();
             }
         }
-        catch (Exception e){}
+        catch (Exception e){
+            Log.e("LO","LOGOUT NS");
+        }
 
         
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        String token = sharedPref.getString("token","Unauthorized.");
-        if(!token.equals("Unauthorized.")){
+        String token = sharedPref.getString("token","-1");
+        if(sharedPref.contains("token")){
             Intent intent = new Intent(getApplicationContext(),HomeActivity.class);
             intent.putExtra("token",token);
+            intent.putExtra("fullname", sharedPref.getString("fullname", "you"));
             startActivity(intent);
         }
         // Set up the login form.
