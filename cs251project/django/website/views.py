@@ -1143,3 +1143,18 @@ def course_form_api(request):
         member = stud_check(request)
         if member is None:
             return HttpResponse("-1")
+        try:
+            f_id = request.POST["feedback_id"]
+            c_pk = request.POST['course_id']
+            course = Course.objects.get(pk=c_pk)
+            feedback = Feedback.objects.get(course=course, pk=f_id)
+            ques = feedback.feedbackquestion_set.all()
+            json_data = serializers.serialize('json',ques)
+            return HttpResponse(json_data)
+        except:
+            return HttpResponse("-1")
+
+
+## Receive feedback response
+
+@method_decorator(csrf_exempt,name="course_form_api")

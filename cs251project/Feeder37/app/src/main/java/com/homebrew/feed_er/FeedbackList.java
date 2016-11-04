@@ -173,15 +173,16 @@ public class FeedbackList extends Fragment {
                         @Override
                         public void onClick(View view) {
 
-                            if(p.com.equals("Incomplete"))
+                            if(p.com.equals("Complete"))
                             {
-                                Toast toast = Toast.makeText(getContext(), "You have already submitted this Feedback.", Toast.LENGTH_SHORT);
+                                Toast toast = Toast.makeText(context, "You have already submitted this Feedback.", Toast.LENGTH_SHORT);
+                                toast.show();
                             }
                             else {
                                 Intent intent = new Intent(getContext(), FeedbackDetail.class);
                                 intent.putExtra("token", token);
                                 intent.putExtra("pk", p.pk);
-
+                                intent.putExtra("course_id", course_id);
                                 startActivity(intent);
                             }
                         }
