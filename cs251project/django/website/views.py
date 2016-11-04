@@ -1080,6 +1080,7 @@ def course_data_api(request):
 ## Get course ID to get all its feedbacks and assignments
 @method_decorator(csrf_exempt,name="course_deadlines_api")
 def course_deadlines_api(request):
+    print(request)
     if request.method == "POST":
         member = stud_check(request)
         if member is None:
@@ -1093,8 +1094,8 @@ def course_deadlines_api(request):
         now = dt.now()
         feedbacks = json.loads(serializers.serialize('json',course.feedback_set.filter(deadline__gt=now),fields=("name","deadline")))
         assignments = json.loads(serializers.serialize('json',course.assignment_set.filter(deadline__gt=now),fields=("name","description","deadline")))
-
-        return HttpResponse(json.dumps([feedbacks,assignments]))
+        finalJSON = json.dumps([feedbacks,assignments])
+        return HttpResponse(finalJSON)
 
     else:
         return HttpResponse("-1")
