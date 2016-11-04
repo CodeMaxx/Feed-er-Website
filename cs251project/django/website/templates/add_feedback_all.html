@@ -10,7 +10,10 @@ Add feedback!
 	<br>
 	<br>
 		{% if error %}
-			{{error}}
+			<div class="row">
+<div class="col s8 offset-m2">
+    <h4 style="font-weight: 200; color: #f00;text-align: center">{{ error }}</h4>
+        </div></div>
 		{% else %}
 		<!-- Content here -->
 		<h4 class="center">Add feedback form</h4>

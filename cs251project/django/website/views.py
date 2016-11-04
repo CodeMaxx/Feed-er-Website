@@ -7,16 +7,16 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.core import serializers
-import os
-import binascii
 import json
-from time import mktime
 from urllib import request as urlreq
 # Create your views here.
 from datetime import datetime as dt
 import datetime
+from ratelimit.decorators import ratelimit
+
 ## Show the main view
 ## More like index page
+@ratelimit(key='ip', rate='100/h')
 def signin(request):
     if request.method == "GET":
         user = request.user
@@ -45,6 +45,7 @@ def signin(request):
 
 
 ## Signup view which takes data and creates the account
+@ratelimit(key='ip', rate='100/h')
 def signup(request):
 
     if request.method == "GET":
@@ -111,6 +112,7 @@ def signout(request):
 
 ## Complete Registration
 ## Completes facebook signup
+@ratelimit(key='ip', rate='100/h')
 def completeReg(request):
 
     if request.method == "POST":
@@ -157,6 +159,7 @@ def completeReg(request):
 
 
 ## Complete signup here
+@ratelimit(key='ip', rate='100/h')
 def complete_signup(request):
 
     if request.method == "POST":
@@ -199,6 +202,8 @@ def complete_signup(request):
     else:
         messages.add_message(request, messages.ERROR, 'Invalid access.')
         return HttpResponseRedirect(reverse('website:home'))
+
+
 #######################################################################################
 ### Admin features
 ### View and add students
@@ -773,7 +778,7 @@ def add_feedback_all(request):
             all_courses = member.course_set.all()
             if len(all_courses) == 0:
                 return render(request, 'add_feedback_all.html',
-                              {'error': 'You have no courses right now.'})
+                              {'error': 'You are not taking any courses.'})
 
             context = {
                 'all_courses': all_courses,
@@ -804,7 +809,7 @@ def view_feedback_all(request):
             all_courses = member.course_set.all()
             if len(all_courses) == 0:
                 return render(request, 'view_feedback_all.html',
-                              {'error': 'You have no courses right now.'})
+                              {'error': 'You are not taking any courses.'})
 
             course_data = []
             for course in all_courses:
@@ -954,16 +959,16 @@ def handler404(request):
 def stud_check(request):
     token = request.POST.get('token')
     if token is None:
-        print("No token")
+        # print("No token")
         return None
     try:
         member = Member.objects.get(token=token)
     except:
-        print("Something is wrong here")
+        # print("Something is wrong here")
         return None
 
     if member.mtype != "ST":
-        print("Not a student")
+        # print("Not a student")
         return None
 
     return member
@@ -1027,11 +1032,21 @@ def course_list_api(request):
         print(member)
         if member is None:
             return HttpResponse("-1")
-        course_list = member.course_set.all()
-        json_list = serializers.serialize('json',course_list,fields=('name','course_code'))
-        return HttpResponse(json_list)
+        try:
+            c_pk = request.POST['course_id']
+            course = Course.objects.get(pk=c_pk)
+        except:
+            return HttpResponse("-1")
+
+        course_json = json.loads(
+            serializers.serialize('json', [course], fields=('name', 'semester', 'added', 'course_code')))
+        course_json[0]['feedbacks'] = json.loads(serializers.serialize('json', course.feedback_set.all()))
+        course_json[0]['assignments'] = json.loads(serializers.serialize('json', course.assignment_set.all()))
+
+        return HttpResponse(json.dumps(course_json))
     else:
         return HttpResponse("-1")
+
 
 ## List all the dates (feedback and assignment deadlines)
 @method_decorator(csrf_exempt,name="dates")
@@ -1042,36 +1057,28 @@ def dates_api(request):
             return HttpResponse("-1")
         course_list = member.course_set.all()
 
-        json_data = []
+        json_data = {}
+        completed_feedbacks = []
+        incomplete_feedbacks = []
+        assignments = []
+
+
         for course in course_list:
-            json_data += json.loads(serializers.serialize('json',course.feedback_set.all()))
-            json_data += json.loads(serializers.serialize('json',course.assignment_set.all()))
+            for feedback in course.feedback_set.all():
+                if member in feedback.students.all():
+                    completed_feedbacks.append(feedback)
+                else:
+                    incomplete_feedbacks.append(feedback)
+
+            assignments += course.assignment_set.all()
+
+        json_data['assignment'] = json.loads(serializers.serialize('json', assignments))
+        json_data['complete'] = json.loads(serializers.serialize('json', completed_feedbacks))
+        json_data['incomplete'] = json.loads(serializers.serialize('json', incomplete_feedbacks))
 
         print(json_data)
         return HttpResponse(json.dumps(json_data))
 
-    else:
-        return HttpResponse("-1")
-
-
-## List all courses that the guy is taking
-@method_decorator(csrf_exempt,name="course_code")
-def course_data_api(request):
-    if request.method == "POST":
-        member = stud_check(request)
-        if member is None:
-            return HttpResponse("-1")
-        try:
-            c_pk = request.POST['course_id']
-            course = Course.objects.get(pk=c_pk)
-        except:
-            return HttpResponse("-1")
-
-        course_json = json.loads(serializers.serialize('json',[course],fields=('name','semester','added','course_code')))
-        course_json[0]['feedbacks']  = json.loads(serializers.serialize('json',course.feedback_set.all()))
-        course_json[0]['assignments'] = json.loads(serializers.serialize('json',course.assignment_set.all()))
-
-        return HttpResponse(json.dumps(course_json))
     else:
         return HttpResponse("-1")
 
@@ -1090,11 +1097,33 @@ def course_deadlines_api(request):
         except:
             return HttpResponse("-1")
 
+        json_data = {}
+        completed_feedbacks = []
+        incomplete_feedbacks = []
+        assignments = []
+
         now = dt.now()
-        feedbacks = json.loads(serializers.serialize('json',course.feedback_set.filter(deadline__gt=now),fields=("name","deadline")))
-        assignments = json.loads(serializers.serialize('json',course.assignment_set.filter(deadline__gt=now),fields=("name","description","deadline")))
+        for feedback in course.feedback_set.filter(deadline__gt=now):
+            if member in feedback.students.all():
+                completed_feedbacks.append(feedback)
+            else:
+                incomplete_feedbacks.append(feedback)
 
-        return HttpResponse(json.dumps([feedbacks,assignments]))
+        assignments += course.assignment_set.filter(deadline__gt=now)
 
+        json_data['assignment'] = json.loads(serializers.serialize('json', assignments))
+        json_data['complete'] = json.loads(serializers.serialize('json', completed_feedbacks))
+        json_data['incomplete'] = json.loads(serializers.serialize('json', incomplete_feedbacks))
+
+        return HttpResponse(json.dumps(json_data))
     else:
         return HttpResponse("-1")
+
+## Send form
+
+@method_decorator(csrf_exempt,name="course_form_api")
+def course_form_api(request):
+    if request.method == "POST":
+        member = stud_check(request)
+        if member is None:
+            return HttpResponse("-1")
