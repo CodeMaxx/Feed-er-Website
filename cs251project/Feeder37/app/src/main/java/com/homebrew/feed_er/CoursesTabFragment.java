@@ -1,6 +1,7 @@
 package com.homebrew.feed_er;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -47,6 +48,11 @@ public class CoursesTabFragment extends Fragment {
         public String course_code;
         public int pk;
 
+        public Course() {
+            name = course_code = "";
+            pk = -1;
+        }
+
         @Override
         public String toString() {
             if(course_code.equals("")) {
@@ -62,6 +68,55 @@ public class CoursesTabFragment extends Fragment {
 
     public Course[] CourseList;
     public String[] CourseNameList;
+
+    // make the adapter here
+    public class CourseAdapter extends ArrayAdapter<Course> {
+
+
+        public CourseAdapter(Context context, int textViewResourceId) {
+            super(context, textViewResourceId);
+        }
+
+        public CourseAdapter(Context context, int resource, Course[] items) {
+            super(context, resource, items);
+        }
+
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View v = convertView;
+
+            if (v == null) {
+                LayoutInflater vi;
+                vi = LayoutInflater.from(getContext());
+                v = vi.inflate(R.layout.textviewxml, null);
+            }
+
+            final Course p = getItem(position);
+
+            if (p != null) {
+                TextView tt = (TextView)v.findViewById(R.id.courseTextView);
+                tt.setText(p.toString());
+
+                if(!p.course_code.equals("")) {
+                    tt.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(getContext(),CourseFeedbackList.class);
+                            intent.putExtra("token",token);
+                            intent.putExtra("pk",p.pk);
+                            startActivity(intent);
+                        }
+                    });
+                }
+
+            }
+
+            return v;
+        }
+    }
+
     public ArrayAdapter adapter;
 
 
@@ -171,7 +226,7 @@ public class CoursesTabFragment extends Fragment {
             CourseList[0].name = "No course for you.";
             CourseList[0].course_code = "";
         }
-        adapter = new ArrayAdapter<Course>(context,R.layout.textviewxml,CourseList);
+        adapter = new CourseAdapter(context,R.layout.textviewxml,CourseList);
         listView.setAdapter(adapter);
     }
 
