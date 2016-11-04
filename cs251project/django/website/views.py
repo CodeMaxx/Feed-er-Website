@@ -1033,7 +1033,7 @@ def course_list_api(request):
     else:
         return HttpResponse("-1")
 
-
+## List all the dates (feedback and assignment deadlines)
 @method_decorator(csrf_exempt,name="dates")
 def dates_api(request):
     if request.method == "POST":
@@ -1054,6 +1054,7 @@ def dates_api(request):
         return HttpResponse("-1")
 
 
+## List all courses that the guy is taking
 @method_decorator(csrf_exempt,name="course_code")
 def course_data_api(request):
     if request.method == "POST":
@@ -1071,5 +1072,27 @@ def course_data_api(request):
         course_json[0]['assignments'] = json.loads(serializers.serialize('json',course.assignment_set.all()))
 
         return HttpResponse(json.dumps(course_json))
+    else:
+        return HttpResponse("-1")
+
+
+## Get all the feedbacks of the course
+## Get course ID to get all its feedbacks
+@method_decorator(csrf_exempt,name="course_feedback_list")
+def course_feedback_list(request):
+    if request.method == "POST":
+        member = stud_check(request)
+        if member is None:
+            return HttpResponse("-1")
+        try:
+            c_pk = request.POST['course_id']
+            course = Course.objects.get(pk=c_pk)
+        except:
+            return HttpResponse("-1")
+
+        now = dt.now()
+        feedbacks = serializers.serialize('json',course.feedback_set.filter(deadline__gt=now))
+        return HttpResponse(feedbacks)
+
     else:
         return HttpResponse("-1")

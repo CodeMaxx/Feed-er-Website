@@ -53,7 +53,7 @@ public class CoursesTabFragment extends Fragment {
                 return name;
             }
             else {
-                return name + " - " + course_code;
+                return course_code + "\n" + name;
             }
         }
     }
