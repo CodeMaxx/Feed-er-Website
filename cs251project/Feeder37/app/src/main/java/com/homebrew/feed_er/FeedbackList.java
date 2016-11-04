@@ -117,53 +117,53 @@ public class FeedbackList extends Fragment {
     View view;
     ListView listView;
 
-    // make the adapter here
-    public class FeedbackAdapter extends ArrayAdapter<Feedback> {
-
-
-        public FeedbackAdapter(Context context, int textViewResourceId) {
-            super(context, textViewResourceId);
-        }
-
-        public FeedbackAdapter(Context context, int resource, Feedback[] items) {
-            super(context, resource, items);
-        }
-
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-
-            View v = convertView;
-
-            if (v == null) {
-                LayoutInflater vi;
-                vi = LayoutInflater.from(getContext());
-                v = vi.inflate(R.layout.textviewxml, null);
-            }
-
-            final Feedback p = getItem(position);
-
-            if (p != null) {
-                TextView tt = (TextView) v.findViewById(R.id.courseTextView);
-                tt.setText(p.toString());
-
-                if (!p.name.equals("")) {
-                    tt.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Intent intent = new Intent(getContext(), FeedbackDetail.class);
-                            intent.putExtra("token", token);
-                            intent.putExtra("pk", p.pk);
-                            startActivity(intent);
-                        }
-                    });
-                }
-
-            }
-
-            return v;
-        }
-    }
+//    // make the adapter here
+//    public class FeedbackAdapter extends ArrayAdapter<Feedback> {
+//
+//
+//        public FeedbackAdapter(Context context, int textViewResourceId) {
+//            super(context, textViewResourceId);
+//        }
+//
+//        public FeedbackAdapter(Context context, int resource, Feedback[] items) {
+//            super(context, resource, items);
+//        }
+//
+//
+//        @Override
+//        public View getView(int position, View convertView, ViewGroup parent) {
+//
+//            View v = convertView;
+//
+//            if (v == null) {
+//                LayoutInflater vi;
+//                vi = LayoutInflater.from(getContext());
+//                v = vi.inflate(R.layout.textviewxml, null);
+//            }
+//
+//            final Feedback p = getItem(position);
+//
+//            if (p != null) {
+//                TextView tt = (TextView) v.findViewById(R.id.courseTextView);
+//                tt.setText(p.toString());
+//
+//                if (!p.name.equals("")) {
+//                    tt.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            Intent intent = new Intent(getContext(), FeedbackDetail.class);
+//                            intent.putExtra("token", token);
+//                            intent.putExtra("pk", p.pk);
+//                            startActivity(intent);
+//                        }
+//                    });
+//                }
+//
+//            }
+//
+//            return v;
+//        }
+//    }
 
     // Create view here
     @Override
