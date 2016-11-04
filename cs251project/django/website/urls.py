@@ -57,6 +57,7 @@ urlpatterns = [
     ## Get course wise details
     url(r'^api/course_detail$',views.course_list_api, name="course_detail_api"),
     url(r'^api/course_deadlines$',views.course_deadlines_api, name="course_deadlines_api"),
+    url(r'^api/course_feedback_detail$',views.course_form_api, name="course_feedback_detail")
 
 ]
 

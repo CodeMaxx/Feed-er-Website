@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -35,15 +36,18 @@ public class FeedbackList extends Fragment {
         public String name;
         public int pk;
         public Date deadline;
+        public String com;
 
         public Feedback() {
             name = "";
             pk = -1;
+            com = "Incomplete";
         }
 
         @Override
         public String toString() {
-            return name;
+
+            return name + '\n' + com;
         }
     }
 
@@ -67,16 +71,33 @@ public class FeedbackList extends Fragment {
                         public void onResponse(String response) {
                             // Make the json object
                             try {
-                                JSONArray json_obj = new JSONArray(response);
-                                JSONArray feedbackJSON = (JSONArray) json_obj.get(0);
-
-                                feedbacks = new Feedback[feedbackJSON.length()];
-                                for (int i = 0; i < feedbackJSON.length(); i++) {
-                                    JSONObject blob = (JSONObject) feedbackJSON.get(i);
+                                Log.e("Resp",response);
+                                JSONObject json_obj = new JSONObject(response);Log.e("JSON","1");
+                                JSONArray assignment = (JSONArray) json_obj.getJSONArray("assignment");
+                                JSONArray complete_feedbacks = (JSONArray) json_obj.getJSONArray("complete");
+                                JSONArray incomplete_feedbacks = (JSONArray) json_obj.getJSONArray("incomplete");
+                                Log.e("JSON","2");
+                                Log.e("JSON","3");
+                                feedbacks = new Feedback[complete_feedbacks.length() + incomplete_feedbacks.length()];Log.e("JSON","4");
+                                for (int i = 0; i < complete_feedbacks.length(); i++) {
+                                    JSONObject blob = (JSONObject) complete_feedbacks.get(i);
                                     JSONObject fields = (JSONObject) blob.get("fields");
                                     feedbacks[i] = new Feedback();
                                     feedbacks[i].name = fields.getString("name");
                                     feedbacks[i].pk = blob.getInt("pk");
+                                    feedbacks[i].com = "Complete";
+                                    String unParsedDate[] = fields.getString("deadline").split("-");
+                                    int yyyy = Integer.parseInt(unParsedDate[0]), mm = Integer.parseInt(unParsedDate[1]), dd = Integer.parseInt(unParsedDate[2].substring(0, 2));
+                                    feedbacks[i].deadline = new Date(yyyy - 1900, mm - 1, dd);
+                                }
+
+                                for (int i = complete_feedbacks.length(); i < feedbacks.length; i++) {
+                                    JSONObject blob = (JSONObject) incomplete_feedbacks.get(i);
+                                    JSONObject fields = (JSONObject) blob.get("fields");
+                                    feedbacks[i] = new Feedback();
+                                    feedbacks[i].name = fields.getString("name");
+                                    feedbacks[i].pk = blob.getInt("pk");
+                                    feedbacks[i].com = "Incomplete";
                                     String unParsedDate[] = fields.getString("deadline").split("-");
                                     int yyyy = Integer.parseInt(unParsedDate[0]), mm = Integer.parseInt(unParsedDate[1]), dd = Integer.parseInt(unParsedDate[2].substring(0, 2));
                                     feedbacks[i].deadline = new Date(yyyy - 1900, mm - 1, dd);
@@ -117,53 +138,61 @@ public class FeedbackList extends Fragment {
     View view;
     ListView listView;
 
-//    // make the adapter here
-//    public class FeedbackAdapter extends ArrayAdapter<Feedback> {
-//
-//
-//        public FeedbackAdapter(Context context, int textViewResourceId) {
-//            super(context, textViewResourceId);
-//        }
-//
-//        public FeedbackAdapter(Context context, int resource, Feedback[] items) {
-//            super(context, resource, items);
-//        }
-//
-//
-//        @Override
-//        public View getView(int position, View convertView, ViewGroup parent) {
-//
-//            View v = convertView;
-//
-//            if (v == null) {
-//                LayoutInflater vi;
-//                vi = LayoutInflater.from(getContext());
-//                v = vi.inflate(R.layout.textviewxml, null);
-//            }
-//
-//            final Feedback p = getItem(position);
-//
-//            if (p != null) {
-//                TextView tt = (TextView) v.findViewById(R.id.courseTextView);
-//                tt.setText(p.toString());
-//
-//                if (!p.name.equals("")) {
-//                    tt.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View view) {
-//                            Intent intent = new Intent(getContext(), FeedbackDetail.class);
-//                            intent.putExtra("token", token);
-//                            intent.putExtra("pk", p.pk);
-//                            startActivity(intent);
-//                        }
-//                    });
-//                }
-//
-//            }
-//
-//            return v;
-//        }
-//    }
+    // make the adapter here
+    public class FeedbackAdapter extends ArrayAdapter<Feedback> {
+
+
+        public FeedbackAdapter(Context context, int textViewResourceId) {
+            super(context, textViewResourceId);
+        }
+
+        public FeedbackAdapter(Context context, int resource, Feedback[] items) {
+            super(context, resource, items);
+        }
+
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View v = convertView;
+
+            if (v == null) {
+                LayoutInflater vi;
+                vi = LayoutInflater.from(getContext());
+                v = vi.inflate(R.layout.textviewxml, null);
+            }
+
+            final Feedback p = getItem(position);
+
+            if (p != null) {
+                TextView tt = (TextView) v.findViewById(R.id.courseTextView);
+                tt.setText(p.toString());
+
+                if (!p.name.equals("")) {
+                    tt.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+
+                            if(p.com.equals("Incomplete"))
+                            {
+                                Toast toast = Toast.makeText(getContext(), "You have already submitted this Feedback.", Toast.LENGTH_SHORT);
+                            }
+                            else {
+                                Intent intent = new Intent(getContext(), FeedbackDetail.class);
+                                intent.putExtra("token", token);
+                                intent.putExtra("pk", p.pk);
+
+                                startActivity(intent);
+                            }
+                        }
+                    });
+                }
+
+            }
+
+            return v;
+        }
+    }
 
     // Create view here
     @Override
@@ -183,7 +212,7 @@ public class FeedbackList extends Fragment {
     }
 
     public void createFeedbackView() {
-        adapter = new ArrayAdapter<Feedback>(getActivity().getApplicationContext(), R.layout.textviewxml, feedbacks);
+        adapter = new FeedbackAdapter(getActivity().getApplicationContext(), R.layout.textviewxml, feedbacks);
         listView.setAdapter(adapter);
     }
 
