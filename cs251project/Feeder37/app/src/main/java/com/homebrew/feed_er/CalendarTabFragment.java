@@ -3,13 +3,17 @@ package com.homebrew.feed_er;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -88,22 +92,22 @@ public class CalendarTabFragment extends Fragment {
                             Log.d("CLG", "response obtained...");
                             Log.d("Response",responseString);
                             Log.d("TOKEN",token);
-                            // Display the first 500 characters of the response string.
+
                             try{
-                                final JSONArray response = new JSONArray(responseString);
-//                                Log.d("JSON","1 "+response.toString());
-//                                JSONArray assignDeadlines = response.getJSONArray("assignments");
-//                                JSONArray examDates = response.getJSONArray("feedback");
+                                final JSONObject response = new JSONObject(responseString);
+                                JSONArray assignments = response.getJSONArray("assignment");
+                                JSONArray complete_feedbacks = response.getJSONArray("complete");
+                                JSONArray incomplete_feedbacks = response.getJSONArray("incomplete");
                                 backgroundForDateMap = new HashMap<>();
                                 impDates.clear();
                                 final Calendar c = Calendar.getInstance();
 
-                                for(int i=0;i < response.length(); i++) {
+                                for(int i=0;i < assignments.length(); i++) {
                                     Deadline mydeadline = new Deadline();
-                                    JSONObject rDetail = (JSONObject)response.get(i);
+                                    JSONObject rDetail = (JSONObject)assignments.get(i);
                                     JSONObject rFields = (JSONObject)rDetail.get("fields");
                                     mydeadline.name = rFields.getString("name");
-                                    String dds[] = rFields.getString("deadline").split("-");
+                                    String dds[] = rFields.getString("deadline").substring(0,10).split("-");
                                     int yyyy = Integer.parseInt(dds[0]);
                                     int mm = Integer.parseInt(dds[1]);
                                     int dd = Integer.parseInt(dds[2].substring(0,2));
@@ -111,13 +115,43 @@ public class CalendarTabFragment extends Fragment {
                                     c.setTimeInMillis(mydeadline.deadline.getTime());
                                     mydeadline.type = rDetail.getString("model");
                                     impDates.put(c.getTime(),mydeadline);
-                                    // TODO: Change this for multiple colors
-                                    if(mydeadline.type.equals("website.feedback"))
-                                        backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.YELLOW));
-                                    else
-                                        backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.GREEN));
+                                    backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.RED));
                                     Log.d("JSON","Added");
+                                    Log.e("Assignment", c.toString() );
 
+                                }
+                                for(int i=0;i < complete_feedbacks.length(); i++) {
+                                    Deadline mydeadline = new Deadline();
+                                    JSONObject rDetail = (JSONObject)complete_feedbacks.get(i);
+                                    JSONObject rFields = (JSONObject)rDetail.get("fields");
+                                    mydeadline.name = rFields.getString("name");
+                                    String dds[] = rFields.getString("deadline").substring(0,10).split("-");
+                                    int yyyy = Integer.parseInt(dds[0]);
+                                    int mm = Integer.parseInt(dds[1]);
+                                    int dd = Integer.parseInt(dds[2].substring(0,2));
+                                    mydeadline.deadline = new Date(yyyy-1900,mm-1,dd);
+                                    c.setTimeInMillis(mydeadline.deadline.getTime());
+                                    mydeadline.type = rDetail.getString("model");
+                                    impDates.put(c.getTime(),mydeadline);
+                                    backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.GRAY));
+                                    Log.d("JSON","Added");
+                                }
+
+                                for(int i=0;i < incomplete_feedbacks.length(); i++) {
+                                    Deadline mydeadline = new Deadline();
+                                    JSONObject rDetail = (JSONObject)incomplete_feedbacks.get(i);
+                                    JSONObject rFields = (JSONObject)rDetail.get("fields");
+                                    mydeadline.name = rFields.getString("name");
+                                    String dds[] = rFields.getString("deadline").substring(0,10).split("-");
+                                    int yyyy = Integer.parseInt(dds[0]);
+                                    int mm = Integer.parseInt(dds[1]);
+                                    int dd = Integer.parseInt(dds[2].substring(0,2));
+                                    mydeadline.deadline = new Date(yyyy-1900,mm-1,dd);
+                                    c.setTimeInMillis(mydeadline.deadline.getTime());
+                                    mydeadline.type = rDetail.getString("model");
+                                    impDates.put(c.getTime(),mydeadline);
+                                    backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.GREEN));
+                                    Log.d("JSON","Added");
                                 }
                                 //listeners
                                 final CaldroidListener listener = new CaldroidListener() {
