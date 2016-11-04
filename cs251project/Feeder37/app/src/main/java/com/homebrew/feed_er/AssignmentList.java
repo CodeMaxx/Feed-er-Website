@@ -1,6 +1,7 @@
 package com.homebrew.feed_er;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -42,7 +44,54 @@ public class AssignmentList extends Fragment {
     }
 
     Assignment[] assignments;
-    ArrayAdapter<Assignment> assignmentadapter;
+
+    // class for custom adapter
+    public class AssignmentAdapter extends ArrayAdapter<Assignment> {
+
+        public AssignmentAdapter(Context context, int textViewResourceId) {
+            super(context, textViewResourceId);
+        }
+
+        public AssignmentAdapter(Context context, int resource, Assignment[] items) {
+            super(context, resource, items);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View v = convertView;
+
+            if (v == null) {
+                LayoutInflater vi;
+                vi = LayoutInflater.from(getContext());
+                v = vi.inflate(R.layout.textviewxml, null);
+            }
+
+            final Assignment p = getItem(position);
+
+            if (p != null) {
+                TextView tt1 = (TextView) v.findViewById(R.id.courseTextView);
+                if (tt1 != null) {
+                    tt1.setText(p.toString());
+                }
+                if(p.pk != -1) {
+                    tt1.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(getActivity().getApplicationContext(),AssignmentDetail.class);
+                            intent.putExtra("pk",p.pk);
+                            intent.putExtra("token",token);
+                            startActivity(intent);
+                        }
+                    });
+                }
+            }
+
+            return v;
+        }
+
+    }
+    AssignmentAdapter assignmentadapter;
 
     // Feedback list thread
     public class AssignmentThread implements Runnable {
@@ -134,7 +183,15 @@ public class AssignmentList extends Fragment {
     }
 
     public void createAssignmentView() {
-        assignmentadapter = new ArrayAdapter<Assignment>(getActivity().getApplicationContext(),R.layout.textviewxml,assignments);
+
+        if(assignments.length == 0) {
+            // create a dummy assignment
+            assignments = new Assignment[1];
+            assignments[0] = new Assignment();
+            assignments[0].name = "Hurray! No assignments!";
+            assignments[0].pk = -1;
+        }
+        assignmentadapter = new AssignmentAdapter(getActivity().getApplicationContext(),R.layout.textviewxml,assignments);
         listView.setAdapter(assignmentadapter);
     }
 }
