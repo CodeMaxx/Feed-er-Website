@@ -1,5 +1,7 @@
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.http import HttpResponse
+
 from . import views
 
 from django.conf.urls import handler404
@@ -11,6 +13,9 @@ urlpatterns = [
     url(r'^signout$', views.signout, name='signout'),
     url(r'^complete-reg$', views.completeReg, name='complete-reg'),
     url(r'^complete-signup$',views.complete_signup,name="complete_signup"),
+
+    ## robots.txt
+    url(r'^robots.txt$', lambda r: HttpResponse("User-agent: *\nDisallow: /", content_type="text/plain")),
 
     ## View and register Students
     ## Only for Admin :(
@@ -46,12 +51,11 @@ urlpatterns = [
 	## Mobile API
 	url(r'^api/login$', views.login_api, name='login_api'),
 	url(r'^api/signout$', views.signout_api, name='signout_api'),
-	url(r'^api/courses$', views.course_list_api, name='courses_api'),
     url(r'^api/dates$', views.dates_api, name='dates_api'),
 
     ## Get course wise details
-    url(r'^api/course_detail$',views.course_data_api, name="course_detail_api"),
-    url(r'^api/course_feedback_list$',views.course_feedback_list, name="course_feedback_list"),
+    url(r'^api/course_detail$',views.course_list_api, name="course_detail_api"),
+    url(r'^api/course_deadlines$',views.course_deadlines_api, name="course_deadlines_api"),
 
 ]
 

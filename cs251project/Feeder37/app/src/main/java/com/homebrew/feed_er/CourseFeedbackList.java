@@ -2,8 +2,11 @@ package com.homebrew.feed_er;
 
 import android.content.Intent;
 import android.support.annotation.IntegerRes;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -24,85 +27,8 @@ import java.util.Map;
 
 public class CourseFeedbackList extends AppCompatActivity {
 
-    public class Feedback {
-        public String name;
-        public int pk;
-        public Date deadline;
-
-        public Feedback() {
-            name = ""; pk = -1;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-    }
-
     String token;
     int course_id;
-    Feedback[] feedbacks;
-    ArrayAdapter<Feedback> adapter;
-
-    // Feedback list thread
-    public class FeedbackThread implements Runnable {
-        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        String url = getString(R.string.api_base_url) + "course_feedback_list";
-
-        @Override
-        public void run() {
-            // Request a string response from the provided URL.
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            Log.d("RESPONSE",response);
-                            // Make the json object
-                            try {
-                                JSONArray json_obj = new JSONArray(response);
-                                feedbacks = new Feedback[json_obj.length()];
-                                for(int i=0;i<json_obj.length();i++) {
-                                    JSONObject blob = (JSONObject) json_obj.get(i);
-                                    JSONObject fields = (JSONObject) blob.get("fields");
-                                    feedbacks[i] = new Feedback();
-                                    feedbacks[i].name = fields.getString("name");
-                                    feedbacks[i].pk = blob.getInt("pk");
-                                    String unParsedDate[] = fields.getString("deadline").split("-");
-                                    int yyyy = Integer.parseInt(unParsedDate[0]), mm = Integer.parseInt(unParsedDate[1]), dd = Integer.parseInt(unParsedDate[2].substring(0,2));
-                                    feedbacks[i].deadline = new Date(yyyy-1900,mm-1,dd);
-
-                                }
-
-                                createFeedbackView();
-
-                            }
-                            catch(Exception e) {
-                                Log.e("ERROR:","ERROR in json response");
-                            }
-                            // Display the first 500 characters of the response string.
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e("ERROR:","Error connecting.");
-
-                }
-            }){
-                @Override
-                protected Map<String,String> getParams(){
-                    Map<String,String> params = new HashMap<String, String>();
-                    params.put("token",token);
-                    params.put("course_id",Integer.toString(course_id));
-                    Log.d("TOKEN",token);
-                    Log.d("ID:",Integer.toString(course_id));
-                    return params;
-                }
-
-            };
-            // Add the request to the RequestQueue.
-            queue.add(stringRequest);
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,15 +40,43 @@ public class CourseFeedbackList extends AppCompatActivity {
         token = getIntent().getExtras().getString("token");
         Log.d("TOKEN",token);
         Log.d("COURSE_ID",Integer.toString(course_id));
-        FeedbackThread fThread = new FeedbackThread();
-        new Thread(fThread,"fThread").start();
+
+
+        // Arrange stuff here
+        Toolbar toolbar = (Toolbar) findViewById(R.id.navigator);
+        setSupportActionBar(toolbar);
+
+        // Add tabs
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.navlayout);
+        tabLayout.addTab(tabLayout.newTab().setText("Feedbacks"));
+        tabLayout.addTab(tabLayout.newTab().setText("Assignments"));
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+
+
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.navigatorpager);
+        final DeadlineAdapter adapter = new DeadlineAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
+
+        viewPager.setAdapter(adapter);
+
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
 
     }
 
 
-    public void createFeedbackView() {
-        ListView listView = (ListView)findViewById(R.id.CourseFeedbackView);
-        adapter = new ArrayAdapter<Feedback>(getApplicationContext(),R.layout.textviewxml,feedbacks);
-        listView.setAdapter(adapter);
-    }
 }
