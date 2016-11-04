@@ -46,8 +46,12 @@ public class FeedbackList extends Fragment {
 
         @Override
         public String toString() {
-
-            return name + '\n' + com;
+            if(pk != -1) {
+                return name + '\n' + com;
+            }
+            else {
+                return name ;
+            }
         }
     }
 
@@ -73,7 +77,6 @@ public class FeedbackList extends Fragment {
                             try {
                                 Log.e("Resp",response);
                                 JSONObject json_obj = new JSONObject(response);Log.e("JSON","1");
-                                JSONArray assignment = (JSONArray) json_obj.getJSONArray("assignment");
                                 JSONArray complete_feedbacks = (JSONArray) json_obj.getJSONArray("complete");
                                 JSONArray incomplete_feedbacks = (JSONArray) json_obj.getJSONArray("incomplete");
                                 Log.e("JSON","2");
@@ -168,7 +171,7 @@ public class FeedbackList extends Fragment {
                 TextView tt = (TextView) v.findViewById(R.id.courseTextView);
                 tt.setText(p.toString());
 
-                if (!p.name.equals("")) {
+                if (!p.name.equals("") && p.pk != -1) {
                     tt.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -213,6 +216,11 @@ public class FeedbackList extends Fragment {
     }
 
     public void createFeedbackView() {
+        if(feedbacks.length == 0) {
+            feedbacks = new Feedback[1];
+            feedbacks[0].name = "Hurray! No feedbacks!";
+            feedbacks[0].pk = -1;
+        }
         adapter = new FeedbackAdapter(getActivity().getApplicationContext(), R.layout.textviewxml, feedbacks);
         listView.setAdapter(adapter);
     }

@@ -113,8 +113,8 @@ public class AssignmentList extends Fragment {
 //                            Log.d("RESPONSE",response);
                             // Make the json object
                             try {
-                                JSONArray json_obj = new JSONArray(response);
-                                JSONArray assignmentJSON = (JSONArray) json_obj.get(1);
+                                JSONObject json_obj = new JSONObject(response);
+                                JSONArray assignmentJSON = json_obj.getJSONArray("assignment");
 
                                 assignments = new Assignment[assignmentJSON.length()];
                                 for (int i = 0; i < assignmentJSON.length(); i++) {

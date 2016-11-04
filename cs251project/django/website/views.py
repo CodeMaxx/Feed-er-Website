@@ -1157,4 +1157,4 @@ def course_form_api(request):
 
 ## Receive feedback response
 
-@method_decorator(csrf_exempt,name="course_form_api")
+# @method_decorator(csrf_exempt,name="course_form_api")
