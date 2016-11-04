@@ -48,9 +48,11 @@ public class CalendarTabFragment extends Fragment {
         public String name;
         public Date deadline;
         public String type;
-    };
+    }
 
-    private Map<Date,Deadline> impDates;
+    ;
+
+    private Map<Date, Deadline> impDates;
     private Map<Date, Drawable> backgroundForDateMap;
     private CaldroidFragment caldroidFragment;
     private String token;
@@ -78,7 +80,7 @@ public class CalendarTabFragment extends Fragment {
         public void run() {
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
-            String url = getString(R.string.api_base_url)+"dates";
+            String url = getString(R.string.api_base_url) + "dates";
             impDates = new HashMap<>();
             Log.d("CLG", "sending request...");
             StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
@@ -86,10 +88,10 @@ public class CalendarTabFragment extends Fragment {
                         @Override
                         public void onResponse(String responseString) {
                             Log.d("CLG", "response obtained...");
-                            Log.d("Response",responseString);
-                            Log.d("TOKEN",token);
+                            Log.d("Response", responseString);
+                            Log.d("TOKEN", token);
                             // Display the first 500 characters of the response string.
-                            try{
+                            try {
                                 final JSONArray response = new JSONArray(responseString);
 //                                Log.d("JSON","1 "+response.toString());
 //                                JSONArray assignDeadlines = response.getJSONArray("assignments");
@@ -98,25 +100,25 @@ public class CalendarTabFragment extends Fragment {
                                 impDates.clear();
                                 final Calendar c = Calendar.getInstance();
 
-                                for(int i=0;i < response.length(); i++) {
+                                for (int i = 0; i < response.length(); i++) {
                                     Deadline mydeadline = new Deadline();
-                                    JSONObject rDetail = (JSONObject)response.get(i);
-                                    JSONObject rFields = (JSONObject)rDetail.get("fields");
+                                    JSONObject rDetail = (JSONObject) response.get(i);
+                                    JSONObject rFields = (JSONObject) rDetail.get("fields");
                                     mydeadline.name = rFields.getString("name");
                                     String dds[] = rFields.getString("deadline").split("-");
                                     int yyyy = Integer.parseInt(dds[0]);
                                     int mm = Integer.parseInt(dds[1]);
-                                    int dd = Integer.parseInt(dds[2].substring(0,2));
-                                    mydeadline.deadline = new Date(yyyy-1900,mm-1,dd);
+                                    int dd = Integer.parseInt(dds[2].substring(0, 2));
+                                    mydeadline.deadline = new Date(yyyy - 1900, mm - 1, dd);
                                     c.setTimeInMillis(mydeadline.deadline.getTime());
                                     mydeadline.type = rDetail.getString("model");
-                                    impDates.put(c.getTime(),mydeadline);
+                                    impDates.put(c.getTime(), mydeadline);
                                     // TODO: Change this for multiple colors
-                                    if(mydeadline.type.equals("website.feedback"))
-                                        backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.YELLOW));
+                                    if (mydeadline.type.equals("website.feedback"))
+                                        backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.YELLOW));
                                     else
-                                        backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.GREEN));
-                                    Log.d("JSON","Added");
+                                        backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.GREEN));
+                                    Log.d("JSON", "Added");
 
                                 }
                                 //listeners
@@ -124,7 +126,7 @@ public class CalendarTabFragment extends Fragment {
                                     @Override
                                     public void onSelectDate(Date date, View view) {
                                         //Log.d("SELECT DATE", date.toString());
-                                        if(impDates.containsKey(date)){
+                                        if (impDates.containsKey(date)) {
                                             Log.d("IMPDATE", impDates.get(date).name);
                                             backgroundForDateMap.put(date, new ColorDrawable(Color.GREEN));
                                             caldroidFragment.setBackgroundDrawableForDates(backgroundForDateMap);
@@ -139,8 +141,7 @@ public class CalendarTabFragment extends Fragment {
 
                                 caldroidFragment.setBackgroundDrawableForDates(backgroundForDateMap);
                                 caldroidFragment.refreshView();
-                            }
-                            catch (JSONException e){
+                            } catch (JSONException e) {
 //                                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
 //                                SharedPreferences.Editor editor = sharedPref.edit();
 //                                editor.remove("token");
@@ -150,7 +151,7 @@ public class CalendarTabFragment extends Fragment {
 //                                Intent intent = new Intent(getActivity().getApplicationContext(),LoginActivity.class);
 //                                intent.putExtra("status","multiple");
 //                                startActivity(intent);
-                                Log.d("Logout","Logged Out");
+                                Log.d("Logout", "Logged Out");
                             }
                             //System.out.println("Response recorded");
                         }
@@ -158,14 +159,14 @@ public class CalendarTabFragment extends Fragment {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     //textView.setText("Please check your internet connection.");
-                    Log.d("DATES","response not received");
+                    Log.d("DATES", "response not received");
                 }
-            }){
+            }) {
                 @Override
-                protected Map<String,String> getParams(){
-                    Map<String,String> params = new HashMap<String, String>();
-                    params.put("token",token);
-                    Log.d("TOKEN",token);
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("token", token);
+                    Log.d("TOKEN", token);
                     return params;
                 }
 
@@ -179,8 +180,8 @@ public class CalendarTabFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        Boolean isNull = (getActivity()==null);
-        Log.d("NULL",isNull.toString());
+        Boolean isNull = (getActivity() == null);
+        Log.d("NULL", isNull.toString());
 
 
         token = getActivity().getIntent().getExtras().getString("token");

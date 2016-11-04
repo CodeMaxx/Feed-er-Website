@@ -76,17 +76,16 @@ public class LoginActivity extends AppCompatActivity {
 
     private String fullname;
     boolean doubleBackToExitPressedOnce = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
 
-
-
-        try{
+        try {
             String status = getIntent().getExtras().getString("status");
-            if(status.equals("logout")){
+            if (status.equals("logout")) {
                 TextView textView = (TextView) findViewById(R.id.invalid_login);
                 textView.setText("Logged out successfully.");
                 SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
@@ -94,24 +93,21 @@ public class LoginActivity extends AppCompatActivity {
                 editor.remove("token");
                 editor.remove("fullname");
                 editor.commit();
-            }
-            else if(status.equals("multiple"))
-            {
-                Log.e("MULTIPLE","Why?");
+            } else if (status.equals("multiple")) {
+                Log.e("MULTIPLE", "Why?");
                 TextView textView = (TextView) findViewById(R.id.invalid_login);
                 textView.setText("Logged out because you have logged in from some other device.");
             }
-        }
-        catch (Exception e){
-            Log.e("LO","LOGOUT NS");
+        } catch (Exception e) {
+            Log.e("LO", "LOGOUT NS");
         }
 
-        
+
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        String token = sharedPref.getString("token","-1");
-        if(sharedPref.contains("token")){
-            Intent intent = new Intent(getApplicationContext(),HomeActivity.class);
-            intent.putExtra("token",token);
+        String token = sharedPref.getString("token", "-1");
+        if (sharedPref.contains("token")) {
+            Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+            intent.putExtra("token", token);
             intent.putExtra("fullname", sharedPref.getString("fullname", "Student"));
             startActivity(intent);
         }
@@ -131,7 +127,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
@@ -147,7 +142,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void run() {
-                doubleBackToExitPressedOnce=false;
+                doubleBackToExitPressedOnce = false;
             }
         }, 2000);
     }
@@ -172,7 +167,7 @@ public class LoginActivity extends AppCompatActivity {
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (!isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -194,6 +189,7 @@ public class LoginActivity extends AppCompatActivity {
             // form field with an error.
             focusView.requestFocus();
         } else {
+            Log.d("LOGIN", "Username/Password format correct");
             Loginer loginer = new Loginer();
             new Thread(loginer, "Loginer").start();
         }
@@ -208,8 +204,8 @@ public class LoginActivity extends AppCompatActivity {
         public void run() {
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-            String url = getString(R.string.api_base_url)+"login";
-            Log.d("URL",url);
+            String url = getString(R.string.api_base_url) + "login";
+            Log.d("URL", url);
             final String email = mEmailView.getText().toString();
             final String password = mPasswordView.getText().toString();
             Log.d("LOGIN", "sending request...");
@@ -219,40 +215,38 @@ public class LoginActivity extends AppCompatActivity {
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String responseString) {
-                            Log.d("LOGIN",responseString);
-                            if(responseString.equals("-1")){
-                                Log.d("LOGIN","Invalid up");
-                               TextView textView = (TextView) findViewById(R.id.invalid_login);
+                            Log.d("LOGIN", responseString);
+                            if (responseString.equals("-1")) {
+                                Log.d("LOGIN", "Invalid up");
+                                TextView textView = (TextView) findViewById(R.id.invalid_login);
                                 textView.setText("Invalid username or password.");
                                 textView.setVisibility(View.VISIBLE);
-                            }
-                            else{
-                                String token,fullname;
+                            } else {
+                                String token, fullname;
                                 try {
-                                    Log.e("JSON",responseString);
+                                    Log.e("JSON", responseString);
                                     final JSONArray response = new JSONArray(responseString);
-                                    Log.e("JSON","1");
+                                    Log.e("JSON", "1");
                                     JSONObject user = response.getJSONObject(0).getJSONObject("fields");
-                                    Log.e("JSON","2");
+                                    Log.e("JSON", "2");
                                     fullname = user.getString("fullname");
-                                    Log.e("JSON","3");
+                                    Log.e("JSON", "3");
                                     token = user.getString("token");
-                                    Log.e("JSON","4");
+                                    Log.e("JSON", "4");
 
-                                }
-                                catch (Exception e){
-                                    Log.e("JSON","Login");
+                                } catch (Exception e) {
+                                    Log.e("JSON", "Login");
                                     token = null;
                                     fullname = null;
                                 }
 
 
-                                Intent intent = new Intent(getApplicationContext(),HomeActivity.class);
-                                if(token!=null) {
+                                Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                if (token != null) {
                                     SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
                                     SharedPreferences.Editor editor = sharedPref.edit();
                                     editor.putString("token", token);
-                                    editor.putString("fullname",fullname);
+                                    editor.putString("fullname", fullname);
                                     editor.commit();
 
                                     intent.putExtra("token", token);
@@ -265,14 +259,14 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     //textView.setText("Please check your internet connection.");
-                    Log.d("LOGIN","response not received");
+                    Log.d("LOGIN", "response not received");
                 }
-            }){
+            }) {
                 @Override
-                protected Map<String,String> getParams(){
-                    Map<String,String> params = new HashMap<String, String>();
-                    params.put("username",email);
-                    params.put("password",password);
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("username", email);
+                    params.put("password", password);
 //                    params.put("token","f57609bb7440377f34628ba65047537ed316d8d665e4eed899629a9e8e9f");
                     return params;
                 }
@@ -282,14 +276,18 @@ public class LoginActivity extends AppCompatActivity {
             queue.add(stringRequest);
         }
     }
+
     private boolean isEmailValid(String email) {
         Pattern pattern = Pattern.compile("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}");
-        Matcher mat =pattern.matcher(email);
+        Matcher mat = pattern.matcher(email);
         return mat.matches();
     }
 
     private boolean isPasswordValid(String password) {
-        return password.length()>=8;
+
+        Log.d("Pass", "Password being checked");
+        return password.length() >= 8;
+
     }
 
 }

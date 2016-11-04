@@ -38,8 +38,8 @@ public class CourseFeedbackList extends AppCompatActivity {
         Intent intent = getIntent();
         course_id = getIntent().getExtras().getInt("pk");
         token = getIntent().getExtras().getString("token");
-        Log.d("TOKEN",token);
-        Log.d("COURSE_ID",Integer.toString(course_id));
+        Log.d("TOKEN", token);
+        Log.d("COURSE_ID", Integer.toString(course_id));
 
 
         // Arrange stuff here

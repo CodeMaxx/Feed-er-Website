@@ -15,9 +15,10 @@ public class PopupActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popup);
     }
+
     @Override
-    public void onWindowFocusChanged(boolean focusOn){
-        int [] p = new int[2];
+    public void onWindowFocusChanged(boolean focusOn) {
+        int[] p = new int[2];
 
     }
 }

@@ -32,6 +32,7 @@ public class AssignmentList extends Fragment {
 
     String token;
     int course_id;
+
     // Assignment class
     public class Assignment {
         public String name;
@@ -40,7 +41,9 @@ public class AssignmentList extends Fragment {
         public String description;
 
         @Override
-        public String toString() { return name; }
+        public String toString() {
+            return name;
+        }
     }
 
     Assignment[] assignments;
@@ -74,13 +77,13 @@ public class AssignmentList extends Fragment {
                 if (tt1 != null) {
                     tt1.setText(p.toString());
                 }
-                if(p.pk != -1) {
+                if (p.pk != -1) {
                     tt1.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            Intent intent = new Intent(getActivity().getApplicationContext(),AssignmentDetail.class);
-                            intent.putExtra("pk",p.pk);
-                            intent.putExtra("token",token);
+                            Intent intent = new Intent(getActivity().getApplicationContext(), AssignmentDetail.class);
+                            intent.putExtra("pk", p.pk);
+                            intent.putExtra("token", token);
                             startActivity(intent);
                         }
                     });
@@ -91,6 +94,7 @@ public class AssignmentList extends Fragment {
         }
 
     }
+
     AssignmentAdapter assignmentadapter;
 
     // Feedback list thread
@@ -113,7 +117,7 @@ public class AssignmentList extends Fragment {
                                 JSONArray assignmentJSON = (JSONArray) json_obj.get(1);
 
                                 assignments = new Assignment[assignmentJSON.length()];
-                                for(int i=0;i < assignmentJSON.length();i++) {
+                                for (int i = 0; i < assignmentJSON.length(); i++) {
                                     JSONObject blob = (JSONObject) assignmentJSON.get(i);
                                     JSONObject fields = (JSONObject) blob.get("fields");
                                     assignments[i] = new Assignment();
@@ -121,31 +125,30 @@ public class AssignmentList extends Fragment {
                                     assignments[i].description = fields.getString("description");
                                     assignments[i].pk = blob.getInt("pk");
                                     String unParsedDate[] = fields.getString("deadline").split("-");
-                                    int yyyy = Integer.parseInt(unParsedDate[0]), mm = Integer.parseInt(unParsedDate[1]), dd = Integer.parseInt(unParsedDate[2].substring(0,2));
-                                    assignments[i].deadline = new Date(yyyy-1900,mm-1,dd);
+                                    int yyyy = Integer.parseInt(unParsedDate[0]), mm = Integer.parseInt(unParsedDate[1]), dd = Integer.parseInt(unParsedDate[2].substring(0, 2));
+                                    assignments[i].deadline = new Date(yyyy - 1900, mm - 1, dd);
                                 }
                                 createAssignmentView();
-                            }
-                            catch(Exception e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
-                                Log.e("ERROR:","ERROR in json response assignment");
+                                Log.e("ERROR:", "ERROR in json response assignment");
                             }
                             // Display the first 500 characters of the response string.
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.e("ERROR:","Error connecting assignment.");
+                    Log.e("ERROR:", "Error connecting assignment.");
 
                 }
-            }){
+            }) {
                 @Override
-                protected Map<String,String> getParams(){
-                    Map<String,String> params = new HashMap<String, String>();
-                    params.put("token",token);
-                    params.put("course_id",Integer.toString(course_id));
-                    Log.d("TOKEN",token);
-                    Log.d("ID:",Integer.toString(course_id));
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("token", token);
+                    params.put("course_id", Integer.toString(course_id));
+                    Log.d("TOKEN", token);
+                    Log.d("ID:", Integer.toString(course_id));
                     return params;
                 }
 
@@ -166,15 +169,15 @@ public class AssignmentList extends Fragment {
         token = getActivity().getIntent().getExtras().getString("token");
         course_id = getActivity().getIntent().getExtras().getInt("pk");
 
-        Log.d("TOKEN",token);
-        Log.d("COURSE_ID",Integer.toString(course_id));
+        Log.d("TOKEN", token);
+        Log.d("COURSE_ID", Integer.toString(course_id));
 
         context = getActivity().getApplicationContext();
         view = inflater.inflate(R.layout.fragment_assignment_list, container, false);
-        listView = (ListView)view.findViewById(R.id.AssignmentListView);
+        listView = (ListView) view.findViewById(R.id.AssignmentListView);
 
         AssignmentThread a = new AssignmentThread();
-        new Thread(a,"AssignmentThread").start();
+        new Thread(a, "AssignmentThread").start();
 
 //        Log.d("Assignment thread","YES");
 
@@ -184,14 +187,14 @@ public class AssignmentList extends Fragment {
 
     public void createAssignmentView() {
 
-        if(assignments.length == 0) {
+        if (assignments.length == 0) {
             // create a dummy assignment
             assignments = new Assignment[1];
             assignments[0] = new Assignment();
             assignments[0].name = "Hurray! No assignments!";
             assignments[0].pk = -1;
         }
-        assignmentadapter = new AssignmentAdapter(getActivity().getApplicationContext(),R.layout.textviewxml,assignments);
+        assignmentadapter = new AssignmentAdapter(getActivity().getApplicationContext(), R.layout.textviewxml, assignments);
         listView.setAdapter(assignmentadapter);
     }
 }

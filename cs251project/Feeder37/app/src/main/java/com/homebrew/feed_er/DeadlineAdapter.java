@@ -25,7 +25,7 @@ public class DeadlineAdapter extends FragmentStatePagerAdapter {
                 FeedbackList feedbackList = new FeedbackList();
                 return feedbackList;
             case 1:
-                AssignmentList assignmentList= new AssignmentList();
+                AssignmentList assignmentList = new AssignmentList();
                 return assignmentList;
             default:
                 return null;

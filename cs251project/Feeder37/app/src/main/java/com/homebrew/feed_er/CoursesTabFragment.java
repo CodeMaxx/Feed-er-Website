@@ -55,10 +55,9 @@ public class CoursesTabFragment extends Fragment {
 
         @Override
         public String toString() {
-            if(course_code.equals("")) {
+            if (course_code.equals("")) {
                 return name;
-            }
-            else {
+            } else {
                 return course_code + "\n" + name;
             }
         }
@@ -96,16 +95,16 @@ public class CoursesTabFragment extends Fragment {
             final Course p = getItem(position);
 
             if (p != null) {
-                TextView tt = (TextView)v.findViewById(R.id.courseTextView);
+                TextView tt = (TextView) v.findViewById(R.id.courseTextView);
                 tt.setText(p.toString());
 
-                if(!p.course_code.equals("")) {
+                if (!p.course_code.equals("")) {
                     tt.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            Intent intent = new Intent(getContext(),CourseFeedbackList.class);
-                            intent.putExtra("token",token);
-                            intent.putExtra("pk",p.pk);
+                            Intent intent = new Intent(getContext(), CourseFeedbackList.class);
+                            intent.putExtra("token", token);
+                            intent.putExtra("pk", p.pk);
                             startActivity(intent);
                         }
                     });
@@ -127,7 +126,7 @@ public class CoursesTabFragment extends Fragment {
         private ListView mylistview;
 
         private coursesListGetter(Context applicationContext, ListView view) {
-            Log.d("Start","Start Courses");
+            Log.d("Start", "Start Courses");
             mylistview = view;
             context = applicationContext;
         }
@@ -136,52 +135,51 @@ public class CoursesTabFragment extends Fragment {
         public void run() {
 
             RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
-            String url = getString(R.string.api_base_url)+"courses";
+            String url = getString(R.string.api_base_url) + "courses";
             Log.d("CLG", "sending request...");
             StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String responseString) {
-                            try{
-                                Log.d("course response",responseString);
+                            try {
+                                Log.d("course response", responseString);
                                 JSONArray course_list = new JSONArray(responseString);
                                 CourseList = new Course[course_list.length()];
                                 CourseNameList = new String[course_list.length()];
 
-                                for(int i=0;i < course_list.length(); i++) {
+                                for (int i = 0; i < course_list.length(); i++) {
                                     Course mc = new Course();
-                                    JSONObject course = (JSONObject)course_list.get(i);
-                                    mc.pk = (int)course.get("pk");
-                                    JSONObject fields = (JSONObject)course.get("fields");
+                                    JSONObject course = (JSONObject) course_list.get(i);
+                                    mc.pk = (int) course.get("pk");
+                                    JSONObject fields = (JSONObject) course.get("fields");
                                     mc.name = fields.getString("name");
                                     mc.course_code = fields.getString("course_code");
                                     CourseList[i] = mc;
                                     CourseNameList[i] = mc.name;
                                 }
 
-                                Log.d("Done","Course list name");
+                                Log.d("Done", "Course list name");
 
                                 setAdapterForFrame();
-                                Log.d("done","done");
-                            }
-                            catch(Exception ee) {
-                                Log.e("error","Some error occured here.");
+                                Log.d("done", "done");
+                            } catch (Exception ee) {
+                                Log.e("error", "Some error occured here.");
 
                             }
                             //System.out.println("Response recorded");
                         }
                     }, new Response.ErrorListener() {
-                            @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    //textView.setText("Please check your internet connection.");
-                                    Log.d("COURSES","response not received");
-                                }
-            }){
                 @Override
-                protected Map<String,String> getParams(){
-                    Map<String,String> params = new HashMap<String, String>();
-                    params.put("token",token);
-                    Log.d("TOKEN",token);
+                public void onErrorResponse(VolleyError error) {
+                    //textView.setText("Please check your internet connection.");
+                    Log.d("COURSES", "response not received");
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("token", token);
+                    Log.d("TOKEN", token);
                     return params;
                 }
 
@@ -189,7 +187,9 @@ public class CoursesTabFragment extends Fragment {
             queue.add(stringRequest);
 
         }
-    };
+    }
+
+    ;
 
     private View view;
     private ListView listView;
@@ -197,36 +197,36 @@ public class CoursesTabFragment extends Fragment {
 
     // on create
     @Override
-    public View onCreateView(LayoutInflater inflater,ViewGroup viewGroup, Bundle savedInstanceState) {
-            context = getActivity().getApplicationContext();
-            view = inflater.inflate(R.layout.fragment_courses_tab, viewGroup, false);
-            listView = (ListView)view.findViewById(R.id.courseOuterView);
-            // Get the request here
-            Boolean isNull = (getActivity()==null);
-            Log.d("NULL",isNull.toString());
-            token = getActivity().getIntent().getExtras().getString("token");
-            Log.d("HERE","HERE");
-            Context c = getActivity().getApplicationContext();
-            coursesListGetter g = new coursesListGetter(c,listView);
-            new Thread(g, "DatesListGetter").start();
-            return view;
+    public View onCreateView(LayoutInflater inflater, ViewGroup viewGroup, Bundle savedInstanceState) {
+        context = getActivity().getApplicationContext();
+        view = inflater.inflate(R.layout.fragment_courses_tab, viewGroup, false);
+        listView = (ListView) view.findViewById(R.id.courseOuterView);
+        // Get the request here
+        Boolean isNull = (getActivity() == null);
+        Log.d("NULL", isNull.toString());
+        token = getActivity().getIntent().getExtras().getString("token");
+        Log.d("HERE", "HERE");
+        Context c = getActivity().getApplicationContext();
+        coursesListGetter g = new coursesListGetter(c, listView);
+        new Thread(g, "DatesListGetter").start();
+        return view;
     }
 
 
-    public void display(String txt){
+    public void display(String txt) {
         output.setText(txt);
     }
 
 
     public void setAdapterForFrame() {
-        listView = (ListView)view.findViewById(R.id.courseOuterView);
-        if(CourseList.length == 0) {
+        listView = (ListView) view.findViewById(R.id.courseOuterView);
+        if (CourseList.length == 0) {
             CourseList = new Course[1];
             CourseList[0] = new Course();
             CourseList[0].name = "No course for you.";
             CourseList[0].course_code = "";
         }
-        adapter = new CourseAdapter(context,R.layout.textviewxml,CourseList);
+        adapter = new CourseAdapter(context, R.layout.textviewxml, CourseList);
         listView.setAdapter(adapter);
     }
 

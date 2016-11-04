@@ -1,6 +1,7 @@
 package com.homebrew.feed_er;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -35,7 +37,8 @@ public class FeedbackList extends Fragment {
         public Date deadline;
 
         public Feedback() {
-            name = ""; pk = -1;
+            name = "";
+            pk = -1;
         }
 
         @Override
@@ -68,38 +71,37 @@ public class FeedbackList extends Fragment {
                                 JSONArray feedbackJSON = (JSONArray) json_obj.get(0);
 
                                 feedbacks = new Feedback[feedbackJSON.length()];
-                                for(int i=0;i < feedbackJSON.length();i++) {
+                                for (int i = 0; i < feedbackJSON.length(); i++) {
                                     JSONObject blob = (JSONObject) feedbackJSON.get(i);
                                     JSONObject fields = (JSONObject) blob.get("fields");
                                     feedbacks[i] = new Feedback();
                                     feedbacks[i].name = fields.getString("name");
                                     feedbacks[i].pk = blob.getInt("pk");
                                     String unParsedDate[] = fields.getString("deadline").split("-");
-                                    int yyyy = Integer.parseInt(unParsedDate[0]), mm = Integer.parseInt(unParsedDate[1]), dd = Integer.parseInt(unParsedDate[2].substring(0,2));
-                                    feedbacks[i].deadline = new Date(yyyy-1900,mm-1,dd);
+                                    int yyyy = Integer.parseInt(unParsedDate[0]), mm = Integer.parseInt(unParsedDate[1]), dd = Integer.parseInt(unParsedDate[2].substring(0, 2));
+                                    feedbacks[i].deadline = new Date(yyyy - 1900, mm - 1, dd);
                                 }
 
                                 createFeedbackView();
 
-                            }
-                            catch(Exception e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
-                                Log.e("ERROR:","ERROR in json response feedback");
+                                Log.e("ERROR:", "ERROR in json response feedback");
                             }
                             // Display the first 500 characters of the response string.
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.e("ERROR:","Error connecting feedback.");
+                    Log.e("ERROR:", "Error connecting feedback.");
 
                 }
-            }){
+            }) {
                 @Override
-                protected Map<String,String> getParams(){
-                    Map<String,String> params = new HashMap<String, String>();
-                    params.put("token",token);
-                    params.put("course_id",Integer.toString(course_id));
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("token", token);
+                    params.put("course_id", Integer.toString(course_id));
 //                    Log.d("TOKEN",token);
 //                    Log.d("ID:",Integer.toString(course_id));
                     return params;
@@ -114,6 +116,55 @@ public class FeedbackList extends Fragment {
     Context context;
     View view;
     ListView listView;
+
+    // make the adapter here
+    public class FeedbackAdapter extends ArrayAdapter<Feedback> {
+
+
+        public FeedbackAdapter(Context context, int textViewResourceId) {
+            super(context, textViewResourceId);
+        }
+
+        public FeedbackAdapter(Context context, int resource, Feedback[] items) {
+            super(context, resource, items);
+        }
+
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View v = convertView;
+
+            if (v == null) {
+                LayoutInflater vi;
+                vi = LayoutInflater.from(getContext());
+                v = vi.inflate(R.layout.textviewxml, null);
+            }
+
+            final Feedback p = getItem(position);
+
+            if (p != null) {
+                TextView tt = (TextView) v.findViewById(R.id.courseTextView);
+                tt.setText(p.toString());
+
+                if (!p.name.equals("")) {
+                    tt.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(getContext(), FeedbackDetail.class);
+                            intent.putExtra("token", token);
+                            intent.putExtra("pk", p.pk);
+                            startActivity(intent);
+                        }
+                    });
+                }
+
+            }
+
+            return v;
+        }
+    }
+
     // Create view here
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -121,20 +172,19 @@ public class FeedbackList extends Fragment {
         // Inflate the layout for this fragment
         context = getActivity().getApplicationContext();
         view = inflater.inflate(R.layout.fragment_feedback_list, container, false);
-        listView = (ListView)view.findViewById(R.id.FeedbackListView);
+        listView = (ListView) view.findViewById(R.id.FeedbackListView);
 
         token = getActivity().getIntent().getExtras().getString("token");
         course_id = getActivity().getIntent().getExtras().getInt("pk");
 
         FeedbackThread f = new FeedbackThread();
-        new Thread(f,"FeedbackThread").start();
+        new Thread(f, "FeedbackThread").start();
         return view;
     }
 
     public void createFeedbackView() {
-        adapter = new ArrayAdapter<Feedback>(getActivity().getApplicationContext(),R.layout.textviewxml,feedbacks);
+        adapter = new ArrayAdapter<Feedback>(getActivity().getApplicationContext(), R.layout.textviewxml, feedbacks);
         listView.setAdapter(adapter);
     }
-
 
 }

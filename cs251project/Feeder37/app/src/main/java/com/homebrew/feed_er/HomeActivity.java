@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 public class HomeActivity extends AppCompatActivity {
     boolean doubleBackToExitPressedOnce = false;
     String fullname;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +55,7 @@ public class HomeActivity extends AppCompatActivity {
 
         viewPager.setAdapter(adapter);
 
-        Toast toast = Toast.makeText(getApplicationContext(),"Welcome "+fullname,Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(getApplicationContext(), "Welcome " + fullname, Toast.LENGTH_SHORT);
         toast.show();
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
@@ -79,15 +80,15 @@ public class HomeActivity extends AppCompatActivity {
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("LOGOUT","CLICK");
+                Log.d("LOGOUT", "CLICK");
                 Logouter logouter = new Logouter(getApplicationContext());
                 new Thread(logouter, "Logouter").start();
             }
         });
 
 
-
     }
+
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
@@ -103,13 +104,14 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public void run() {
-                doubleBackToExitPressedOnce=false;
+                doubleBackToExitPressedOnce = false;
             }
         }, 2000);
     }
 
     private class Logouter implements Runnable {
         Context context;
+
         public Logouter(Context someContext) {
             context = someContext;
             Log.d("DLG", "DLG constructed");
@@ -118,32 +120,32 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public void run() {
             // Instantiate the RequestQueue.
-            Log.d("LOGOUT","RUN");
+            Log.d("LOGOUT", "RUN");
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-            String url = getString(R.string.api_base_url)+"signout";
+            String url = getString(R.string.api_base_url) + "signout";
             final String token = getIntent().getExtras().getString("token");
 
             StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String responseString) {
-                            Log.d("LOGOUT","RESPONSE :#"+responseString+"#");
+                            Log.d("LOGOUT", "RESPONSE :#" + responseString + "#");
 
-                            Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
-                            intent.putExtra("status","logout");
+                            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                            intent.putExtra("status", "logout");
                             startActivity(intent);
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(context,"Please connect to the internet.",Toast.LENGTH_SHORT).show();
-                    Log.d("LOGOUT","No response");
+                    Toast.makeText(context, "Please connect to the internet.", Toast.LENGTH_SHORT).show();
+                    Log.d("LOGOUT", "No response");
                 }
-            }){
+            }) {
                 @Override
-                protected Map<String,String> getParams(){
-                    Map<String,String> params = new HashMap<String, String>();
-                    params.put("token",token);
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("token", token);
                     return params;
                 }
 

@@ -51,6 +51,7 @@ urlpatterns = [
 	## Mobile API
 	url(r'^api/login$', views.login_api, name='login_api'),
 	url(r'^api/signout$', views.signout_api, name='signout_api'),
+    url(r'api/courses$', views.all_courses_api, name='courses_api'),
     url(r'^api/dates$', views.dates_api, name='dates_api'),
 
     ## Get course wise details

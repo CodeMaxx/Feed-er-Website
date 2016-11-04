@@ -41,8 +41,9 @@
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
         <activity
             android:name=".CourseFeedbackList"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"></activity>
-        <activity android:name=".AssignmentDetail"></activity>
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
+        <activity android:name=".AssignmentDetail" />
+        <activity android:name=".FeedbackDetail"></activity>
     </application>
 
 </manifest>

@@ -1025,7 +1025,7 @@ def signout_api(request):
         return HttpResponse("-1")
 
 
-## List of all courses of user
+## Specific course detials
 @method_decorator(csrf_exempt, name='courselistapi')
 def course_list_api(request):
     if request.method == "POST":
@@ -1045,6 +1045,20 @@ def course_list_api(request):
         course_json[0]['assignments'] = json.loads(serializers.serialize('json', course.assignment_set.all()))
 
         return HttpResponse(json.dumps(course_json))
+    else:
+        return HttpResponse("-1")
+
+@method_decorator(csrf_exempt, name='allcoursesapi')
+def all_courses_api(request):
+    if request.method == "POST":
+        member = stud_check(request)
+        print(member)
+        if member is None:
+            return HttpResponse("-1")
+        course_list = member.course_set.all()
+        json_list = serializers.serialize('json', course_list, fields=('name', 'course_code'))
+
+        return HttpResponse(json_list)
     else:
         return HttpResponse("-1")
 

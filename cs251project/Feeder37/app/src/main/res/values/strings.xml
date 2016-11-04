@@ -14,7 +14,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="api_base_url">"http://10.0.2.2:8037/api/"</string>
+    <string name="api_base_url">"http://10.0.1.6:8037/api/"</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
