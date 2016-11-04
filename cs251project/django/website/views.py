@@ -12,6 +12,7 @@ from urllib import request as urlreq
 # Create your views here.
 from datetime import datetime as dt
 import datetime
+# noinspection PyUnresolvedReferences
 from ratelimit.decorators import ratelimit
 
 ## Show the main view
@@ -1087,6 +1088,7 @@ def dates_api(request):
 ## Get course ID to get all its feedbacks and assignments
 @method_decorator(csrf_exempt,name="course_deadlines_api")
 def course_deadlines_api(request):
+    print(request)
     if request.method == "POST":
         member = stud_check(request)
         if member is None:
