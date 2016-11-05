@@ -32,9 +32,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -46,7 +48,9 @@ public class CalendarTabFragment extends Fragment {
         public String type;
     }
 
-
+    public Deadline[] assigns;
+    public Deadline[] comFBs;
+    public Deadline[] incomFBs;
     private Map<Date, Deadline> impDates;
     private Map<Date, Drawable> backgroundForDateMap;
     private CaldroidFragment caldroidFragment;
@@ -103,13 +107,14 @@ public class CalendarTabFragment extends Fragment {
 
                             try{
                                 final JSONObject response = new JSONObject(responseString);
-                                JSONArray assignments = response.getJSONArray("assignment");
+                                final JSONArray assignments = response.getJSONArray("assignment");
                                 JSONArray complete_feedbacks = response.getJSONArray("complete");
                                 JSONArray incomplete_feedbacks = response.getJSONArray("incomplete");
                                 backgroundForDateMap = new HashMap<>();
                                 impDates.clear();
                                 final Calendar c = Calendar.getInstance();
 
+                                assigns = new Deadline[assignments.length()];
                                 for(int i=0;i < assignments.length(); i++) {
                                     Deadline mydeadline = new Deadline();
                                     JSONObject rDetail = (JSONObject)assignments.get(i);
@@ -126,8 +131,11 @@ public class CalendarTabFragment extends Fragment {
                                     impDates.put(c.getTime(),mydeadline);
                                     Log.d("JSON","Added");
                                     Log.e("Assignment", c.toString() );
+                                    assigns[i] = mydeadline;
 
                                 }
+
+                                comFBs = new Deadline[complete_feedbacks.length()];
                                 for(int i=0;i < complete_feedbacks.length(); i++) {
                                     Deadline mydeadline = new Deadline();
                                     JSONObject rDetail = (JSONObject)complete_feedbacks.get(i);
@@ -146,8 +154,10 @@ public class CalendarTabFragment extends Fragment {
                                     else backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.YELLOW));
                                     impDates.put(c.getTime(),mydeadline);
                                     Log.d("JSON","Added");
+                                    comFBs[i] = mydeadline;
                                 }
 
+                                incomFBs = new Deadline[incomplete_feedbacks.length()];
                                 for(int i=0;i < incomplete_feedbacks.length(); i++) {
                                     Deadline mydeadline = new Deadline();
                                     JSONObject rDetail = (JSONObject)incomplete_feedbacks.get(i);
@@ -166,6 +176,7 @@ public class CalendarTabFragment extends Fragment {
                                     else backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.CYAN));
                                     impDates.put(c.getTime(),mydeadline);
                                     Log.d("JSON","Added");
+                                    incomFBs[i] = mydeadline;
                                 }
                                 //listeners
                                 final CaldroidListener listener = new CaldroidListener() {
@@ -173,10 +184,32 @@ public class CalendarTabFragment extends Fragment {
                                     public void onSelectDate(Date date, View view) {
                                         //Log.d("SELECT DATE", date.toString());
                                         if (impDates.containsKey(date)) {
-                                            Log.d("IMPDATE", impDates.get(date).name);
-                                            backgroundForDateMap.put(date, new ColorDrawable(Color.GREEN));
-                                            caldroidFragment.setBackgroundDrawableForDates(backgroundForDateMap);
-                                            caldroidFragment.refreshView();
+                                            List<Deadline> assignmentsList = new ArrayList<>();
+                                            List<Deadline> comFBList = new ArrayList<>();
+                                            List<Deadline> incomFBList = new ArrayList<>();
+
+                                            Log.e("popup","1");
+                                            Log.e("popup","1");
+
+                                            for(int i=0; i<assigns.length; i++){
+                                                if(assigns[i].deadline == date){
+                                                    assignmentsList.add(assigns[i]);
+                                                    Log.e("popup",assigns[i].toString());
+                                                }
+                                            }
+
+                                            for(int i=0; i<comFBs.length; i++){
+                                                if(comFBs[i].deadline == date){
+                                                    comFBList.add(comFBs[i]);
+                                                    Log.e("popup",comFBs[i].toString());
+                                                }
+                                            }
+                                            for(int i=0; i<incomFBs.length; i++){
+                                                if(incomFBs[i].deadline == date){
+                                                    incomFBList.add(incomFBs[i]);
+                                                    Log.e("popup",incomFBs[i].toString());
+                                                }
+                                            }
                                         }
                                     }
 
