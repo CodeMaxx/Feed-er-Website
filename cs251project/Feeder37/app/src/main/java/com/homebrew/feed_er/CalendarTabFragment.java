@@ -11,6 +11,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Base64;
@@ -18,6 +19,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -46,6 +51,7 @@ public class CalendarTabFragment extends Fragment {
         public String name;
         public Date deadline;
         public String type;
+        public int pk;
     }
 
     public Deadline[] assigns;
@@ -85,6 +91,13 @@ public class CalendarTabFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_calendar_tab, container, false);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        DatesListGetter datesListGetter = new DatesListGetter();
+        new Thread(datesListGetter, "DatesListGetter").start();
+    }
+
     private class DatesListGetter implements Runnable {
         public DatesListGetter() {
             Log.d("DLG", "DLG constructed");
@@ -119,6 +132,7 @@ public class CalendarTabFragment extends Fragment {
                                     Deadline mydeadline = new Deadline();
                                     JSONObject rDetail = (JSONObject)assignments.get(i);
                                     JSONObject rFields = (JSONObject)rDetail.get("fields");
+                                    mydeadline.pk = rDetail.getInt("pk");
                                     mydeadline.name = rFields.getString("name");
                                     String dds[] = rFields.getString("deadline").substring(0,10).split("-");
                                     int yyyy = Integer.parseInt(dds[0]);
@@ -141,6 +155,7 @@ public class CalendarTabFragment extends Fragment {
                                     JSONObject rDetail = (JSONObject)complete_feedbacks.get(i);
                                     JSONObject rFields = (JSONObject)rDetail.get("fields");
                                     mydeadline.name = rFields.getString("name");
+                                    mydeadline.pk = rDetail.getInt("pk");
                                     String dds[] = rFields.getString("deadline").substring(0,10).split("-");
                                     int yyyy = Integer.parseInt(dds[0]);
                                     int mm = Integer.parseInt(dds[1]);
@@ -163,6 +178,7 @@ public class CalendarTabFragment extends Fragment {
                                     JSONObject rDetail = (JSONObject)incomplete_feedbacks.get(i);
                                     JSONObject rFields = (JSONObject)rDetail.get("fields");
                                     mydeadline.name = rFields.getString("name");
+                                    mydeadline.pk = rDetail.getInt("pk");
                                     String dds[] = rFields.getString("deadline").substring(0,10).split("-");
                                     int yyyy = Integer.parseInt(dds[0]);
                                     int mm = Integer.parseInt(dds[1]);
@@ -181,34 +197,113 @@ public class CalendarTabFragment extends Fragment {
                                 //listeners
                                 final CaldroidListener listener = new CaldroidListener() {
                                     @Override
-                                    public void onSelectDate(Date date, View view) {
+                                    public void onSelectDate(final Date date, View view) {
+
+
+                                        // add the feedbacks
+                                        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                        LinearLayout layout = (LinearLayout)getActivity().findViewById(R.id.eventsList);
+                                        Button t;
+
                                         //Log.d("SELECT DATE", date.toString());
                                         if (impDates.containsKey(date)) {
-                                            List<Deadline> assignmentsList = new ArrayList<>();
-                                            List<Deadline> comFBList = new ArrayList<>();
-                                            List<Deadline> incomFBList = new ArrayList<>();
+
+                                            if(layout.getChildCount() > 0)
+                                                layout.removeAllViews();
+
+                                            final List<Deadline> assignmentsList = new ArrayList<>();
+                                            final List<Deadline> comFBList = new ArrayList<>();
+                                            final List<Deadline> incomFBList = new ArrayList<>();
 
                                             Log.e("popup","1");
                                             Log.e("popup","1");
 
                                             for(int i=0; i<assigns.length; i++){
-                                                if(assigns[i].deadline == date){
+                                                if(assigns[i].deadline.equals(date)){
+                                                    System.out.println(date);
                                                     assignmentsList.add(assigns[i]);
                                                     Log.e("popup",assigns[i].toString());
                                                 }
                                             }
 
                                             for(int i=0; i<comFBs.length; i++){
-                                                if(comFBs[i].deadline == date){
+                                                if(comFBs[i].deadline.equals(date)){
                                                     comFBList.add(comFBs[i]);
                                                     Log.e("popup",comFBs[i].toString());
                                                 }
                                             }
                                             for(int i=0; i<incomFBs.length; i++){
-                                                if(incomFBs[i].deadline == date){
+                                                if(incomFBs[i].deadline.equals(date)){
                                                     incomFBList.add(incomFBs[i]);
                                                     Log.e("popup",incomFBs[i].toString());
                                                 }
+                                            }
+
+                                            Log.e("HERE","HERE");
+                                            for(int i=0; i<assignmentsList.size(); i++){
+                                                Log.d("a","s");
+                                                final int ii = i;
+                                                t = new Button(getActivity().getApplicationContext());
+                                                t.setText("ASSIGNMENT: " + assignmentsList.get(i).name);
+                                                t.setTextColor(Color.BLACK);
+                                                t.setTextSize(15);
+                                                t.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View view) {
+                                                        Intent intent = new Intent(getActivity().getApplicationContext(),AssignmentDetail.class);
+                                                        intent.putExtra("token",token);
+                                                        intent.putExtra("pk",assignmentsList.get(ii).pk);
+                                                        startActivity(intent);
+                                                    }
+                                                });
+                                                t.setPadding(0,10,0,10);
+                                                t.setLayoutParams(layoutParams);
+                                                layout.addView(t);
+                                            }
+
+                                            for(int i=0; i<comFBList.size(); i++){
+                                                final int ii = i;
+                                                Log.d("a","s");
+                                                t = new Button(getActivity().getApplicationContext());
+                                                t.setText("FEEDBACK: " + comFBList.get(i).name);
+                                                t.setTextColor(Color.BLACK);
+                                                t.setTextSize(15);
+                                                t.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View view) {
+                                                        Toast.makeText(getActivity().getApplicationContext(),"You have already filled this form",Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                                t.setPadding(0,10,0,10);
+                                                t.setLayoutParams(layoutParams);
+                                                layout.addView(t);
+                                            }
+                                            for(int i=0; i<incomFBList.size(); i++){
+                                                final int ii = i;
+                                                Log.d("a","s");
+                                                t = new Button(getActivity().getApplicationContext());
+                                                t.setText("FEEDBACK: "+incomFBList.get(i).name);
+                                                t.setTextColor(Color.BLACK);
+                                                t.setTextSize(15);
+                                                t.setPadding(0,10,0,10);
+                                                t.setLayoutParams(layoutParams);
+                                                t.setOnClickListener(new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View view) {
+                                                        Date now = new Date();
+                                                        if(incomFBList.get(ii).deadline.compareTo(now) < 0) {
+                                                            Toast.makeText(getActivity().getApplicationContext(),"The deadline for the feedback has passed.",Toast.LENGTH_SHORT).show();
+                                                        }
+                                                        else {
+                                                            Intent intent = new Intent(getActivity().getApplicationContext(),FeedbackDetail.class);
+                                                            intent.putExtra("token",token);
+                                                            intent.putExtra("pk",incomFBList.get(ii).pk);
+                                                            startActivity(intent);
+                                                        }
+
+                                                    }
+                                                });
+                                                layout.addView(t);
                                             }
                                         }
                                     }

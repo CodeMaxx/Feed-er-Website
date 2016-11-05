@@ -184,7 +184,6 @@ public class FeedbackDetail extends AppCompatActivity {
                                     mcq_ques_set[i] = single;
 
 
-
                                     if(i == 0) {
                                         TextView t = new TextView(getApplicationContext());
                                         t.setLayoutParams(layoutParams);

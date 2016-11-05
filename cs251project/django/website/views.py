@@ -1227,9 +1227,7 @@ def course_form_api(request):
             return HttpResponse("-1")
         # try:
         f_id = int(request.POST["feedback_id"])
-        course_id = int(request.POST["course_id"])
-        course = Course.objects.get(pk=course_id)
-        feedback = Feedback.objects.get(course=course, pk=f_id)
+        feedback = Feedback.objects.get(pk=f_id)
 
         rate_ques = feedback.feedbackquestion_set.filter(q_type="RATE")
         short_ques = feedback.feedbackquestion_set.filter(q_type="SHORT")

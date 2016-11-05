@@ -4,13 +4,36 @@
     android:layout_height="match_parent"
     tools:context="com.homebrew.feed_er.CalendarTabFragment">
 
-    <FrameLayout
-        android:orientation="vertical"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="800dp"
-        android:id="@+id/calendarView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
-    </FrameLayout>
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/calendarView"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true">
+        </FrameLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:showDividers="middle"
+                android:orientation="vertical"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:id="@+id/eventsList"
+                android:layout_height="wrap_content">
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
 
 </FrameLayout>
