@@ -57,7 +57,10 @@ urlpatterns = [
     ## Get course wise details
     url(r'^api/course_detail$',views.course_list_api, name="course_detail_api"),
     url(r'^api/course_deadlines$',views.course_deadlines_api, name="course_deadlines_api"),
+
+    ## Feedback Form API
     url(r'^api/course_feedback_detail$',views.course_form_api, name="course_feedback_detail"),
+    url(r'^api/submit_feedback_form$', views.submit_feedback_form, name="submit_feedback_form"),
 
     # Get assignment detail for some particular assignment
     url(r'^api/assignment_detail$',views.assignment_detail,name="assignment_detail"),

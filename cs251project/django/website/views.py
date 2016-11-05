@@ -1184,7 +1184,7 @@ def submit_feedback_form(request):
         member = stud_check(request)
         if member is None:
             return HttpResponse("-1")
-        feedback_id = request.POST['feedback']
+        feedback_id = request.POST['feedback_id']
         feedback = Feedback.objects.get(pk=int(feedback_id))
         # Parse all the answers
         short_ans = []
