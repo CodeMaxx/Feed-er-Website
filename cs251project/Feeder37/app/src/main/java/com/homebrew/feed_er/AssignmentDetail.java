@@ -1,10 +1,13 @@
 package com.homebrew.feed_er;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -57,6 +60,8 @@ public class AssignmentDetail extends AppCompatActivity {
                         public void onResponse(String response) {
                             // request here
                             try {
+                                SharedPreferences prefs = getSharedPreferences("com.homebrew.feed_er", Context.MODE_PRIVATE);
+                                prefs.edit().putString("assign" + pk, response).apply();
                                 JSONArray assignmentDetail = new JSONArray(response);
                                 JSONObject obj = assignmentDetail.getJSONObject(0);
                                 JSONObject fields = obj.getJSONObject("fields");
@@ -89,6 +94,44 @@ public class AssignmentDetail extends AppCompatActivity {
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
+                    SharedPreferences prefs = getSharedPreferences("com.homebrew.feed_er", Context.MODE_PRIVATE);
+                    String response;
+                    if(prefs.contains("assign" + pk))
+                    {
+                        response = prefs.getString("assign" + pk, " ");
+                        try
+                        {
+                            JSONArray assignmentDetail = new JSONArray(response);
+                            JSONObject obj = assignmentDetail.getJSONObject(0);
+                            JSONObject fields = obj.getJSONObject("fields");
+
+                            // get the fields and set the Heading
+                            TextView heading = (TextView)findViewById(R.id.assignmentName);
+                            heading.setText(fields.getString("name"));
+
+                            // Set description
+                            TextView desc = (TextView)findViewById(R.id.assignmentDescription);
+                            desc.setText("DESCRIPTION: " + fields.getString("description"));
+
+                            // Set deadline
+                            TextView deadline = (TextView)findViewById(R.id.assignmentDeadline);
+                            String d[] = fields.getString("deadline").split("-");
+                            int yyyy = Integer.parseInt(d[0]), mm = Integer.parseInt(d[1]), dd = Integer.parseInt(d[2].substring(0,2));
+                            Date dDate = new Date(yyyy-1900,mm-1,dd);
+                            DateFormat dateFormat = new SimpleDateFormat("dd MMMM, yyyy");
+
+                            //to convert Date to String, use format method of SimpleDateFormat class.
+                            String strDate = dateFormat.format(dDate);
+                            deadline.setText("Deadline: " +  strDate);
+                        }
+                        catch (Exception e)
+                        {
+
+                        }
+                    }
+                    else
+                    {
+                    }
                 }
             }){
                 @Override
