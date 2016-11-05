@@ -207,27 +207,26 @@ public class FeedbackDetail extends AppCompatActivity {
                     params.put("token", token);
                     params.put("feedback_id", ((Integer)pk).toString());
 
-                    for(int i = 0; i < rate_ques_set.length; i++)
+                    for(RateQuestion single: rate_ques_set)
                     {
-                        RateQuestion single = rate_ques_set[i];
                         params.put(((Integer)single.pk).toString(), ((Integer)single.val).toString());
                     }
 
-                    for(int i = 0; i < short_ques_set.length; i++)
+                    for(ShortQuestion single: short_ques_set)
                     {
-                        ShortQuestion single = short_ques_set[i];
                         params.put(((Integer)single.pk).toString(), single.answer);
                     }
 
-                    for(int i = 0; i < mcq_ques_set.length; i++)
+                    for(McqQuestion single: mcq_ques_set)
                     {
-                        McqQuestion single = mcq_ques_set[i];
                         params.put(((Integer)single.pk).toString(), ((Integer)single.answer_pk).toString());
                     }
 
                     return params;
                 }
             };
+
+            queue.add(stringrequest);
         }
     }
 
