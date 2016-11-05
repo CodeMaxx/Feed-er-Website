@@ -15,6 +15,14 @@
         completions."
     </string>
     <string name="api_base_url">"http://10.0.1.9:8037/api/"</string>
+    
+    <string name="selectFilter">Select a Filter</string>
+
+    <string-array name="filter_options">
+        <item>All</item>
+        <item>Feedbacks</item>
+        <item>Assignments</item>
+    </string-array>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

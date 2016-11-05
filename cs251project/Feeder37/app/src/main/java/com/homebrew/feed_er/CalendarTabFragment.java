@@ -19,8 +19,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,6 +78,8 @@ public class CalendarTabFragment extends Fragment {
         Boolean isNull = (getActivity() == null);
         Log.d("NULL", isNull.toString());
 
+        View view = inflater.inflate(R.layout.fragment_calendar_tab, container, false);
+
 
         token = getActivity().getIntent().getExtras().getString("token");
         caldroidFragment = new CaldroidFragment();
@@ -86,9 +90,26 @@ public class CalendarTabFragment extends Fragment {
         t.replace(R.id.calendarView, caldroidFragment);
         t.commit();
 
-        DatesListGetter datesListGetter = new DatesListGetter();
-        new Thread(datesListGetter, "DatesListGetter").start();
-        return inflater.inflate(R.layout.fragment_calendar_tab, container, false);
+        // set up filter
+
+        Spinner spinner = (Spinner)view.findViewById(R.id.filterDropDown);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String text =((Spinner)getView().findViewById(R.id.filterDropDown)).getSelectedItem().toString();
+                DatesListGetter datesListGetter = new DatesListGetter(text);
+                new Thread(datesListGetter, "DatesListGetter").start();
+                // Toast.makeText(getActivity().getApplicationContext(),text,Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                Toast.makeText(getActivity().getApplicationContext(),"Please select an option.",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        return view;
     }
 
     @Override
@@ -99,8 +120,13 @@ public class CalendarTabFragment extends Fragment {
     }
 
     private class DatesListGetter implements Runnable {
+
+        public String text;
         public DatesListGetter() {
-            Log.d("DLG", "DLG constructed");
+            text = "All";
+        }
+        public DatesListGetter(String t) {
+            text = t;
         }
 
         @Override
@@ -123,82 +149,91 @@ public class CalendarTabFragment extends Fragment {
                                 final JSONArray assignments = response.getJSONArray("assignment");
                                 JSONArray complete_feedbacks = response.getJSONArray("complete");
                                 JSONArray incomplete_feedbacks = response.getJSONArray("incomplete");
+                                assigns = new Deadline[0];
+                                comFBs = new Deadline[0];
+                                incomFBs = new Deadline[0];
                                 backgroundForDateMap = new HashMap<>();
                                 impDates.clear();
                                 final Calendar c = Calendar.getInstance();
 
-                                assigns = new Deadline[assignments.length()];
-                                for(int i=0;i < assignments.length(); i++) {
-                                    Deadline mydeadline = new Deadline();
-                                    JSONObject rDetail = (JSONObject)assignments.get(i);
-                                    JSONObject rFields = (JSONObject)rDetail.get("fields");
-                                    mydeadline.pk = rDetail.getInt("pk");
-                                    mydeadline.name = rFields.getString("name");
-                                    String dds[] = rFields.getString("deadline").substring(0,10).split("-");
-                                    int yyyy = Integer.parseInt(dds[0]);
-                                    int mm = Integer.parseInt(dds[1]);
-                                    int dd = Integer.parseInt(dds[2].substring(0,2));
-                                    mydeadline.deadline = new Date(yyyy-1900,mm-1,dd);
-                                    c.setTimeInMillis(mydeadline.deadline.getTime());
-                                    mydeadline.type = rDetail.getString("model");
-                                    backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.RED));
-                                    impDates.put(c.getTime(),mydeadline);
-                                    Log.d("JSON","Added");
-                                    Log.e("Assignment", c.toString() );
-                                    assigns[i] = mydeadline;
+                                if(text.equals("All") || text.equals("Assignments")) {
+                                    // Show in case of assignments
+                                    assigns = new Deadline[assignments.length()];
+                                    for(int i=0;i < assignments.length(); i++) {
+                                        Deadline mydeadline = new Deadline();
+                                        JSONObject rDetail = (JSONObject)assignments.get(i);
+                                        JSONObject rFields = (JSONObject)rDetail.get("fields");
+                                        mydeadline.pk = rDetail.getInt("pk");
+                                        mydeadline.name = rFields.getString("name");
+                                        String dds[] = rFields.getString("deadline").substring(0,10).split("-");
+                                        int yyyy = Integer.parseInt(dds[0]);
+                                        int mm = Integer.parseInt(dds[1]);
+                                        int dd = Integer.parseInt(dds[2].substring(0,2));
+                                        mydeadline.deadline = new Date(yyyy-1900,mm-1,dd);
+                                        c.setTimeInMillis(mydeadline.deadline.getTime());
+                                        mydeadline.type = rDetail.getString("model");
+                                        backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.RED));
+                                        impDates.put(c.getTime(),mydeadline);
+                                        Log.d("JSON","Added");
+                                        Log.e("Assignment", c.toString() );
+                                        assigns[i] = mydeadline;
 
+                                    }
                                 }
 
-                                comFBs = new Deadline[complete_feedbacks.length()];
-                                for(int i=0;i < complete_feedbacks.length(); i++) {
-                                    Deadline mydeadline = new Deadline();
-                                    JSONObject rDetail = (JSONObject)complete_feedbacks.get(i);
-                                    JSONObject rFields = (JSONObject)rDetail.get("fields");
-                                    mydeadline.name = rFields.getString("name");
-                                    mydeadline.pk = rDetail.getInt("pk");
-                                    String dds[] = rFields.getString("deadline").substring(0,10).split("-");
-                                    int yyyy = Integer.parseInt(dds[0]);
-                                    int mm = Integer.parseInt(dds[1]);
-                                    int dd = Integer.parseInt(dds[2].substring(0, 2));
-                                    mydeadline.deadline = new Date(yyyy - 1900, mm - 1, dd);
-                                    c.setTimeInMillis(mydeadline.deadline.getTime());
-                                    mydeadline.type = rDetail.getString("model");
-                                    if(impDates.containsKey(c.getTime())){
-                                        backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.LTGRAY));
-                                    }
-                                    else backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.YELLOW));
-                                    impDates.put(c.getTime(),mydeadline);
-                                    Log.d("JSON","Added");
-                                    comFBs[i] = mydeadline;
-                                }
+                                if(text.equals("All") || text.equals("Feedbacks")) {
+                                    // get only the feedbacks
 
-                                incomFBs = new Deadline[incomplete_feedbacks.length()];
-                                for(int i=0;i < incomplete_feedbacks.length(); i++) {
-                                    Deadline mydeadline = new Deadline();
-                                    JSONObject rDetail = (JSONObject)incomplete_feedbacks.get(i);
-                                    JSONObject rFields = (JSONObject)rDetail.get("fields");
-                                    mydeadline.name = rFields.getString("name");
-                                    mydeadline.pk = rDetail.getInt("pk");
-                                    String dds[] = rFields.getString("deadline").substring(0,10).split("-");
-                                    int yyyy = Integer.parseInt(dds[0]);
-                                    int mm = Integer.parseInt(dds[1]);
-                                    int dd = Integer.parseInt(dds[2].substring(0,2));
-                                    mydeadline.deadline = new Date(yyyy-1900,mm-1,dd);
-                                    c.setTimeInMillis(mydeadline.deadline.getTime());
-                                    mydeadline.type = rDetail.getString("model");
-                                    if(impDates.containsKey(c.getTime())){
-                                        backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.DKGRAY));
+                                    comFBs = new Deadline[complete_feedbacks.length()];
+                                    for(int i=0;i < complete_feedbacks.length(); i++) {
+                                        Deadline mydeadline = new Deadline();
+                                        JSONObject rDetail = (JSONObject)complete_feedbacks.get(i);
+                                        JSONObject rFields = (JSONObject)rDetail.get("fields");
+                                        mydeadline.name = rFields.getString("name");
+                                        mydeadline.pk = rDetail.getInt("pk");
+                                        String dds[] = rFields.getString("deadline").substring(0,10).split("-");
+                                        int yyyy = Integer.parseInt(dds[0]);
+                                        int mm = Integer.parseInt(dds[1]);
+                                        int dd = Integer.parseInt(dds[2].substring(0, 2));
+                                        mydeadline.deadline = new Date(yyyy - 1900, mm - 1, dd);
+                                        c.setTimeInMillis(mydeadline.deadline.getTime());
+                                        mydeadline.type = rDetail.getString("model");
+                                        if(impDates.containsKey(c.getTime())){
+                                            backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.LTGRAY));
+                                        }
+                                        else backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.YELLOW));
+                                        impDates.put(c.getTime(),mydeadline);
+                                        Log.d("JSON","Added");
+                                        comFBs[i] = mydeadline;
                                     }
-                                    else backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.CYAN));
-                                    impDates.put(c.getTime(),mydeadline);
-                                    Log.d("JSON","Added");
-                                    incomFBs[i] = mydeadline;
+
+                                    incomFBs = new Deadline[incomplete_feedbacks.length()];
+                                    for(int i=0;i < incomplete_feedbacks.length(); i++) {
+                                        Deadline mydeadline = new Deadline();
+                                        JSONObject rDetail = (JSONObject)incomplete_feedbacks.get(i);
+                                        JSONObject rFields = (JSONObject)rDetail.get("fields");
+                                        mydeadline.name = rFields.getString("name");
+                                        mydeadline.pk = rDetail.getInt("pk");
+                                        String dds[] = rFields.getString("deadline").substring(0,10).split("-");
+                                        int yyyy = Integer.parseInt(dds[0]);
+                                        int mm = Integer.parseInt(dds[1]);
+                                        int dd = Integer.parseInt(dds[2].substring(0,2));
+                                        mydeadline.deadline = new Date(yyyy-1900,mm-1,dd);
+                                        c.setTimeInMillis(mydeadline.deadline.getTime());
+                                        mydeadline.type = rDetail.getString("model");
+                                        if(impDates.containsKey(c.getTime())){
+                                            backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.DKGRAY));
+                                        }
+                                        else backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.CYAN));
+                                        impDates.put(c.getTime(),mydeadline);
+                                        Log.d("JSON","Added");
+                                        incomFBs[i] = mydeadline;
+                                    }
                                 }
                                 //listeners
                                 final CaldroidListener listener = new CaldroidListener() {
                                     @Override
                                     public void onSelectDate(final Date date, View view) {
-
 
                                         // add the feedbacks
                                         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -307,7 +342,6 @@ public class CalendarTabFragment extends Fragment {
                                             }
                                         }
                                     }
-
 
                                 };
 
