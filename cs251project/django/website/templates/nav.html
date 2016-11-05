@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
+
+
 {% block navbar %}
+    {% load staticfiles %}
 <div class="navbar-fixed" style="z-index: 100">
 <nav style="z-index: 100">
     <div class="nav-wrapper blue" style="z-index: 100">
@@ -13,11 +16,3 @@
 </nav>
 </div>
 {% endblock %}
-
-{#{% block back %}#}
-{#    <div class="row">#}
-{#        <div class="col s2 offset-l5 center">#}
-{#            <a class="waves-effect waves-light btn center" href="{% url 'website:home' %}">Back</a>#}
-{#        </div>#}
-{#    </div>#}
-{#{% endblock %}#}
