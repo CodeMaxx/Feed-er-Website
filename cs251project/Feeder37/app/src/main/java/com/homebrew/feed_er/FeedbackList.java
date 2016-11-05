@@ -83,7 +83,7 @@ public class FeedbackList extends Fragment {
                                 Log.e("JSON","3");
                                 feedbacks = new Feedback[complete_feedbacks.length() + incomplete_feedbacks.length()];Log.e("JSON","4");
                                 for (int i = 0; i < complete_feedbacks.length(); i++) {
-                                    JSONObject blob = (JSONObject) complete_feedbacks.get(i);
+                                    JSONObject blob = (JSONObject) complete_feedbacks.get(i-complete_feedbacks.length());
                                     JSONObject fields = (JSONObject) blob.get("fields");
                                     feedbacks[i] = new Feedback();
                                     feedbacks[i].name = fields.getString("name");

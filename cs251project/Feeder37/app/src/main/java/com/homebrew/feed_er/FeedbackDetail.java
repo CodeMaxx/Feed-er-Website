@@ -1,5 +1,6 @@
 package com.homebrew.feed_er;
 
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,16 +33,39 @@ public class FeedbackDetail extends AppCompatActivity {
         TextView txtView = (TextView) findViewById(R.id.text_id);
     }
 
-    public class Question
+    public class RateQuestion
     {
-        public String type;
         public String name;
-        public int course_id;
-        public int f_id;
+        public int pk;
+        public int val;
     }
 
-    public Question[] ques_set;
+    public class McqQuestion
+    {
+        public String name;
+        public  int pk;
+        public McqOptions[] options;
+    }
+
+    public class ShortQuestion
+    {
+        public  String name;
+        public String answer;
+        int pk;
+    }
+
+    public class McqOptions
+    {
+        String name;
+        int pk;
+    }
+
+    public McqQuestion[] mcq_ques_set;
+    public RateQuestion[] rate_ques_set;
+    public ShortQuestion[] short_ques_set;
+
     public int course_id;
+    public int form_id;
 
     public class FeedbackGetter implements Runnable {
 
@@ -56,19 +80,40 @@ public class FeedbackDetail extends AppCompatActivity {
                         public void onResponse(String response) {
                             try
                             {
-                                JSONArray ques_array = new JSONArray(response);
-                                ques_set = new Question[ques_array.length()];
-                                for(int i = 0; i < ques_array.length(); i++)
-                                {
-                                    JSONObject ques = ques_array.getJSONObject(i).getJSONObject("fields");
-                                    Question single = new Question();
-                                    single.course_id = course_id;
-                                    single.name = ques.getString("question");
-                                    single.f_id = ques.getInt("feedback");
-                                    single.type = ques.getString("q_type");
+                                JSONObject ques_array = new JSONObject(response);
+                                JSONArray mcq_ques = ques_array.getJSONArray("mcq_ques");
+                                JSONArray rate_ques = ques_array.getJSONArray("rate_ques");
+                                JSONArray short_ques = ques_array.getJSONArray("short_ques");
 
-                                    ques_set[i] = single;
+                                for(int i = 0; i < short_ques.length(); i++)
+                                {
+                                    JSONObject ques = short_ques.getJSONObject(i);
+                                    ShortQuestion single = new ShortQuestion();
+                                    single.name = ques.getJSONObject("fields").getString("questions");
+                                    single.pk = ques.getInt("pk");
+                                    short_ques_set[i] = single;
                                 }
+
+                                for(int i = 0; i < mcq_ques.length(); i++)
+                                {
+                                    JSONObject ques = short_ques.getJSONObject(i);
+                                    McqQuestion single = new McqQuestion();
+                                    single.name = ques.getJSONObject("fields").getString("questions");
+                                    single.pk = ques.getInt("pk");
+                                    
+                                    mcq_ques_set[i] = single;
+                                }
+
+                                for(int i = 0; i < rate_ques.length(); i++)
+                                {
+                                    JSONObject ques = short_ques.getJSONObject(i);
+                                    RateQuestion single = new RateQuestion();
+                                    single.name = ques.getJSONObject("fields").getString("questions");
+                                    single.pk = ques.getInt("pk");
+
+                                    rate_ques_set[i] = single;
+                                 }
+
 
                             }
                             catch (Exception e)
