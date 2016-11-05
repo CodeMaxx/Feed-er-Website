@@ -13,4 +13,19 @@
         android:layout_alignParentStart="true">
     </FrameLayout>
 
+
+        <ListView
+            android:id="@+id/deadlinelistview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="5dp"
+            android:background="@android:color/transparent"
+            android:cacheColorHint="@android:color/transparent"
+            android:divider="#CCCCCC"
+            android:dividerHeight="1dp"
+            android:paddingLeft="2dp" >
+        </ListView>
+
 </FrameLayout>
+

@@ -18,6 +18,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -33,6 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,10 +56,13 @@ public class CalendarTabFragment extends Fragment {
     public Deadline[] assigns;
     public Deadline[] comFBs;
     public Deadline[] incomFBs;
+    public List<Deadline> total = new ArrayList<>();
     private Map<Date, Deadline> impDates;
     private Map<Date, Drawable> backgroundForDateMap;
     private CaldroidFragment caldroidFragment;
     private String token;
+    ListAdapter customAdapter;
+    ListView deadlineListView;
 
     private OnFragmentInteractionListener mListener;
 
@@ -80,8 +88,24 @@ public class CalendarTabFragment extends Fragment {
         t.replace(R.id.calendarView, caldroidFragment);
         t.commit();
 
+        /////////////////////////////// codde /////////////////
+        View rootview = inflater.inflate(R.layout.fragment_calendar_tab, container, false);
+        deadlineListView = (ListView) rootview.findViewById(R.id.deadlinelistview);
+
+// get data from the table by the ListAdapter
+        Deadline sample = new Deadline();
+        sample.name = "Hey";
+        sample.type = "type";
+        sample.deadline = new Date();
+        total.add(sample);
+        customAdapter = new ListAdapter(getContext(), R.layout.itemlistrow, total);
+
+        deadlineListView.setAdapter(customAdapter);
         DatesListGetter datesListGetter = new DatesListGetter();
         new Thread(datesListGetter, "DatesListGetter").start();
+
+        ///////////////////////// code ////////////////////////////////
+
         return inflater.inflate(R.layout.fragment_calendar_tab, container, false);
     }
 
@@ -183,6 +207,8 @@ public class CalendarTabFragment extends Fragment {
                                     @Override
                                     public void onSelectDate(Date date, View view) {
                                         //Log.d("SELECT DATE", date.toString());
+                                        Log.e("date",date.toString());
+                                        Log.e("date", impDates.toString());
                                         if (impDates.containsKey(date)) {
                                             List<Deadline> assignmentsList = new ArrayList<>();
                                             List<Deadline> comFBList = new ArrayList<>();
@@ -192,24 +218,35 @@ public class CalendarTabFragment extends Fragment {
                                             Log.e("popup","1");
 
                                             for(int i=0; i<assigns.length; i++){
-                                                if(assigns[i].deadline == date){
+
+                                                if(assigns[i].deadline.equals(date)){
+                                                    Log.e("deadline", assigns[i].deadline.toString());
                                                     assignmentsList.add(assigns[i]);
                                                     Log.e("popup",assigns[i].toString());
                                                 }
                                             }
 
                                             for(int i=0; i<comFBs.length; i++){
-                                                if(comFBs[i].deadline == date){
+                                                if(comFBs[i].deadline.equals(date)){
+                                                    Log.e("deadline", date.toString());
                                                     comFBList.add(comFBs[i]);
-                                                    Log.e("popup",comFBs[i].toString());
                                                 }
                                             }
+
                                             for(int i=0; i<incomFBs.length; i++){
-                                                if(incomFBs[i].deadline == date){
+                                                if(incomFBs[i].deadline.equals(date)){
+                                                    Log.e("deadline", date.toString());
                                                     incomFBList.add(incomFBs[i]);
                                                     Log.e("popup",incomFBs[i].toString());
                                                 }
                                             }
+
+                                            total.addAll(incomFBList);
+                                            total.addAll(comFBList);
+                                            total.addAll(assignmentsList);
+                                            customAdapter.clear();
+                                            customAdapter.addAll(total);
+                                            customAdapter.notifyDataSetChanged();
                                         }
                                     }
 
@@ -291,4 +328,53 @@ public class CalendarTabFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    ////////////////////////////////// code //////////////////////////
+    public class ListAdapter extends ArrayAdapter<Deadline> {
+
+        public ListAdapter(Context context, int textViewResourceId) {
+            super(context, textViewResourceId);
+        }
+
+        public ListAdapter(Context context, int resource, List<Deadline> items) {
+            super(context, resource, items);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View v = convertView;
+            Log.e("getview", "getview");
+            if (v == null) {
+                LayoutInflater vi;
+                vi = LayoutInflater.from(getContext());
+                v = vi.inflate(R.layout.itemlistrow, null);
+            }
+
+            Deadline p = getItem(position);
+
+            if (p != null) {
+                TextView tt1 = (TextView) v.findViewById(R.id.id);
+                TextView tt2 = (TextView) v.findViewById(R.id.categoryId);
+                TextView tt3 = (TextView) v.findViewById(R.id.description);
+
+                if (tt1 != null) {
+                    tt1.setText(p.name);
+                }
+
+                if (tt2 != null) {
+                    tt2.setText(p.type);
+                }
+
+                if (tt3 != null) {
+                    tt3.setText(p.deadline.toString());
+                }
+            }
+
+            return v;
+        }
+
+    }
+
+    ///////////////// code /////////////////////
 }
