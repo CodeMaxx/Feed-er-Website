@@ -138,8 +138,15 @@ public class HomeActivity extends AppCompatActivity {
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(context, "Please connect to the internet.", Toast.LENGTH_SHORT).show();
-                    Log.d("LOGOUT", "No response");
+                    Toast.makeText(context, "You will be logged out when online.", Toast.LENGTH_SHORT).show();
+
+                    SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.remove("token");
+                    editor.remove("fullname");
+                    editor.putString("status","logout");
+                    editor.commit();
+                    Toast.makeText(context,"You will be logged out when you are online",Toast.LENGTH_SHORT);
                 }
             }) {
                 @Override
