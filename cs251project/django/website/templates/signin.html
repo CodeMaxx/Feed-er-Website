@@ -56,6 +56,16 @@ Login / Sign Up
 
     </script>
     <!-- This is where the login and signup form will be! -->
+    <div class="navbar-fixed" style="z-index: 100">
+<nav style="z-index: 100">
+{#    <img src="{% static "images/logo.png" %}"/>#}
+    <div class="nav-wrapper blue" style="z-index: 100">
+      <a href="{% url 'website:home' %}" class="brand-logo">&nbsp;&nbsp;Feed'er</a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+      </ul>
+    </div>
+</nav>
+</div>
     <div class="container">
 
         <div style="text-align: center">
