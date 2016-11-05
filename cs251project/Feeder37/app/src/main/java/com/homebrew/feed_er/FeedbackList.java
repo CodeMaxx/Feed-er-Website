@@ -2,6 +2,7 @@ package com.homebrew.feed_er;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -76,7 +77,11 @@ public class FeedbackList extends Fragment {
                             // Make the json object
                             try {
                                 Log.e("Resp",response);
-                                JSONObject json_obj = new JSONObject(response);Log.e("JSON","1");
+                                SharedPreferences prefs = getActivity().getSharedPreferences("com.homebrew.feed_er", Context.MODE_PRIVATE);
+                                prefs.edit().putString("course"+ course_id + "feedback", response).apply();
+
+                                JSONObject json_obj = new JSONObject(response);
+                                Log.e("JSON","1");
                                 JSONArray complete_feedbacks = (JSONArray) json_obj.getJSONArray("complete");
                                 JSONArray incomplete_feedbacks = (JSONArray) json_obj.getJSONArray("incomplete");
                                 Log.e("JSON","2");
@@ -119,6 +124,54 @@ public class FeedbackList extends Fragment {
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
+                    SharedPreferences prefs = getActivity().getSharedPreferences("com.homebrew.feed_er", Context.MODE_PRIVATE);
+                    String response;
+
+                    if(prefs.contains("course" + course_id + "feedback"))
+                    {
+                        try
+                        {
+                            response = prefs.getString("course" + course_id + "feedback", " ");
+                            JSONObject json_obj = new JSONObject(response);
+                            Log.e("JSON","1");
+                            JSONArray complete_feedbacks = (JSONArray) json_obj.getJSONArray("complete");
+                            JSONArray incomplete_feedbacks = (JSONArray) json_obj.getJSONArray("incomplete");
+                            Log.e("JSON","2");
+                            Log.e("JSON","3");
+                            feedbacks = new Feedback[complete_feedbacks.length() + incomplete_feedbacks.length()];Log.e("JSON","4");
+                            for (int i = incomplete_feedbacks.length(); i < feedbacks.length; i++) {
+                                JSONObject blob = (JSONObject) complete_feedbacks.get(i - incomplete_feedbacks.length());
+                                JSONObject fields = (JSONObject) blob.get("fields");
+                                feedbacks[i] = new Feedback();
+                                feedbacks[i].name = fields.getString("name");
+                                feedbacks[i].pk = blob.getInt("pk");
+                                feedbacks[i].com = "Complete";
+                                String unParsedDate[] = fields.getString("deadline").split("-");
+                                int yyyy = Integer.parseInt(unParsedDate[0]), mm = Integer.parseInt(unParsedDate[1]), dd = Integer.parseInt(unParsedDate[2].substring(0, 2));
+                                feedbacks[i].deadline = new Date(yyyy - 1900, mm - 1, dd);
+                            }
+                            Log.e("JSON","5");
+                            for (int i = 0; i < incomplete_feedbacks.length(); i++) {
+                                JSONObject blob = (JSONObject) incomplete_feedbacks.get(i);
+                                JSONObject fields = (JSONObject) blob.get("fields");
+                                feedbacks[i] = new Feedback();
+                                feedbacks[i].name = fields.getString("name");
+                                feedbacks[i].pk = blob.getInt("pk");
+                                feedbacks[i].com = "Incomplete";
+                                String unParsedDate[] = fields.getString("deadline").split("-");
+                                int yyyy = Integer.parseInt(unParsedDate[0]), mm = Integer.parseInt(unParsedDate[1]), dd = Integer.parseInt(unParsedDate[2].substring(0, 2));
+                                feedbacks[i].deadline = new Date(yyyy - 1900, mm - 1, dd);
+
+                            }
+                            Log.e("JSON","6");
+
+                            createFeedbackView();
+                        }
+                        catch (Exception e)
+                        {
+
+                        }
+                    }
                     Log.e("ERROR:", "Error connecting feedback.");
 
                 }

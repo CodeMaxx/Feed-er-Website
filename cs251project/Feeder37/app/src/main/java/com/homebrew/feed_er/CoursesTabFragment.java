@@ -2,6 +2,7 @@ package com.homebrew.feed_er;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -36,6 +38,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 
 public class CoursesTabFragment extends Fragment {
@@ -143,6 +146,8 @@ public class CoursesTabFragment extends Fragment {
                         public void onResponse(String responseString) {
                             try {
                                 Log.d("course response", responseString);
+                                SharedPreferences prefs = getActivity().getSharedPreferences("com.homebrew.feed_er", Context.MODE_PRIVATE);
+                                prefs.edit().putString("course", responseString).apply();
                                 JSONArray course_list = new JSONArray(responseString);
                                 CourseList = new Course[course_list.length()];
                                 CourseNameList = new String[course_list.length()];
@@ -163,6 +168,7 @@ public class CoursesTabFragment extends Fragment {
                                 setAdapterForFrame();
                                 Log.d("done", "done");
                             } catch (Exception ee) {
+
                                 Log.e("error", "Some error occured here.");
 
                             }
@@ -172,7 +178,48 @@ public class CoursesTabFragment extends Fragment {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     //textView.setText("Please check your internet connection.");
-                    Log.d("COURSES", "response not received");
+                    Log.d("WHAT", "WHAT");
+                    try
+                    {
+                        SharedPreferences prefs = getActivity().getSharedPreferences("com.homebrew.feed_er", Context.MODE_PRIVATE);
+                        String responseString;
+
+                        if(prefs.contains("course")) {
+                            Log.d("WHAT2", "WHAT2");
+
+                            responseString = prefs.getString("course", " ");
+                            Log.d("WHAT2", responseString);
+                            JSONArray course_list = new JSONArray(responseString);
+                            CourseList = new Course[course_list.length()];
+                            CourseNameList = new String[course_list.length()];
+
+                            for (int i = 0; i < course_list.length(); i++) {
+                                Course mc = new Course();
+                                JSONObject course = (JSONObject) course_list.get(i);
+                                mc.pk = (int) course.get("pk");
+                                JSONObject fields = (JSONObject) course.get("fields");
+                                mc.name = fields.getString("name");
+                                mc.course_code = fields.getString("course_code");
+                                CourseList[i] = mc;
+                                CourseNameList[i] = mc.name;
+
+                            }
+
+                            Log.d("Done", "Course list name");
+                            setAdapterForFrame();
+                            Log.d("done", "done");
+                        }
+                        else
+                        {
+                            Toast.makeText(getContext(), "You are not connected to the internet.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Log.d("WHAT@", "WHATTttt");
+                    }
+
+
                 }
             }) {
                 @Override

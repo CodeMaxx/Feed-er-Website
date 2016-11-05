@@ -145,211 +145,10 @@ public class CalendarTabFragment extends Fragment {
                             Log.d("TOKEN",token);
 
                             try{
-                                final JSONObject response = new JSONObject(responseString);
-                                final JSONArray assignments = response.getJSONArray("assignment");
-                                JSONArray complete_feedbacks = response.getJSONArray("complete");
-                                JSONArray incomplete_feedbacks = response.getJSONArray("incomplete");
-                                assigns = new Deadline[0];
-                                comFBs = new Deadline[0];
-                                incomFBs = new Deadline[0];
-                                backgroundForDateMap = new HashMap<>();
-                                impDates.clear();
-                                final Calendar c = Calendar.getInstance();
-
-                                if(text.equals("All") || text.equals("Assignments")) {
-                                    // Show in case of assignments
-                                    assigns = new Deadline[assignments.length()];
-                                    for(int i=0;i < assignments.length(); i++) {
-                                        Deadline mydeadline = new Deadline();
-                                        JSONObject rDetail = (JSONObject)assignments.get(i);
-                                        JSONObject rFields = (JSONObject)rDetail.get("fields");
-                                        mydeadline.pk = rDetail.getInt("pk");
-                                        mydeadline.name = rFields.getString("name");
-                                        String dds[] = rFields.getString("deadline").substring(0,10).split("-");
-                                        int yyyy = Integer.parseInt(dds[0]);
-                                        int mm = Integer.parseInt(dds[1]);
-                                        int dd = Integer.parseInt(dds[2].substring(0,2));
-                                        mydeadline.deadline = new Date(yyyy-1900,mm-1,dd);
-                                        c.setTimeInMillis(mydeadline.deadline.getTime());
-                                        mydeadline.type = rDetail.getString("model");
-                                        backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.RED));
-                                        impDates.put(c.getTime(),mydeadline);
-                                        Log.d("JSON","Added");
-                                        Log.e("Assignment", c.toString() );
-                                        assigns[i] = mydeadline;
-
-                                    }
-                                }
-
-                                if(text.equals("All") || text.equals("Feedbacks")) {
-                                    // get only the feedbacks
-
-                                    comFBs = new Deadline[complete_feedbacks.length()];
-                                    for(int i=0;i < complete_feedbacks.length(); i++) {
-                                        Deadline mydeadline = new Deadline();
-                                        JSONObject rDetail = (JSONObject)complete_feedbacks.get(i);
-                                        JSONObject rFields = (JSONObject)rDetail.get("fields");
-                                        mydeadline.name = rFields.getString("name");
-                                        mydeadline.pk = rDetail.getInt("pk");
-                                        String dds[] = rFields.getString("deadline").substring(0,10).split("-");
-                                        int yyyy = Integer.parseInt(dds[0]);
-                                        int mm = Integer.parseInt(dds[1]);
-                                        int dd = Integer.parseInt(dds[2].substring(0, 2));
-                                        mydeadline.deadline = new Date(yyyy - 1900, mm - 1, dd);
-                                        c.setTimeInMillis(mydeadline.deadline.getTime());
-                                        mydeadline.type = rDetail.getString("model");
-                                        if(impDates.containsKey(c.getTime())){
-                                            backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.LTGRAY));
-                                        }
-                                        else backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.YELLOW));
-                                        impDates.put(c.getTime(),mydeadline);
-                                        Log.d("JSON","Added");
-                                        comFBs[i] = mydeadline;
-                                    }
-
-                                    incomFBs = new Deadline[incomplete_feedbacks.length()];
-                                    for(int i=0;i < incomplete_feedbacks.length(); i++) {
-                                        Deadline mydeadline = new Deadline();
-                                        JSONObject rDetail = (JSONObject)incomplete_feedbacks.get(i);
-                                        JSONObject rFields = (JSONObject)rDetail.get("fields");
-                                        mydeadline.name = rFields.getString("name");
-                                        mydeadline.pk = rDetail.getInt("pk");
-                                        String dds[] = rFields.getString("deadline").substring(0,10).split("-");
-                                        int yyyy = Integer.parseInt(dds[0]);
-                                        int mm = Integer.parseInt(dds[1]);
-                                        int dd = Integer.parseInt(dds[2].substring(0,2));
-                                        mydeadline.deadline = new Date(yyyy-1900,mm-1,dd);
-                                        c.setTimeInMillis(mydeadline.deadline.getTime());
-                                        mydeadline.type = rDetail.getString("model");
-                                        if(impDates.containsKey(c.getTime())){
-                                            backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.DKGRAY));
-                                        }
-                                        else backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.CYAN));
-                                        impDates.put(c.getTime(),mydeadline);
-                                        Log.d("JSON","Added");
-                                        incomFBs[i] = mydeadline;
-                                    }
-                                }
-                                //listeners
-                                final CaldroidListener listener = new CaldroidListener() {
-                                    @Override
-                                    public void onSelectDate(final Date date, View view) {
-
-                                        // add the feedbacks
-                                        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                                        LinearLayout layout = (LinearLayout)getActivity().findViewById(R.id.eventsList);
-                                        Button t;
-
-                                        //Log.d("SELECT DATE", date.toString());
-                                        if (impDates.containsKey(date)) {
-
-                                            if(layout.getChildCount() > 0)
-                                                layout.removeAllViews();
-
-                                            final List<Deadline> assignmentsList = new ArrayList<>();
-                                            final List<Deadline> comFBList = new ArrayList<>();
-                                            final List<Deadline> incomFBList = new ArrayList<>();
-
-                                            Log.e("popup","1");
-                                            Log.e("popup","1");
-
-                                            for(int i=0; i<assigns.length; i++){
-                                                if(assigns[i].deadline.equals(date)){
-                                                    System.out.println(date);
-                                                    assignmentsList.add(assigns[i]);
-                                                    Log.e("popup",assigns[i].toString());
-                                                }
-                                            }
-
-                                            for(int i=0; i<comFBs.length; i++){
-                                                if(comFBs[i].deadline.equals(date)){
-                                                    comFBList.add(comFBs[i]);
-                                                    Log.e("popup",comFBs[i].toString());
-                                                }
-                                            }
-                                            for(int i=0; i<incomFBs.length; i++){
-                                                if(incomFBs[i].deadline.equals(date)){
-                                                    incomFBList.add(incomFBs[i]);
-                                                    Log.e("popup",incomFBs[i].toString());
-                                                }
-                                            }
-
-                                            Log.e("HERE","HERE");
-                                            for(int i=0; i<assignmentsList.size(); i++){
-                                                Log.d("a","s");
-                                                final int ii = i;
-                                                t = new Button(getActivity().getApplicationContext());
-                                                t.setText("ASSIGNMENT: " + assignmentsList.get(i).name);
-                                                t.setTextColor(Color.BLACK);
-                                                t.setTextSize(15);
-                                                t.setOnClickListener(new View.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(View view) {
-                                                        Intent intent = new Intent(getActivity().getApplicationContext(),AssignmentDetail.class);
-                                                        intent.putExtra("token",token);
-                                                        intent.putExtra("pk",assignmentsList.get(ii).pk);
-                                                        startActivity(intent);
-                                                    }
-                                                });
-                                                t.setPadding(0,10,0,10);
-                                                t.setLayoutParams(layoutParams);
-                                                layout.addView(t);
-                                            }
-
-                                            for(int i=0; i<comFBList.size(); i++){
-                                                final int ii = i;
-                                                Log.d("a","s");
-                                                t = new Button(getActivity().getApplicationContext());
-                                                t.setText("FEEDBACK: " + comFBList.get(i).name);
-                                                t.setTextColor(Color.BLACK);
-                                                t.setTextSize(15);
-                                                t.setOnClickListener(new View.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(View view) {
-                                                        Toast.makeText(getActivity().getApplicationContext(),"You have already filled this form",Toast.LENGTH_SHORT).show();
-                                                    }
-                                                });
-                                                t.setPadding(0,10,0,10);
-                                                t.setLayoutParams(layoutParams);
-                                                layout.addView(t);
-                                            }
-                                            for(int i=0; i<incomFBList.size(); i++){
-                                                final int ii = i;
-                                                Log.d("a","s");
-                                                t = new Button(getActivity().getApplicationContext());
-                                                t.setText("FEEDBACK: "+incomFBList.get(i).name);
-                                                t.setTextColor(Color.BLACK);
-                                                t.setTextSize(15);
-                                                t.setPadding(0,10,0,10);
-                                                t.setLayoutParams(layoutParams);
-                                                t.setOnClickListener(new View.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(View view) {
-                                                        Date now = new Date();
-                                                        if(incomFBList.get(ii).deadline.compareTo(now) < 0) {
-                                                            Toast.makeText(getActivity().getApplicationContext(),"The deadline for the feedback has passed.",Toast.LENGTH_SHORT).show();
-                                                        }
-                                                        else {
-                                                            Intent intent = new Intent(getActivity().getApplicationContext(),FeedbackDetail.class);
-                                                            intent.putExtra("token",token);
-                                                            intent.putExtra("pk",incomFBList.get(ii).pk);
-                                                            startActivity(intent);
-                                                        }
-
-                                                    }
-                                                });
-                                                layout.addView(t);
-                                            }
-                                        }
-                                    }
-
-                                };
-
-                                caldroidFragment.setCaldroidListener(listener);
-
-                                caldroidFragment.setBackgroundDrawableForDates(backgroundForDateMap);
-                                caldroidFragment.refreshView();
-                            } catch (JSONException e) {
+                                SharedPreferences prefs = getActivity().getSharedPreferences("com.homebrew.feed_er", Context.MODE_PRIVATE);
+                                prefs.edit().putString("dates", responseString).apply();
+                                call(responseString);
+                            } catch (Exception e) {
 //                                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
 //                                SharedPreferences.Editor editor = sharedPref.edit();
 //                                editor.remove("token");
@@ -367,6 +166,15 @@ public class CalendarTabFragment extends Fragment {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     //textView.setText("Please check your internet connection.");
+                    SharedPreferences prefs = getActivity().getSharedPreferences("com.homebrew.feed_er", Context.MODE_PRIVATE);
+                    String responseString;
+
+                    if(prefs.contains("dates"))
+                        call(prefs.getString("dates", " "));
+                    else
+                    {
+                        Toast.makeText(getContext(), "You are not connected to the internet.", Toast.LENGTH_SHORT).show();
+                    }
                     Log.d("DATES", "response not received");
                 }
             }) {
@@ -381,6 +189,218 @@ public class CalendarTabFragment extends Fragment {
             };
             queue.add(stringRequest);
         }
+
+        public void call(String responseString) {
+            try {
+                final JSONObject response = new JSONObject(responseString);
+                final JSONArray assignments = response.getJSONArray("assignment");
+                JSONArray complete_feedbacks = response.getJSONArray("complete");
+                JSONArray incomplete_feedbacks = response.getJSONArray("incomplete");
+                assigns = new Deadline[0];
+                comFBs = new Deadline[0];
+                incomFBs = new Deadline[0];
+                backgroundForDateMap = new HashMap<>();
+                impDates.clear();
+                final Calendar c = Calendar.getInstance();
+
+                if (text.equals("All") || text.equals("Assignments")) {
+                    // Show in case of assignments
+                    assigns = new Deadline[assignments.length()];
+                    for (int i = 0; i < assignments.length(); i++) {
+                        Deadline mydeadline = new Deadline();
+                        JSONObject rDetail = (JSONObject) assignments.get(i);
+                        JSONObject rFields = (JSONObject) rDetail.get("fields");
+                        mydeadline.pk = rDetail.getInt("pk");
+                        mydeadline.name = rFields.getString("name");
+                        String dds[] = rFields.getString("deadline").substring(0, 10).split("-");
+                        int yyyy = Integer.parseInt(dds[0]);
+                        int mm = Integer.parseInt(dds[1]);
+                        int dd = Integer.parseInt(dds[2].substring(0, 2));
+                        mydeadline.deadline = new Date(yyyy - 1900, mm - 1, dd);
+                        c.setTimeInMillis(mydeadline.deadline.getTime());
+                        mydeadline.type = rDetail.getString("model");
+                        backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.RED));
+                        impDates.put(c.getTime(), mydeadline);
+                        Log.d("JSON", "Added");
+                        Log.e("Assignment", c.toString());
+                        assigns[i] = mydeadline;
+
+                    }
+                }
+
+                if (text.equals("All") || text.equals("Feedbacks")) {
+                    // get only the feedbacks
+
+                    comFBs = new Deadline[complete_feedbacks.length()];
+                    for (int i = 0; i < complete_feedbacks.length(); i++) {
+                        Deadline mydeadline = new Deadline();
+                        JSONObject rDetail = (JSONObject) complete_feedbacks.get(i);
+                        JSONObject rFields = (JSONObject) rDetail.get("fields");
+                        mydeadline.name = rFields.getString("name");
+                        mydeadline.pk = rDetail.getInt("pk");
+                        String dds[] = rFields.getString("deadline").substring(0, 10).split("-");
+                        int yyyy = Integer.parseInt(dds[0]);
+                        int mm = Integer.parseInt(dds[1]);
+                        int dd = Integer.parseInt(dds[2].substring(0, 2));
+                        mydeadline.deadline = new Date(yyyy - 1900, mm - 1, dd);
+                        c.setTimeInMillis(mydeadline.deadline.getTime());
+                        mydeadline.type = rDetail.getString("model");
+                        if (impDates.containsKey(c.getTime())) {
+                            backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.LTGRAY));
+                        } else
+                            backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.YELLOW));
+                        impDates.put(c.getTime(), mydeadline);
+                        Log.d("JSON", "Added");
+                        comFBs[i] = mydeadline;
+                    }
+
+                    incomFBs = new Deadline[incomplete_feedbacks.length()];
+                    for (int i = 0; i < incomplete_feedbacks.length(); i++) {
+                        Deadline mydeadline = new Deadline();
+                        JSONObject rDetail = (JSONObject) incomplete_feedbacks.get(i);
+                        JSONObject rFields = (JSONObject) rDetail.get("fields");
+                        mydeadline.name = rFields.getString("name");
+                        mydeadline.pk = rDetail.getInt("pk");
+                        String dds[] = rFields.getString("deadline").substring(0, 10).split("-");
+                        int yyyy = Integer.parseInt(dds[0]);
+                        int mm = Integer.parseInt(dds[1]);
+                        int dd = Integer.parseInt(dds[2].substring(0, 2));
+                        mydeadline.deadline = new Date(yyyy - 1900, mm - 1, dd);
+                        c.setTimeInMillis(mydeadline.deadline.getTime());
+                        mydeadline.type = rDetail.getString("model");
+                        if (impDates.containsKey(c.getTime())) {
+                            backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.DKGRAY));
+                        } else backgroundForDateMap.put(c.getTime(), new ColorDrawable(Color.CYAN));
+                        impDates.put(c.getTime(), mydeadline);
+                        Log.d("JSON", "Added");
+                        incomFBs[i] = mydeadline;
+                    }
+                }
+                //listeners
+                final CaldroidListener listener = new CaldroidListener() {
+                    @Override
+                    public void onSelectDate(final Date date, View view) {
+
+                        // add the feedbacks
+                        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                        LinearLayout layout = (LinearLayout) getActivity().findViewById(R.id.eventsList);
+                        Button t;
+
+                        //Log.d("SELECT DATE", date.toString());
+                        if (impDates.containsKey(date)) {
+
+                            if (layout.getChildCount() > 0)
+                                layout.removeAllViews();
+
+                            final List<Deadline> assignmentsList = new ArrayList<>();
+                            final List<Deadline> comFBList = new ArrayList<>();
+                            final List<Deadline> incomFBList = new ArrayList<>();
+
+                            Log.e("popup", "1");
+                            Log.e("popup", "1");
+
+                            for (int i = 0; i < assigns.length; i++) {
+                                if (assigns[i].deadline.equals(date)) {
+                                    System.out.println(date);
+                                    assignmentsList.add(assigns[i]);
+                                    Log.e("popup", assigns[i].toString());
+                                }
+                            }
+
+                            for (int i = 0; i < comFBs.length; i++) {
+                                if (comFBs[i].deadline.equals(date)) {
+                                    comFBList.add(comFBs[i]);
+                                    Log.e("popup", comFBs[i].toString());
+                                }
+                            }
+                            for (int i = 0; i < incomFBs.length; i++) {
+                                if (incomFBs[i].deadline.equals(date)) {
+                                    incomFBList.add(incomFBs[i]);
+                                    Log.e("popup", incomFBs[i].toString());
+                                }
+                            }
+
+                            Log.e("HERE", "HERE");
+                            for (int i = 0; i < assignmentsList.size(); i++) {
+                                Log.d("a", "s");
+                                final int ii = i;
+                                t = new Button(getActivity().getApplicationContext());
+                                t.setText("ASSIGNMENT: " + assignmentsList.get(i).name);
+                                t.setTextColor(Color.BLACK);
+                                t.setTextSize(15);
+                                t.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        Intent intent = new Intent(getActivity().getApplicationContext(), AssignmentDetail.class);
+                                        intent.putExtra("token", token);
+                                        intent.putExtra("pk", assignmentsList.get(ii).pk);
+                                        startActivity(intent);
+                                    }
+                                });
+                                t.setPadding(0, 10, 0, 10);
+                                t.setLayoutParams(layoutParams);
+                                layout.addView(t);
+                            }
+
+                            for (int i = 0; i < comFBList.size(); i++) {
+                                final int ii = i;
+                                Log.d("a", "s");
+                                t = new Button(getActivity().getApplicationContext());
+                                t.setText("FEEDBACK: " + comFBList.get(i).name);
+                                t.setTextColor(Color.BLACK);
+                                t.setTextSize(15);
+                                t.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        Toast.makeText(getActivity().getApplicationContext(), "You have already filled this form", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                                t.setPadding(0, 10, 0, 10);
+                                t.setLayoutParams(layoutParams);
+                                layout.addView(t);
+                            }
+                            for (int i = 0; i < incomFBList.size(); i++) {
+                                final int ii = i;
+                                Log.d("a", "s");
+                                t = new Button(getActivity().getApplicationContext());
+                                t.setText("FEEDBACK: " + incomFBList.get(i).name);
+                                t.setTextColor(Color.BLACK);
+                                t.setTextSize(15);
+                                t.setPadding(0, 10, 0, 10);
+                                t.setLayoutParams(layoutParams);
+                                t.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        Date now = new Date();
+                                        if (incomFBList.get(ii).deadline.compareTo(now) < 0) {
+                                            Toast.makeText(getActivity().getApplicationContext(), "The deadline for the feedback has passed.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Intent intent = new Intent(getActivity().getApplicationContext(), FeedbackDetail.class);
+                                            intent.putExtra("token", token);
+                                            intent.putExtra("pk", incomFBList.get(ii).pk);
+                                            startActivity(intent);
+                                        }
+
+                                    }
+                                });
+                                layout.addView(t);
+                            }
+                        }
+                    }
+
+                };
+
+                caldroidFragment.setCaldroidListener(listener);
+
+                caldroidFragment.setBackgroundDrawableForDates(backgroundForDateMap);
+                caldroidFragment.refreshView();
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
+
     }
 
 

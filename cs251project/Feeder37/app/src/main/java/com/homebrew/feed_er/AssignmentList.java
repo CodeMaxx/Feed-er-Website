@@ -2,6 +2,7 @@ package com.homebrew.feed_er;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -21,6 +23,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
@@ -113,6 +116,8 @@ public class AssignmentList extends Fragment {
 //                            Log.d("RESPONSE",response);
                             // Make the json object
                             try {
+                                SharedPreferences prefs = getActivity().getSharedPreferences("com.homebrew.feed_er", Context.MODE_PRIVATE);
+                                prefs.edit().putString("course"+ course_id + "assign", response).apply();
                                 JSONObject json_obj = new JSONObject(response);
                                 JSONArray assignmentJSON = json_obj.getJSONArray("assignment");
 
@@ -138,6 +143,40 @@ public class AssignmentList extends Fragment {
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
+                    SharedPreferences prefs = getActivity().getSharedPreferences("com.homebrew.feed_er", Context.MODE_PRIVATE);
+                    String response;
+
+                    if(prefs.contains("course" + course_id + "assign"))
+                    {
+                        try {
+                            response = prefs.getString("course" + course_id + "assign", " ");
+                            JSONObject json_obj = new JSONObject(response);
+                            JSONArray assignmentJSON = json_obj.getJSONArray("assignment");
+
+                            assignments = new Assignment[assignmentJSON.length()];
+                            for (int i = 0; i < assignmentJSON.length(); i++) {
+                                JSONObject blob = (JSONObject) assignmentJSON.get(i);
+                                JSONObject fields = (JSONObject) blob.get("fields");
+                                assignments[i] = new Assignment();
+                                assignments[i].name = fields.getString("name");
+                                assignments[i].description = fields.getString("description");
+                                assignments[i].pk = blob.getInt("pk");
+                                String unParsedDate[] = fields.getString("deadline").split("-");
+                                int yyyy = Integer.parseInt(unParsedDate[0]), mm = Integer.parseInt(unParsedDate[1]), dd = Integer.parseInt(unParsedDate[2].substring(0, 2));
+                                assignments[i].deadline = new Date(yyyy - 1900, mm - 1, dd);
+                            }
+                            createAssignmentView();
+                        }
+                        catch (JSONException e)
+                        {
+
+                        }
+
+                    }
+                    else
+                    {
+                        Toast.makeText(getContext(), "You are not connected to the internet.", Toast.LENGTH_SHORT).show();
+                    }
                     Log.e("ERROR:", "Error connecting assignment.");
 
                 }
