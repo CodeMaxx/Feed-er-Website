@@ -1,6 +1,8 @@
 package com.homebrew.feed_er;
 
 import android.app.DownloadManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
@@ -10,12 +12,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -30,6 +34,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.R.attr.key;
+
 public class FeedbackDetail extends AppCompatActivity {
 
     @Override
@@ -39,13 +45,13 @@ public class FeedbackDetail extends AppCompatActivity {
         course_id =  getIntent().getIntExtra("course_id", -1);
         pk =  getIntent().getIntExtra("pk", -1);
         token =  getIntent().getStringExtra("token");
+        context = getApplicationContext();
         Log.d("Feed", ((Integer)course_id).toString());
 
         FeedbackGetter feedbackgetter = new FeedbackGetter();
         new Thread(feedbackgetter, "FeedbackGetter").start();
 
         setContentView(R.layout.activity_feedback_detail);
-
 
     }
 
@@ -84,6 +90,7 @@ public class FeedbackDetail extends AppCompatActivity {
     public int course_id;
     public int pk;
     public String token;
+    public Context context;
 
     public class FeedbackGetter implements Runnable {
 
@@ -100,9 +107,9 @@ public class FeedbackDetail extends AppCompatActivity {
                             {
 
                                 JSONObject ques_array = new JSONObject(response);
-                                JSONArray mcq_ques = ques_array.getJSONArray("mcq_ques");
-                                JSONArray rate_ques = ques_array.getJSONArray("rate_ques");
-                                JSONArray short_ques = ques_array.getJSONArray("short_ques");
+                                final JSONArray mcq_ques = ques_array.getJSONArray("mcq_ques");
+                                final JSONArray rate_ques = ques_array.getJSONArray("rate_ques");
+                                final JSONArray short_ques = ques_array.getJSONArray("short_ques");
                                 short_ques_set = new ShortQuestion[short_ques.length()];
                                 mcq_ques_set =  new McqQuestion[mcq_ques.length()];
                                 rate_ques_set = new RateQuestion[rate_ques.length()];
@@ -112,10 +119,10 @@ public class FeedbackDetail extends AppCompatActivity {
 
                                 int textsize = 16;
 
-                                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
 
-                                EditText[] editTexts = new EditText[short_ques.length()];
+                                final EditText[] editTexts = new EditText[short_ques.length()];
                                 for(int i = 0; i < short_ques.length(); i++)
                                 {
                                     JSONObject ques = short_ques.getJSONObject(i);
@@ -131,6 +138,7 @@ public class FeedbackDetail extends AppCompatActivity {
                                         layout.addView(t);
                                         addDummy(layout);
                                     }
+
                                     TextView t = new TextView(getApplicationContext());
                                     t.setLayoutParams(layoutParams);
                                     t.setText(Integer.toString(i+1) + ". " + single.name);
@@ -144,7 +152,7 @@ public class FeedbackDetail extends AppCompatActivity {
                                 Log.e("JSON", "6");
 
 
-                                RadioGroup mcqAnswers[] = new RadioGroup[mcq_ques.length()];
+                                final RadioGroup mcqAnswers[] = new RadioGroup[mcq_ques.length()];
                                 for(int i = 0; i < mcq_ques.length(); i++)
                                 {
                                     JSONObject ques = mcq_ques.getJSONObject(i);
@@ -160,15 +168,16 @@ public class FeedbackDetail extends AppCompatActivity {
                                     Log.e("JSON", "7");
                                     for(int j = 0; j < opt_array.length(); j++)
                                     {
-                                        JSONObject opt = opt_array.getJSONObject(i);
+                                        JSONObject opt = opt_array.getJSONObject(j);
 
                                         McqOptions single_opt = new McqOptions();
                                         single_opt.pk = opt.getInt("pk");
                                         single_opt.name = opt.getJSONObject("fields").getString("text");
 
-                                        single.options[i] = single_opt;
+                                        single.options[j] = single_opt;
                                     }
                                     Log.e("JSON", "8");
+                                    Log.e("JSON", ((Integer)opt_array.length()).toString());
                                     mcq_ques_set[i] = single;
 
 
@@ -182,24 +191,36 @@ public class FeedbackDetail extends AppCompatActivity {
                                         addDummy(layout);
                                     }
 
+
                                     TextView t = new TextView(getApplicationContext());
                                     t.setLayoutParams(new ViewGroup.LayoutParams(layoutParams));
                                     t.setTextSize(textsize);
                                     t.setText(Integer.toString(i+1) + ". " + single.name);
                                     layout.addView(t);
 
+
+                                    Log.e("MCQ", single.name + single.options[1].name + opt_array.length());
                                     // Add the options
                                     RadioGroup radioGroup = new RadioGroup(getApplicationContext());
                                     for(int j = 0; j < opt_array.length(); j++) {
                                         RadioButton r = new RadioButton(getApplicationContext());
                                         r.setText(single.options[j].name);
+                                        Log.e("WHY", "WHY");
                                         r.setLayoutParams(layoutParams);
                                         r.setId(single.options[j].pk);
+                                        Log.e("MCQPK2", ((Integer)single.options[j].pk).toString());
+                                        Log.e("MCQPK3", ((Integer)r.getId()).toString());
+                                        Log.e("WHY", "WHY");
+
                                         if(j==0) {
                                             r.setChecked(true);
                                         }
+                                        Log.e("WHY2", "WHY2");
                                         radioGroup.addView(r);
+                                        Log.e("WHY3", "WHY3");
                                     }
+
+                                    Log.e("WHY", "WHY");
                                     mcqAnswers[i] = radioGroup;
                                     layout.addView(radioGroup);
 
@@ -211,7 +232,7 @@ public class FeedbackDetail extends AppCompatActivity {
                                 ////////////////////////////////////
 
 
-                                RatingBar[] ratingAnswers = new RatingBar[rate_ques.length()];
+                                final RatingBar[] ratingAnswers = new RatingBar[rate_ques.length()];
                                 for(int i = 0; i < rate_ques.length(); i++)
                                 {
                                     JSONObject ques = rate_ques.getJSONObject(i);
@@ -237,15 +258,48 @@ public class FeedbackDetail extends AppCompatActivity {
 
                                     // Add the rating bar here
                                     RatingBar ratingBar = new RatingBar(getApplicationContext(),null);
+                                    ratingBar.setStepSize(1.0f);
                                     ratingBar.setLayoutParams(layoutParams);
                                     ratingBar.setNumStars(5);
-                                    
                                     ratingBar.setRating(3);
 
                                     // give it an ID equal to the question ID
                                     ratingAnswers[i] = ratingBar;
                                     layout.addView(ratingBar);
-                                 }
+                                }
+
+                                Button submit = new Button(getApplicationContext(), null);
+//                                submit.setLayoutParams(layoutParams);
+                                submit.setText("Submit");
+                                submit.setBackgroundColor(Color.rgb(66, 134, 244));
+                                submit.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        for(int i = 0; i < short_ques.length(); i++)
+                                        {
+                                            short_ques_set[i].answer = editTexts[i].getText().toString();
+                                        }
+
+                                        for(int i = 0; i < rate_ques.length(); i++)
+                                        {
+                                            rate_ques_set[i].val = (int)ratingAnswers[i].getRating();
+                                        }
+
+                                        for(int i = 0; i < mcq_ques.length(); i++)
+                                        {
+                                            mcq_ques_set[i].answer_pk = mcqAnswers[i].getCheckedRadioButtonId();
+                                            Log.e("MCQPK", ((Integer)mcqAnswers[i].getCheckedRadioButtonId()).toString());
+                                        }
+
+                                        Log.d("MCQ", mcq_ques_set.toString());
+                                        Log.d("Rate", rate_ques_set.toString());
+                                        Log.d("Single", short_ques_set.toString());
+
+                                        FeedbackSender sender = new FeedbackSender();
+                                        new Thread(sender, "Feedback Sender").start();
+                                    }
+                                });
+                                layout.addView(submit);
 
                                 Log.d("JSON", "Hurray works");
                             }
@@ -303,13 +357,22 @@ public class FeedbackDetail extends AppCompatActivity {
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                            // Go back and say Response Submitted successfully
+                            Toast toast = Toast.makeText(context, "Response Recorded Successfully", Toast.LENGTH_SHORT);
+                            toast.show();
+
+//                            Intent i = new Intent(FeedbackDetail.this, FeedbackList.class);
+//                            i.putExtra("token", token);
+//                            i.putExtra("pk", course_id);
+//                            startActivity(i);
+                            finish();
                         }
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            error.printStackTrace();
+                            Toast toast = Toast.makeText(context, "Some error occured. Please check your internet connection.", Toast.LENGTH_SHORT);
+                            toast.show();
+//                            error.printStackTrace();
                             Log.e("POST", "post request did not succeed");
                         }
                     }) {
