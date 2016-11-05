@@ -1176,4 +1176,82 @@ def course_form_api(request):
 
 ## Receive feedback response
 
-# @method_decorator(csrf_exempt,name="course_form_api")
+
+### Send the form and save it
+@method_decorator(csrf_exempt,name="submit_feedback_form")
+def submit_feedback_form(request):
+    if request.method == "POST":
+        member = stud_check(request)
+        if member is None:
+            return HttpResponse("-1")
+        feedback_id = request.POST['feedback']
+        feedback = Feedback.objects.get(pk=int(feedback_id))
+        # Parse all the answers
+        short_ans = []
+
+        # Questions
+        questions = feedback.feedbackquestion_set.all()
+        for question in questions:
+            key = question.pk
+            val = request.POST[str(key)]
+            if question.q_type == "SHORT":
+                short_ans.append(
+                    FeedbackShortAnswer(q=question,text=val)
+                )
+            elif question.q_type == "RATE":
+                ans = FeedbackRatingAnswer.objects.get(q=question,rating=int(val))
+                ans.votes += 1
+                ans.save()
+
+            elif question.q_type == "MCQ":
+                ans = FeedbackMCQChoice.objects.get(pk=int(val))
+                ans.votes_count+=1
+                ans.save()
+
+        FeedbackShortAnswer.objects.bulk_create(short_ans)
+        feedback.students.add(member)
+        return HttpResponse("{'message':'Feedback successfully recorded.'}")
+
+    else:
+        return HttpResponse("-1")
+
+
+
+## Send form from API to app
+## PLEASE DONT CHANGE THIS
+@method_decorator(csrf_exempt,name="course_form_api")
+def course_form_api(request):
+    if request.method == "POST":
+        member = stud_check(request)
+        if member is None:
+            return HttpResponse("-1")
+        # try:
+        f_id = request.POST["pk"]
+        feedback = Feedback.objects.get(pk=f_id)
+
+        rate_ques = feedback.feedbackquestion_set.filter(q_type="RATE")
+        short_ques = feedback.feedbackquestion_set.filter(q_type="SHORT")
+        mcq_ques = feedback.feedbackquestion_set.filter(q_type="MCQ")
+
+        rate_ques = json.loads(serializers.serialize('json',rate_ques))
+        short_ques = json.loads(serializers.serialize('json',short_ques))
+        mcq_ques = json.loads(serializers.serialize('json',mcq_ques))
+
+        json_obj = {}
+        json_obj['rate_ques'] = rate_ques
+        json_obj['short_ques'] = short_ques
+        json_obj['mcq_ques'] = mcq_ques
+
+        for i in range(len(json_obj['mcq_ques'])):
+            q = FeedbackQuestion.objects.get(pk=json_obj['mcq_ques'][i]['pk'])
+            options = q.feedbackmcqchoice_set.all()
+            options = json.loads(serializers.serialize('json',options))
+            json_obj['mcq_ques'][i]['options'] = options
+
+        json_obj['mcq_ques'] = mcq_ques
+
+        return HttpResponse(json.dumps(json_obj))
+        # except:
+        # return HttpResponse("-1")
+    else:
+        return HttpResponse("-1")
