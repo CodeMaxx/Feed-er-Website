@@ -359,12 +359,10 @@ public class FeedbackDetail extends AppCompatActivity {
                         public void onResponse(String response) {
                             Toast toast = Toast.makeText(context, "Response Recorded Successfully", Toast.LENGTH_SHORT);
                             toast.show();
-
-//                            Intent i = new Intent(FeedbackDetail.this, FeedbackList.class);
-//                            i.putExtra("token", token);
-//                            i.putExtra("pk", course_id);
-//                            startActivity(i);
-                            finish();
+                            Intent i = new Intent(getApplicationContext(), HomeActivity.class);
+                            i.putExtra("token", token);
+                            i.putExtra("fullname", "back");
+                            startActivity(i);
                         }
                     },
                     new Response.ErrorListener() {
