@@ -19,6 +19,9 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class FeedbackDetail extends AppCompatActivity {
 
     @Override
@@ -26,7 +29,13 @@ public class FeedbackDetail extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         course_id =  getIntent().getIntExtra("course_id", -1);
+        pk =  getIntent().getIntExtra("pk", -1);
+        token =  getIntent().getStringExtra("token");
         Log.d("Feed", ((Integer)course_id).toString());
+
+        FeedbackGetter feedbackgetter = new FeedbackGetter();
+        new Thread(feedbackgetter, "FeedbackGetter").start();
+
         setContentView(R.layout.activity_feedback_detail);
 
         //--- text view---
@@ -65,7 +74,8 @@ public class FeedbackDetail extends AppCompatActivity {
     public ShortQuestion[] short_ques_set;
 
     public int course_id;
-    public int form_id;
+    public int pk;
+    public String token;
 
     public class FeedbackGetter implements Runnable {
 
@@ -80,31 +90,37 @@ public class FeedbackDetail extends AppCompatActivity {
                         public void onResponse(String response) {
                             try
                             {
+
                                 JSONObject ques_array = new JSONObject(response);
                                 JSONArray mcq_ques = ques_array.getJSONArray("mcq_ques");
                                 JSONArray rate_ques = ques_array.getJSONArray("rate_ques");
                                 JSONArray short_ques = ques_array.getJSONArray("short_ques");
-
+                                short_ques_set = new ShortQuestion[short_ques.length()];
+                                mcq_ques_set =  new McqQuestion[mcq_ques.length()];
+                                rate_ques_set = new RateQuestion[rate_ques.length()];
+                                Log.e("JSON", "5");
+                                Log.d("JSON", mcq_ques.toString());
                                 for(int i = 0; i < short_ques.length(); i++)
                                 {
                                     JSONObject ques = short_ques.getJSONObject(i);
                                     ShortQuestion single = new ShortQuestion();
-                                    single.name = ques.getJSONObject("fields").getString("questions");
+                                    single.name = ques.getJSONObject("fields").getString("question");
                                     single.pk = ques.getInt("pk");
                                     short_ques_set[i] = single;
                                 }
-
+                                Log.e("JSON", "6");
                                 for(int i = 0; i < mcq_ques.length(); i++)
                                 {
-                                    JSONObject ques = short_ques.getJSONObject(i);
+                                    JSONObject ques = mcq_ques.getJSONObject(i);
                                     McqQuestion single = new McqQuestion();
-                                    single.name = ques.getJSONObject("fields").getString("questions");
+                                    single.name = ques.getJSONObject("fields").getString("question");
                                     single.pk = ques.getInt("pk");
-
+                                    Log.e("Options", ques.toString());
                                     JSONArray opt_array = ques.getJSONArray("options");
+                                    Log.e("Options", "here");
 
                                     single.options = new McqOptions[opt_array.length()];
-
+                                    Log.e("JSON", "7");
                                     for(int j = 0; j < opt_array.length(); j++)
                                     {
                                         JSONObject opt = opt_array.getJSONObject(i);
@@ -115,36 +131,49 @@ public class FeedbackDetail extends AppCompatActivity {
 
                                         single.options[i] = single_opt;
                                     }
+                                    Log.e("JSON", "8");
                                     mcq_ques_set[i] = single;
                                 }
-
+                                Log.e("JSON", "9");
                                 for(int i = 0; i < rate_ques.length(); i++)
                                 {
-                                    JSONObject ques = short_ques.getJSONObject(i);
+                                    JSONObject ques = rate_ques.getJSONObject(i);
                                     RateQuestion single = new RateQuestion();
-                                    single.name = ques.getJSONObject("fields").getString("questions");
+                                    single.name = ques.getJSONObject("fields").getString("question");
                                     single.pk = ques.getInt("pk");
 
                                     rate_ques_set[i] = single;
                                  }
 
-
+                                Log.d("JSON", "Hurray works");
                             }
                             catch (Exception e)
                             {
-
+                                e.printStackTrace();
+                                Log.e("JSON", "Bad parsing");
                             }
                         }
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-
+                            Log.e("Feeder", "No Response");
                         }
                     }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("course_id", Integer.toString(course_id));
+                    params.put("token", token);
+                    params.put("feedback_id", ((Integer)pk).toString());
+//                    Log.d("TOKEN",token);
+//                    Log.d("ID:",Integer.toString(course_id));
+                    return params;
+                }
 
-            };
-        }
+        };
+
+            queue.add(stringRequest);
     }
 
-}
+}}

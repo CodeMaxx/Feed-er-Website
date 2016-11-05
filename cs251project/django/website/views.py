@@ -1226,8 +1226,8 @@ def course_form_api(request):
         if member is None:
             return HttpResponse("-1")
         # try:
-        f_id = request.POST["feedback_id"]
-        course_id = request.POST["course_id"]
+        f_id = int(request.POST["feedback_id"])
+        course_id = int(request.POST["course_id"])
         course = Course.objects.get(pk=course_id)
         feedback = Feedback.objects.get(course=course, pk=f_id)
 
