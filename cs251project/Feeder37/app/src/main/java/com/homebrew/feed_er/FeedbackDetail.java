@@ -100,7 +100,21 @@ public class FeedbackDetail extends AppCompatActivity {
                                     McqQuestion single = new McqQuestion();
                                     single.name = ques.getJSONObject("fields").getString("questions");
                                     single.pk = ques.getInt("pk");
-                                    
+
+                                    JSONArray opt_array = ques.getJSONArray("options");
+
+                                    single.options = new McqOptions[opt_array.length()];
+
+                                    for(int j = 0; j < opt_array.length(); j++)
+                                    {
+                                        JSONObject opt = opt_array.getJSONObject(i);
+
+                                        McqOptions single_opt = new McqOptions();
+                                        single_opt.pk = opt.getInt("pk");
+                                        single_opt.name = opt.getJSONObject("fields").getString("text");
+
+                                        single.options[i] = single_opt;
+                                    }
                                     mcq_ques_set[i] = single;
                                 }
 
