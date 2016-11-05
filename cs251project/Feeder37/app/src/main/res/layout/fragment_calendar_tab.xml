@@ -11,6 +11,15 @@
         android:paddingRight="16dp"
         android:layout_height="match_parent">
 
+        <Spinner
+            android:layout_width="match_parent"
+            android:id="@+id/filterDropDown"
+            android:entries="@array/filter_options"
+            android:drawSelectorOnTop="true"
+            android:prompt="@string/selectFilter"
+            android:padding="10dp"
+            android:layout_height="wrap_content" />
+
         <FrameLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
