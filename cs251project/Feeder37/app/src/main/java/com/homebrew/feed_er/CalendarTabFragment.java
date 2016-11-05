@@ -108,8 +108,8 @@ public class CalendarTabFragment extends Fragment {
                                     mydeadline.deadline = new Date(yyyy-1900,mm-1,dd);
                                     c.setTimeInMillis(mydeadline.deadline.getTime());
                                     mydeadline.type = rDetail.getString("model");
-                                    impDates.put(c.getTime(),mydeadline);
                                     backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.RED));
+                                    impDates.put(c.getTime(),mydeadline);
                                     Log.d("JSON","Added");
                                     Log.e("Assignment", c.toString() );
 
@@ -126,8 +126,11 @@ public class CalendarTabFragment extends Fragment {
                                     mydeadline.deadline = new Date(yyyy - 1900, mm - 1, dd);
                                     c.setTimeInMillis(mydeadline.deadline.getTime());
                                     mydeadline.type = rDetail.getString("model");
+                                    if(impDates.containsKey(c.getTime())){
+                                        backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.LTGRAY));
+                                    }
+                                    else backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.YELLOW));
                                     impDates.put(c.getTime(),mydeadline);
-                                    backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.GRAY));
                                     Log.d("JSON","Added");
                                 }
 
@@ -143,8 +146,11 @@ public class CalendarTabFragment extends Fragment {
                                     mydeadline.deadline = new Date(yyyy-1900,mm-1,dd);
                                     c.setTimeInMillis(mydeadline.deadline.getTime());
                                     mydeadline.type = rDetail.getString("model");
+                                    if(impDates.containsKey(c.getTime())){
+                                        backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.DKGRAY));
+                                    }
+                                    else backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.CYAN));
                                     impDates.put(c.getTime(),mydeadline);
-                                    backgroundForDateMap.put(c.getTime(),new ColorDrawable(Color.GREEN));
                                     Log.d("JSON","Added");
                                 }
                                 //listeners
