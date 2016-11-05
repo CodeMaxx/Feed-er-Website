@@ -120,6 +120,7 @@ public class FeedbackDetail extends AppCompatActivity {
                                 int textsize = 16;
 
                                 ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                                ViewGroup.LayoutParams editTextParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
 
                                 final EditText[] editTexts = new EditText[short_ques.length()];
@@ -145,7 +146,9 @@ public class FeedbackDetail extends AppCompatActivity {
                                     layout.addView(t);
 
                                     editTexts[i] = new EditText(getApplicationContext());
-                                    editTexts[i].setLayoutParams(layoutParams);
+                                    editTexts[i].setBackgroundColor(Color.WHITE);
+                                    editTexts[i].setTextColor(Color.BLACK);
+                                    editTexts[i].setLayoutParams(editTextParams);
                                     layout.addView(editTexts[i]);
                                 }
 
@@ -228,9 +231,7 @@ public class FeedbackDetail extends AppCompatActivity {
                                 }
                                 Log.e("JSON", "9");
 
-
                                 ////////////////////////////////////
-
 
                                 final RatingBar[] ratingAnswers = new RatingBar[rate_ques.length()];
                                 for(int i = 0; i < rate_ques.length(); i++)
