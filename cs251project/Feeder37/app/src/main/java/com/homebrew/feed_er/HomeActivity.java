@@ -147,6 +147,9 @@ public class HomeActivity extends AppCompatActivity {
                     editor.putString("status","logout");
                     editor.commit();
                     Toast.makeText(context,"You will be logged out when you are online",Toast.LENGTH_SHORT);
+                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                    intent.putExtra("status", "logout");
+                    startActivity(intent);
                 }
             }) {
                 @Override
