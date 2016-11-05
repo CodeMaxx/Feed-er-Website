@@ -10,16 +10,22 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.homebrew.feed_er.FeedbackDetail">
 
-    <TextView
-        android:id="@+id/text_id"
-        android:layout_width="300dp"
-        android:layout_height="200dp"
-        android:capitalize="characters"
-        android:text="hello_world"
-        android:textColor="@android:color/holo_blue_dark"
-        android:textColorHighlight="@android:color/primary_text_dark"
-        android:layout_centerVertical="true"
-        android:layout_alignParentEnd="true"
-        android:textSize="50dp"/>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+        <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:id="@+id/feedbackquestions"
+                android:layout_height="match_parent">
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
 
 </RelativeLayout>

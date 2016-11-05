@@ -1,12 +1,19 @@
 package com.homebrew.feed_er;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -38,8 +45,7 @@ public class FeedbackDetail extends AppCompatActivity {
 
         setContentView(R.layout.activity_feedback_detail);
 
-        //--- text view---
-        TextView txtView = (TextView) findViewById(R.id.text_id);
+
     }
 
     public class RateQuestion
@@ -100,6 +106,14 @@ public class FeedbackDetail extends AppCompatActivity {
                                 rate_ques_set = new RateQuestion[rate_ques.length()];
                                 Log.e("JSON", "5");
                                 Log.d("JSON", mcq_ques.toString());
+                                ViewGroup layout = (ViewGroup)findViewById(R.id.feedbackquestions);
+
+                                int textsize = 16;
+
+                                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+
+                                EditText[] editTexts = new EditText[short_ques.length()];
                                 for(int i = 0; i < short_ques.length(); i++)
                                 {
                                     JSONObject ques = short_ques.getJSONObject(i);
@@ -107,8 +121,28 @@ public class FeedbackDetail extends AppCompatActivity {
                                     single.name = ques.getJSONObject("fields").getString("question");
                                     single.pk = ques.getInt("pk");
                                     short_ques_set[i] = single;
+                                    if(i==0) {
+                                        TextView t = new TextView(getApplicationContext());
+                                        t.setLayoutParams(layoutParams);
+                                        t.setTextSize(textsize);
+                                        t.setText("Short questions");
+                                        layout.addView(t);
+                                        addDummy(layout);
+                                    }
+                                    TextView t = new TextView(getApplicationContext());
+                                    t.setLayoutParams(layoutParams);
+                                    t.setText(Integer.toString(i+1) + ". " + single.name);
+                                    layout.addView(t);
+
+                                    editTexts[i] = new EditText(getApplicationContext());
+                                    editTexts[i].setLayoutParams(layoutParams);
+                                    layout.addView(editTexts[i]);
                                 }
+
                                 Log.e("JSON", "6");
+
+
+                                RadioGroup mcqAnswers[] = new RadioGroup[mcq_ques.length()];
                                 for(int i = 0; i < mcq_ques.length(); i++)
                                 {
                                     JSONObject ques = mcq_ques.getJSONObject(i);
@@ -118,6 +152,7 @@ public class FeedbackDetail extends AppCompatActivity {
                                     Log.e("Options", ques.toString());
                                     JSONArray opt_array = ques.getJSONArray("options");
                                     Log.e("Options", "here");
+
 
                                     single.options = new McqOptions[opt_array.length()];
                                     Log.e("JSON", "7");
@@ -133,16 +168,81 @@ public class FeedbackDetail extends AppCompatActivity {
                                     }
                                     Log.e("JSON", "8");
                                     mcq_ques_set[i] = single;
+
+
+
+                                    if(i == 0) {
+                                        TextView t = new TextView(getApplicationContext());
+                                        t.setLayoutParams(layoutParams);
+                                        t.setTextSize(textsize);
+                                        t.setText("Multiple Choice questions");
+                                        layout.addView(t);
+                                        addDummy(layout);
+                                    }
+
+                                    TextView t = new TextView(getApplicationContext());
+                                    t.setLayoutParams(new ViewGroup.LayoutParams(layoutParams));
+                                    t.setTextSize(textsize);
+                                    t.setText(Integer.toString(i+1) + ". " + single.name);
+                                    layout.addView(t);
+
+                                    // Add the options
+                                    RadioGroup radioGroup = new RadioGroup(getApplicationContext());
+                                    for(int j = 0; j < opt_array.length(); j++) {
+                                        RadioButton r = new RadioButton(getApplicationContext());
+                                        r.setText(single.options[j].name);
+                                        r.setLayoutParams(layoutParams);
+                                        r.setId(single.options[j].pk);
+                                        if(j==0) {
+                                            r.setChecked(true);
+                                        }
+                                        radioGroup.addView(r);
+                                    }
+                                    mcqAnswers[i] = radioGroup;
+                                    layout.addView(radioGroup);
+
+
                                 }
                                 Log.e("JSON", "9");
+
+
+                                ////////////////////////////////////
+
+
+                                RatingBar[] ratingAnswers = new RatingBar[rate_ques.length()];
                                 for(int i = 0; i < rate_ques.length(); i++)
                                 {
                                     JSONObject ques = rate_ques.getJSONObject(i);
                                     RateQuestion single = new RateQuestion();
                                     single.name = ques.getJSONObject("fields").getString("question");
                                     single.pk = ques.getInt("pk");
-
                                     rate_ques_set[i] = single;
+                                    if(i == 0) {
+                                        TextView t = new TextView(getApplicationContext());
+                                        t.setLayoutParams(layoutParams);
+                                        t.setTextSize(textsize);
+                                        t.setText("Rating based questions");
+                                        layout.addView(t);
+                                        addDummy(layout);
+                                    }
+
+                                    TextView t = new TextView(getApplicationContext());
+                                    t.setLayoutParams(layoutParams);
+                                    t.setTextSize(textsize);
+                                    t.setText(Integer.toString(i+1) + ". " + single.name);
+                                    layout.addView(t);
+
+
+                                    // Add the rating bar here
+                                    RatingBar ratingBar = new RatingBar(getApplicationContext(),null);
+                                    ratingBar.setLayoutParams(layoutParams);
+                                    ratingBar.setNumStars(5);
+                                    
+                                    ratingBar.setRating(3);
+
+                                    // give it an ID equal to the question ID
+                                    ratingAnswers[i] = ratingBar;
+                                    layout.addView(ratingBar);
                                  }
 
                                 Log.d("JSON", "Hurray works");
@@ -175,5 +275,17 @@ public class FeedbackDetail extends AppCompatActivity {
 
             queue.add(stringRequest);
     }
+
+        public void addDummy(ViewGroup layout) {
+            View dummy;
+            dummy = new View(getApplicationContext());
+            dummy.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    5
+            ));
+            dummy.setPadding(0,10,0,10);
+            dummy.setBackgroundColor(Color.parseColor("#999999"));
+            layout.addView(dummy);
+        }
 
 }}
