@@ -46,25 +46,39 @@ public class CalendarTabFragment extends Fragment {
         public String type;
     }
 
-    ;
 
     private Map<Date, Deadline> impDates;
     private Map<Date, Drawable> backgroundForDateMap;
     private CaldroidFragment caldroidFragment;
     private String token;
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private OnFragmentInteractionListener mListener;
 
     public CalendarTabFragment() {
 
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+
+        Boolean isNull = (getActivity() == null);
+        Log.d("NULL", isNull.toString());
+
+
+        token = getActivity().getIntent().getExtras().getString("token");
+        caldroidFragment = new CaldroidFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(CaldroidFragment.SQUARE_TEXT_VIEW_CELL, true);
+        caldroidFragment.setArguments(args);
+        FragmentTransaction t = getActivity().getSupportFragmentManager().beginTransaction();
+        t.replace(R.id.calendarView, caldroidFragment);
+        t.commit();
+
+        DatesListGetter datesListGetter = new DatesListGetter();
+        new Thread(datesListGetter, "DatesListGetter").start();
+        return inflater.inflate(R.layout.fragment_calendar_tab, container, false);
     }
 
     private class DatesListGetter implements Runnable {
@@ -207,28 +221,6 @@ public class CalendarTabFragment extends Fragment {
         }
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-
-        Boolean isNull = (getActivity() == null);
-        Log.d("NULL", isNull.toString());
-
-
-        token = getActivity().getIntent().getExtras().getString("token");
-        caldroidFragment = new CaldroidFragment();
-        Bundle args = new Bundle();
-        args.putBoolean(CaldroidFragment.SQUARE_TEXT_VIEW_CELL, true);
-        caldroidFragment.setArguments(args);
-        FragmentTransaction t = getActivity().getSupportFragmentManager().beginTransaction();
-        t.replace(R.id.calendarView, caldroidFragment);
-        t.commit();
-
-        DatesListGetter datesListGetter = new DatesListGetter();
-        new Thread(datesListGetter, "DatesListGetter").start();
-        return inflater.inflate(R.layout.fragment_calendar_tab, container, false);
-    }
 
     // : Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

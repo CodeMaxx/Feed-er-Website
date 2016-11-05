@@ -1,5 +1,6 @@
 package com.homebrew.feed_er;
 
+import android.app.DownloadManager;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
@@ -60,6 +61,7 @@ public class FeedbackDetail extends AppCompatActivity {
         public String name;
         public  int pk;
         public McqOptions[] options;
+        public int answer_pk;
     }
 
     public class ShortQuestion
@@ -271,9 +273,10 @@ public class FeedbackDetail extends AppCompatActivity {
                     return params;
                 }
 
-        };
+            };
 
             queue.add(stringRequest);
+        }
     }
 
         public void addDummy(ViewGroup layout) {
@@ -288,4 +291,56 @@ public class FeedbackDetail extends AppCompatActivity {
             layout.addView(dummy);
         }
 
-}}
+
+    public class FeedbackSender implements Runnable
+    {
+        @Override
+        public void run() {
+            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+            String url = getString(R.string.api_base_url) + "submit_feedback_form";
+
+            StringRequest stringrequest = new StringRequest(Request.Method.POST, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            // Go back and say Response Submitted successfully
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            error.printStackTrace();
+                            Log.e("POST", "post request did not succeed");
+                        }
+                    }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    // Parameters will be feedback_id, pk with answers, token.
+                    params.put("token", token);
+                    params.put("feedback_id", ((Integer)pk).toString());
+
+                    for(RateQuestion single: rate_ques_set)
+                    {
+                        params.put(((Integer)single.pk).toString(), ((Integer)single.val).toString());
+                    }
+
+                    for(ShortQuestion single: short_ques_set)
+                    {
+                        params.put(((Integer)single.pk).toString(), single.answer);
+                    }
+
+                    for(McqQuestion single: mcq_ques_set)
+                    {
+                        params.put(((Integer)single.pk).toString(), ((Integer)single.answer_pk).toString());
+                    }
+
+                    return params;
+                }
+            };
+
+            queue.add(stringrequest);
+        }
+    }
+
+}
