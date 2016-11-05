@@ -8,11 +8,39 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@color/caldroid_gray"
     tools:context="com.homebrew.feed_er.AssignmentDetail">
 
     <TextView
         android:layout_width="match_parent"
         android:id="@+id/assignmentName"
-        android:layout_height="match_parent" />
+        android:textSize="22dp"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        android:textColor="@color/caldroid_black"
+        android:padding="10dp"
+        android:layout_height="wrap_content"/>
+
+
+    <TextView
+        android:text="TextView"
+        android:textSize="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/assignmentName"
+        android:textColor="@color/caldroid_black"
+        android:id="@+id/assignmentDeadline" />
+
+
+    <TextView
+        android:text="TextView"
+        android:textSize="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/assignmentDeadline"
+        android:textColor="@color/caldroid_black"
+        android:id="@+id/assignmentDescription" />
+
+
 
 </RelativeLayout>

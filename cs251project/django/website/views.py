@@ -1135,8 +1135,26 @@ def course_deadlines_api(request):
     else:
         return HttpResponse("-1")
 
-## Send form
 
+## Give all the assignment details
+@method_decorator(csrf_exempt,name="assignment_detail")
+def assignment_detail(request):
+    if request.method == "POST":
+        member = stud_check(request)
+        if member is None:
+            return HttpResponse("-1")
+        try:
+            assignment_id = request.POST['pk']
+            assignment = Assignment.objects.filter(pk=assignment_id)
+            json_data = serializers.serialize('json',assignment)
+            return HttpResponse(json_data)
+        except:
+            return HttpResponse("-1")
+    else:
+        return HttpResponse("-1")
+
+
+## Send form
 @method_decorator(csrf_exempt,name="course_form_api")
 def course_form_api(request):
     if request.method == "POST":
@@ -1153,7 +1171,8 @@ def course_form_api(request):
             return HttpResponse(json_data)
         except:
             return HttpResponse("-1")
-
+    else:
+        return HttpResponse("-1")
 
 ## Receive feedback response
 
